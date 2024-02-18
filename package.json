@@ -1,0 +1,42 @@
+{
+  "name": "blobman",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "author": "hzrd149",
+  "license": "MIT",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "format": "prettier -w ."
+  },
+  "dependencies": {
+    "@nostr-dev-kit/ndk": "2.3.3",
+    "@nostr-dev-kit/ndk-cache-dexie": "2.2.4",
+    "@nostr-dev-kit/ndk-svelte": "2.2.4",
+    "@nostr-dev-kit/ndk-svelte-components": "2.2.4",
+    "dayjs": "^1.11.10",
+    "flowbite": "^2.3.0",
+    "flowbite-svelte": "^0.44.23",
+    "flowbite-svelte-icons": "^1.3.1",
+    "nanoid": "^5.0.5",
+    "nostr-tools": "^2.3.0",
+    "svelte-spa-router": "^4.0.1",
+    "tailwindcss": "^3.4.1"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^3.0.2",
+    "@tsconfig/svelte": "^5.0.2",
+    "autoprefixer": "^10.4.17",
+    "prettier": "^3.2.5",
+    "prettier-plugin-svelte": "^3.2.1",
+    "prettier-plugin-tailwindcss": "^0.5.11",
+    "svelte": "^4.2.10",
+    "svelte-check": "^3.6.3",
+    "tslib": "^2.6.2",
+    "typescript": "^5.2.2",
+    "vite": "^5.1.0"
+  }
+}
