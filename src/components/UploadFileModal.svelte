@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Button, Input, Label, Modal, Select, Spinner } from "flowbite-svelte";
-  import { packs } from "../services/packs";
+  import { handleEvent, packs } from "../services/packs";
   import { NDKEvent } from "@nostr-dev-kit/ndk";
   import { getFileTree, parsePath, setFile, setPackFileTree } from "../helpers/tree";
   import { servers } from "../services/servers";
@@ -72,6 +72,7 @@
 
     loading = "Adding to pack...";
     await draft.sign();
+    handleEvent(draft);
     await draft.publish();
 
     loading = "";

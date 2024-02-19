@@ -9,11 +9,13 @@ activeUser.subscribe((user) => {
 
   packs.set({});
   sub = ndk.subscribe({ kinds: [30063 as number], authors: [user.pubkey] });
-  sub.on("event", (event: NDKEvent) => {
-    const d = event.tags.find((t) => t[0] === "d")?.[1];
-    if (d) packs.update((dir) => ({ ...dir, [d]: event }));
-  });
+  sub.on("event", handleEvent);
   sub.start();
 });
+
+export function handleEvent(event: NDKEvent) {
+  const d = event.tags.find((t) => t[0] === "d")?.[1];
+  if (d) packs.update((dir) => ({ ...dir, [d]: event }));
+}
 
 export const packs = writable<Record<string, NDKEvent>>({});

@@ -29,7 +29,7 @@
 
 <a
   href={new URL(file.hash + (file.mimeType ? "." + mime.getExtension(file.mimeType) : ""), $servers[0]).toString()}
-  class={"relative flex aspect-square min-w-40 flex-col divide-gray-200 rounded-md border bg-white text-gray-500 hover:bg-gray-100 dark:divide-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700" +
+  class={"relative flex aspect-square min-w-40 flex-col divide-gray-200 rounded-md border bg-white text-gray-700 hover:bg-gray-100 dark:divide-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700" +
     borderClass}
   on:dragstart={dragStart}
   target="_blank"
@@ -51,7 +51,17 @@
     <DotsHorizontalSolid />
   </Button>
   <Dropdown>
-    <DropdownItem>Remove</DropdownItem>
-    <DropdownItem>Delete</DropdownItem>
+    <DropdownItem
+      on:click={(e) => {
+        e.preventDefault();
+        dispatch("delete", file.name);
+      }}>Delete</DropdownItem
+    >
+    <DropdownItem
+      on:click={(e) => {
+        e.preventDefault();
+        dispatch("rename", file.name);
+      }}>Rename</DropdownItem
+    >
   </Dropdown>
 </a>

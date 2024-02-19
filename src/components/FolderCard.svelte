@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { Checkbox } from "flowbite-svelte";
-  import { FolderSolid } from "flowbite-svelte-icons";
+  import { Button, Checkbox, Dropdown, DropdownItem } from "flowbite-svelte";
+  import { DotsHorizontalSolid, FolderSolid } from "flowbite-svelte-icons";
   import { createEventDispatcher } from "svelte";
   import { location, querystring } from "svelte-spa-router";
 
@@ -40,15 +40,15 @@
   function drop(e: DragEvent) {
     dropHighlight = false;
     if (e.dataTransfer) {
-      const filename = e.dataTransfer.getData("text");
-      if (filename) dispatch("move-blob", { filename, folder: name });
+      const src = e.dataTransfer.getData("text");
+      if (src) dispatch("move-blob", { src, dest: name });
     }
   }
 </script>
 
 <a
   href={createDirLink(name, $querystring)}
-  class={"relative flex aspect-square min-w-40 flex-col rounded-md border bg-white text-gray-500 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700" +
+  class={"relative flex aspect-square min-w-40 flex-col rounded-md border bg-white text-gray-700 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700" +
     borderClass}
   on:drop={drop}
   on:dragover={dragover}
@@ -57,11 +57,30 @@
 >
   <Checkbox
     class="absolute left-1 top-1"
-    on:click={(e) => e.preventDefault()}
-    checked={selected}
-    on:change={toggleSelect}
+    on:click={(e) => {
+      e.preventDefault();
+      toggleSelect();
+    }}
+    bind:checked={selected}
   />
   <div class="flex flex-grow items-center justify-center p-4"><FolderSolid class="h-10 w-10" /></div>
   <hr />
   <div class="max-w-40 truncate px-4 py-2 text-center text-sm">{name}</div>
+  <Button size="xs" color="none" class="absolute bottom-1 right-1 !p-1" on:click={(e) => e.preventDefault()}>
+    <DotsHorizontalSolid />
+  </Button>
+  <Dropdown>
+    <DropdownItem
+      on:click={(e) => {
+        e.preventDefault();
+        dispatch("delete", name);
+      }}>Delete</DropdownItem
+    >
+    <DropdownItem
+      on:click={(e) => {
+        e.preventDefault();
+        dispatch("rename", name);
+      }}>Rename</DropdownItem
+    >
+  </Dropdown>
 </a>

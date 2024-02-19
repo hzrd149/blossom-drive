@@ -38,7 +38,7 @@
 {/if}
 
 {#if newFolderModal && pack}
-  <NewFolderModal bind:open={newFolderModal} {pack} path={path || "/"} on:created={() => (newFolderModal = false)} />
+  <NewFolderModal bind:open={newFolderModal} {pack} path={path || "/"} />
 {/if}
 
 {#if newPackModal}

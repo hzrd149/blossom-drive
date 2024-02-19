@@ -3,13 +3,11 @@
   import { Button, Modal, Input } from "flowbite-svelte";
   import { getFileTree, getFolder, parsePath, setPackFileTree } from "../helpers/tree";
   import { cloneEvent } from "../helpers/event";
-  import { createEventDispatcher } from "svelte";
+  import { handleEvent } from "../services/packs";
   export let open = false;
 
   export let pack: NDKEvent;
   export let path: string;
-
-  const dispatch = createEventDispatcher();
 
   let name = "";
   let loading = false;
@@ -22,10 +20,10 @@
     getFolder(tree, parsePath(path).concat(name));
     setPackFileTree(draft, tree);
     await draft.sign();
+    handleEvent(draft);
+    open = false;
     await draft.publish();
     loading = false;
-
-    dispatch("created", name);
   }
 </script>
 

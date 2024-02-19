@@ -39,11 +39,21 @@ export function setFile(dir: TreeFolder, pathname: string | string[], file: Omit
   const folder = getFolder(dir, parts);
   return (folder[name] = { ...file, name, type: "file" });
 }
-export function removeFile(dir: TreeFolder, pathname: string | string[]) {
+export function removeEntry(dir: TreeFolder, pathname: string | string[]) {
   const parts = Array.isArray(pathname) ? pathname : parsePath(pathname);
   const name = parts.pop()!;
   const folder = getFolder(dir, parts);
   delete folder[name];
+}
+export function moveEntry(dir: TreeFolder, from: string[], to: string[]) {
+  const src = Array.from(from);
+  const srcName = src.pop()!;
+  const entry = getFolder(dir, src)[srcName];
+
+  if (entry.type === "file") {
+    setFile(dir, to, entry as TreeFile);
+  } else setFolder(dir, to, entry as TreeFolder);
+  removeEntry(dir, from);
 }
 export function getFile(dir: TreeFolder, pathname: string) {
   const parts = parsePath(pathname);
