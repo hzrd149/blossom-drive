@@ -1,12 +1,37 @@
-<script>
+<script lang="ts">
+  import type { NDKEvent } from "@nostr-dev-kit/ndk";
   import { Button, Modal, Input } from "flowbite-svelte";
+  import { getFileTree, getFolder, parsePath, setPackFileTree } from "../helpers/tree";
+  import { cloneEvent } from "../helpers/event";
+  import { createEventDispatcher } from "svelte";
   export let open = false;
+
+  export let pack: NDKEvent;
+  export let path: string;
+
+  const dispatch = createEventDispatcher();
+
+  let name = "";
+  let loading = false;
+  async function createFolder(e: SubmitEvent) {
+    e.preventDefault();
+    loading = true;
+
+    const draft = cloneEvent(pack);
+    const tree = getFileTree(draft);
+    getFolder(tree, parsePath(path).concat(name));
+    setPackFileTree(draft, tree);
+    await draft.sign();
+    await draft.publish();
+    loading = false;
+
+    dispatch("created", name);
+  }
 </script>
 
-<Modal bind:open size="xs" class="w-full">
-  <form id="new-folder-form`" class="flex flex-col gap-2 py-0" action="#">
-    <h3 class="text-lg font-medium text-gray-900 dark:text-white">New Folder</h3>
-    <Input placeholder="New Folder" required />
+<Modal bind:open size="xs" class="w-full" title="New Folder" outsideclose>
+  <form id="new-folder-form`" class="flex flex-col gap-2 py-0" on:submit={createFolder}>
+    <Input placeholder="New Folder" required bind:value={name} />
     <div class="flex justify-end gap-2">
       <Button color="alternative" on:click={() => (open = false)}>Cancel</Button>
       <Button type="submit" for="new-folder-form">Create</Button>

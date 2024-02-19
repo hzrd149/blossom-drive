@@ -9,13 +9,14 @@
     await signer.blockUntilReady();
     const user = await signer.user();
     await user.fetchProfile();
+    await user.relayList();
     $activeUser = user;
   }
 </script>
 
 <div class="flex items-center gap-2 bg-gray-50 px-6 py-2 text-gray-700 dark:bg-gray-800 dark:text-gray-200">
   <h1 class="mr-auto text-lg font-bold">
-    <a href="#/">Blobman</a>
+    <a href="#/">🌸 Blossom</a>
   </h1>
 
   {#if $activeUser}

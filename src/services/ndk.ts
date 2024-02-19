@@ -5,7 +5,7 @@ import { writable } from "svelte/store";
 const cacheAdapter = new NDKCacheAdapterDexie({ dbName: "ndk-cache" });
 
 export const ndk = new NDKSvelte({
-  explicitRelayUrls: ["wss://nostrue.com/"],
+  explicitRelayUrls: ["wss://nostrue.com/", "wss://relay.damus.io/", "wss://nos.lol/"],
   cacheAdapter,
 });
 

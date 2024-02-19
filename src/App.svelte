@@ -6,10 +6,14 @@
   import { activeUser } from "./services/ndk";
   import Servers from "./pages/Servers.svelte";
   import Files from "./pages/Files.svelte";
+  import Misc from "./pages/Misc.svelte";
+  import Pack from "./pages/Pack.svelte";
 
   const routes = {
     "/files": Files,
     "/servers": Servers,
+    "/misc": Misc,
+    "/pack/:naddr": Pack,
     "/": Home,
     "*": NotFound,
   };

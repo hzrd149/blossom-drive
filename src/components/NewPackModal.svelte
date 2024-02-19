@@ -21,13 +21,12 @@
     event.content = description;
 
     await event.publish();
-    dispatch("create", event);
+    dispatch("created", event);
   };
 </script>
 
-<Modal bind:open size="xs" class="w-full">
+<Modal bind:open size="xs" class="w-full" title="New Pack" outsideclose>
   <form id="new-folder-form`" class="flex flex-col gap-2 py-0" on:submit={submit}>
-    <h3 class="text-lg font-medium text-gray-900 dark:text-white">New Pack</h3>
     <Input placeholder="Pack name" required bind:value={name} />
     <Textarea name="about" rows={4} placeholder="A short description" bind:value={description} />
     <div class="flex justify-end gap-2">
