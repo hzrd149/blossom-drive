@@ -5,9 +5,10 @@
   import { getFileTree, parsePath, setFile, setPackFileTree } from "../helpers/tree";
   import { servers } from "../services/servers";
   import type { Blob } from "../services/blobs";
-  import { ndk } from "../services/ndk";
+  import { ndk, signEventTemplate } from "../services/ndk";
   import { cloneEvent } from "../helpers/event";
   import { getPackName } from "../helpers/packs";
+  import { BlossomClient } from "../services/blossom-client";
 
   export let open = false;
   export let pack: NDKEvent | undefined = undefined;
@@ -34,27 +35,16 @@
     if (!selectedPack) return;
 
     loading = "Signing Auth";
-    const auth = new NDKEvent(ndk);
-    auth.kind = 22242;
-    auth.content = "Authorize Upload";
-    auth.tags.push(["name", name]);
-    auth.tags.push(["size", String(file.size)]);
-    await auth.sign();
+    const auth = await BlossomClient.getUploadAuth(file, signEventTemplate);
 
     let blob: Blob | null = null;
     for (const server of $servers) {
       loading = `Uploading to ${server}`;
-      const res = await fetch(new URL("/upload", server), {
-        method: "PUT",
-        body: file,
-        headers: { Authorization: JSON.stringify(auth.rawEvent()) },
-      });
-      if (res.ok) {
-        blob = (await res.json()) as Blob;
-      } else {
+      try {
+        blob = await BlossomClient.uploadBlob(server, file, auth);
+      } catch (e) {
         console.error(`Failed to upload to ${server}`);
-        console.log(res.status, res.statusText);
-        console.log(await res.text());
+        if (e instanceof Error) console.log(e.message);
       }
     }
 

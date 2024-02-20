@@ -1,3 +1,3 @@
-# Blossom 🌸
+# 🌸 Blossom Drive
 
-Blobs stored simply on mediaservers
+A public cloud drive built on blossom servers

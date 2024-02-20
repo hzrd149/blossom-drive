@@ -1,11 +1,10 @@
 <script lang="ts">
-  import { location, querystring } from "svelte-spa-router";
   import type { NDKEvent } from "@nostr-dev-kit/ndk";
+  import { querystring } from "svelte-spa-router";
   import SpeedDialMenu from "../components/SpeedDialMenu.svelte";
   import { nip19 } from "nostr-tools";
-  import { Breadcrumb, BreadcrumbItem, Button, Spinner } from "flowbite-svelte";
+  import { Button, Spinner } from "flowbite-svelte";
 
-  import { ndk } from "../services/ndk";
   import {
     cloneTree,
     getFileTree,
@@ -14,7 +13,6 @@
     parsePath,
     removeEntry,
     setFile,
-    setFolder,
     setPackFileTree,
     type TreeFile,
   } from "../helpers/tree";
@@ -27,6 +25,9 @@
   import { TrashBinSolid } from "flowbite-svelte-icons";
   import DeleteModal from "../components/DeleteModal.svelte";
   import RenameModal from "../components/RenameModal.svelte";
+  import { BlossomClient, type Blob } from "../services/blossom-client";
+  import { signEventTemplate } from "../services/ndk";
+  import { servers } from "../services/servers";
 
   export let params: Record<string, string | undefined> = {};
   const naddr = params["naddr"];
@@ -42,7 +43,6 @@
   function toggleSelect(e: CustomEvent<string>) {
     if (selected.includes(e.detail)) selected = selected.filter((s) => s !== e.detail);
     else selected = selected.concat(e.detail);
-    console.log(selected);
   }
 
   $: {
@@ -52,10 +52,10 @@
   }
 
   $: files = Object.entries(subTree)
-    .filter(([name, entry]) => entry.type === "file")
+    .filter(([name, entry]) => entry.t === "file")
     .map((e) => subTree[e[0]] as TreeFile);
   $: folders = Object.entries(subTree)
-    .filter(([name, entry]) => entry.type !== "file")
+    .filter(([name, entry]) => entry.t !== "file")
     .map((e) => e[0]);
 
   $: {
@@ -64,18 +64,6 @@
       if (decoded.type !== "naddr") throw new Error("Unknown Type");
 
       pack = $packs[decoded.data.identifier];
-
-      // ndk
-      //   .fetchEvents({
-      //     kinds: [decoded.data.kind],
-      //     authors: [decoded.data.pubkey],
-      //     "#d": [decoded.data.identifier],
-      //   })
-      //   .then((events) => {
-      //     for (const event of events) {
-      //       if (!pack || event.created_at! > pack.created_at!) pack = event;
-      //     }
-      //   });
     }
   }
 
@@ -125,12 +113,57 @@
     await draft.publish();
     handleEvent(draft);
   }
+
+  function drop(e: DragEvent) {
+    e.preventDefault();
+    if (e.dataTransfer?.files.length) uploadFiles(e.dataTransfer.files);
+  }
+  function dragover(e: DragEvent) {
+    e.preventDefault();
+  }
+  async function uploadFiles(files: FileList, folder?: string) {
+    if (!pack) return;
+    const newTree = cloneTree(tree);
+    const path = parsePath(parsed.get("path"));
+
+    for (const file of files) {
+      try {
+        const auth = await BlossomClient.getUploadAuth(file, signEventTemplate);
+        let blob: Blob | undefined = undefined;
+        for (const server of $servers) {
+          try {
+            blob = await BlossomClient.uploadBlob(server, file, auth);
+          } catch (e) {
+            console.log("Failed to upload to", server);
+            console.log(e);
+          }
+        }
+
+        if (blob) {
+          setFile(newTree, folder ? [...path, folder, file.name] : [...path, file.name], {
+            hash: blob.sha256,
+            size: blob.size,
+            mimeType: blob.type,
+          });
+        }
+      } catch (e) {
+        console.log("Failed to upload" + file.name);
+        console.log(e);
+      }
+    }
+
+    const draft = cloneEvent(pack);
+    setPackFileTree(draft, newTree);
+    await draft.sign();
+    handleEvent(draft);
+    await draft.publish();
+  }
 </script>
 
 {#if !pack}
   <Spinner />
 {:else}
-  <main class="flex flex-col gap-4 p-4">
+  <main class="flex flex-grow flex-col gap-4 p-4">
     <div class="flex justify-between gap-2">
       <PathBreadcrumbs root={getPackName(pack) ?? "Pack"} />
       {#if selected.length > 0}
@@ -141,7 +174,8 @@
         </div>
       {/if}
     </div>
-    <div class="flex flex-wrap gap-4">
+    <!-- svelte-ignore a11y-no-static-element-interactions -->
+    <div class="flex flex-grow flex-wrap items-start gap-4" on:drop={drop} on:dragover={dragover}>
       {#each folders as folder}
         <FolderCard
           name={folder}
@@ -156,6 +190,9 @@
           on:delete={(e) => {
             selected = [e.detail];
             confirmDelete = true;
+          }}
+          on:upload-files={(e) => {
+            uploadFiles(e.detail, folder);
           }}
         />
       {/each}

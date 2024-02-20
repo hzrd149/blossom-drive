@@ -1,7 +1,7 @@
 import type { NDKEvent, NDKTag } from "@nostr-dev-kit/ndk";
 
 export type TreeFile = {
-  type: "file";
+  t: "file";
   name: string;
   hash: string;
   size: number;
@@ -14,7 +14,7 @@ export interface TreeFolder {
 export function cloneTree(tree: TreeFolder) {
   const newTree: TreeFolder = {};
   for (const [key, value] of Object.entries(tree)) {
-    newTree[key] = value.type === "file" ? { ...value } : cloneTree(value as TreeFolder);
+    newTree[key] = value.t === "file" ? { ...value } : cloneTree(value as TreeFolder);
   }
   return newTree;
 }
@@ -33,11 +33,11 @@ export function setFolder(dir: TreeFolder, path: string[] | string, folder: Tree
   const name = parts.pop()!;
   getFolder(dir, parts, true)[name] = folder;
 }
-export function setFile(dir: TreeFolder, pathname: string | string[], file: Omit<TreeFile, "type" | "name">) {
+export function setFile(dir: TreeFolder, pathname: string | string[], file: Omit<TreeFile, "t" | "name">) {
   const parts = parsePath(pathname);
   const name = parts.pop()!;
   const folder = getFolder(dir, parts);
-  return (folder[name] = { ...file, name, type: "file" });
+  return (folder[name] = { ...file, name, t: "file" });
 }
 export function removeEntry(dir: TreeFolder, pathname: string | string[]) {
   const parts = Array.isArray(pathname) ? pathname : parsePath(pathname);
@@ -50,7 +50,7 @@ export function moveEntry(dir: TreeFolder, from: string[], to: string[]) {
   const srcName = src.pop()!;
   const entry = getFolder(dir, src)[srcName];
 
-  if (entry.type === "file") {
+  if (entry.t === "file") {
     setFile(dir, to, entry as TreeFile);
   } else setFolder(dir, to, entry as TreeFolder);
   removeEntry(dir, from);
@@ -80,7 +80,7 @@ export function getFileTree(pack: NDKEvent) {
   return tree;
 }
 export function getTreeTags(entry: TreeFolder | TreeFile, path: string[] = []): NDKTag[] {
-  if (entry.type === "file") {
+  if (entry.t === "file") {
     const file = entry as TreeFile;
     const base: NDKTag = ["x", file.hash, "/" + path.join("/"), String(entry.size)];
     if (file.mimeType) base.push(file.mimeType);
@@ -101,4 +101,16 @@ export function getTreeTags(entry: TreeFolder | TreeFile, path: string[] = []): 
 export function setPackFileTree(draft: NDKEvent, tree: TreeFolder) {
   draft.tags = draft.tags.filter((t) => t[0] !== "x" && t[0] !== "folder");
   draft.tags = draft.tags.concat(getTreeTags(tree));
+}
+
+export function getFilePaths(dir: TreeFolder, hash: string, path: string[] = []) {
+  const paths: string[][] = [];
+  for (const [name, entry] of Object.entries(dir)) {
+    if ((entry.t = "file")) {
+      if (entry.hash === hash) paths.push([...path, name]);
+    } else {
+      paths.push(...getFilePaths(dir[name] as TreeFolder, hash, [...path, name]));
+    }
+  }
+  return paths;
 }

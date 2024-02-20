@@ -13,8 +13,8 @@ export default defineConfig({
         skipWaiting: true,
       },
       manifest: {
-        name: "Blossom",
-        short_name: "Blossom",
+        name: "Blossom Drive",
+        short_name: "Blossom Drive",
         description: "Simple blob management",
         orientation: "any",
         theme_color: "#ffbcd8",

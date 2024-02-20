@@ -27,21 +27,45 @@
     return "#" + $location + "?" + query.toString();
   }
 
+  function dragStart(e: DragEvent) {
+    if (!e.dataTransfer) return;
+    e.dataTransfer.dropEffect = "move";
+    e.dataTransfer.setData("text", name);
+  }
   function dragenter(e: DragEvent) {
-    dropHighlight = true;
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    if (!e.dataTransfer?.getData("text").startsWith("http")) {
+      dropHighlight = true;
+    }
   }
   function dragleave(e: DragEvent) {
+    e.stopPropagation();
+    e.stopImmediatePropagation();
     dropHighlight = false;
   }
   function dragover(e: DragEvent) {
-    e.preventDefault();
-    dropHighlight = true;
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    if (!e.dataTransfer?.getData("text").startsWith("http")) {
+      e.preventDefault();
+      dropHighlight = true;
+    }
   }
   function drop(e: DragEvent) {
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    e.preventDefault();
+
     dropHighlight = false;
     if (e.dataTransfer) {
-      const src = e.dataTransfer.getData("text");
-      if (src) dispatch("move-blob", { src, dest: name });
+      if (e.dataTransfer.files.length > 0) {
+        const files = e.dataTransfer.files;
+        dispatch("upload-files", files);
+      } else {
+        const src = e.dataTransfer.getData("text");
+        if (src) dispatch("move-blob", { src, dest: name });
+      }
     }
   }
 </script>
@@ -54,6 +78,7 @@
   on:dragover={dragover}
   on:dragenter={dragenter}
   on:dragleave={dragleave}
+  on:dragstart={dragStart}
 >
   <Checkbox
     class="absolute left-1 top-1"

@@ -16,7 +16,7 @@
 
 <div class="flex items-center gap-2 bg-gray-50 px-6 py-2 text-gray-700 dark:bg-gray-800 dark:text-gray-200">
   <h1 class="mr-auto text-lg font-bold">
-    <a href="#/">🌸 Blossom</a>
+    <a href="#/">🌸 Blossom Drive</a>
   </h1>
 
   {#if $activeUser}
