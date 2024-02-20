@@ -6,7 +6,7 @@ export function getTagValue(event: NDKEvent, tag: string) {
 }
 
 export function cloneEvent(event: NDKEvent, kind?: number): NDKEvent;
-export function cloneEvent(event: undefined | null, kind: number): NDKEvent;
+export function cloneEvent(event: NDKEvent | undefined | null, kind: number): NDKEvent;
 export function cloneEvent(event: NDKEvent | undefined | null, kind?: number) {
   const draft = new NDKEvent(ndk);
   draft.kind = event?.kind || kind;

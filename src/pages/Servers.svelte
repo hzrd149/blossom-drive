@@ -10,32 +10,37 @@
     TableHeadCell,
   } from "flowbite-svelte";
   import { serverEvent, servers } from "../services/servers";
-  import { NDKEvent } from "@nostr-dev-kit/ndk";
-  import { ndk } from "../services/ndk";
+  import { cloneEvent } from "../helpers/event";
 
   let server = "";
   let loading = false;
   async function addServer(e: SubmitEvent) {
-    e.preventDefault();
-    loading = true;
-    const draft = new NDKEvent(ndk, $serverEvent?.rawEvent());
-    draft.kind = 10063;
-    draft.content = draft.content || "";
-    draft.tags.push(["r", new URL(server).toString()]);
-    await draft.sign();
-    await draft.publish();
-    loading = false;
+    try {
+      e.preventDefault();
+      loading = true;
+      const draft = cloneEvent($serverEvent, 10063);
+      draft.tags.push(["r", new URL(server).toString()]);
+      await draft.sign();
+      await draft.publish();
+      loading = false;
+    } catch (e) {
+      if (e instanceof Error) alert(e.message);
+      console.log(e);
+    }
   }
 
   async function removeServer(server: string) {
-    loading = true;
-    const draft = new NDKEvent(ndk, $serverEvent?.rawEvent());
-    draft.kind = 10063;
-    draft.content = draft.content || "";
-    draft.tags = draft.tags.filter((t) => t[0] === "r" && t[1] !== server);
-    await draft.sign();
-    await draft.publish();
-    loading = false;
+    try {
+      loading = true;
+      const draft = cloneEvent($serverEvent, 10063);
+      draft.tags = draft.tags.filter((t) => t[0] === "r" && t[1] !== server);
+      await draft.sign();
+      await draft.publish();
+      loading = false;
+    } catch (e) {
+      if (e instanceof Error) alert(e.message);
+      console.log(e);
+    }
   }
 </script>
 
