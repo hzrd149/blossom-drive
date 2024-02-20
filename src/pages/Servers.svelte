@@ -70,5 +70,5 @@
 
 <form class="flex gap-2 px-2" on:submit={addServer}>
   <Input placeholder="https://cdn.example.com" bind:value={server} required />
-  <Button class="shrink-0" disabled={loading}>Add Server</Button>
+  <Button class="shrink-0" disabled={loading} type="submit">Add Server</Button>
 </form>
