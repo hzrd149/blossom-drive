@@ -8,7 +8,7 @@ activeUser.subscribe((user) => {
   if (!user) return;
 
   packs.set({});
-  sub = ndk.subscribe({ kinds: [30063 as number], authors: [user.pubkey] });
+  sub = ndk.subscribe({ kinds: [30563 as number], authors: [user.pubkey] });
   sub.on("event", handleEvent);
   sub.start();
 });

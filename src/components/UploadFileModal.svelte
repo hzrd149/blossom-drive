@@ -53,7 +53,7 @@
       return;
     }
 
-    const draft = cloneEvent(selectedPack, 30063);
+    const draft = cloneEvent(selectedPack);
     const tree = getFileTree(draft);
 
     setFile(tree, [...parsePath(path), name], { hash: blob.sha256, size: blob.size, mimeType: blob.type });

@@ -6,7 +6,7 @@
   import SimpleCard from "../components/SimpleCard.svelte";
 
   const packs = ndk.storeSubscribe({
-    kinds: [30063 as number],
+    kinds: [30563 as number],
     authors: [$activeUser.pubkey],
   });
 
