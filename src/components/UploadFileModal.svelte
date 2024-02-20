@@ -1,5 +1,6 @@
 <script lang="ts">
   import { Button, Input, Label, Modal, Select, Spinner } from "flowbite-svelte";
+  import { BlossomClient } from "blossom-client";
   import { handleEvent, packs } from "../services/packs";
   import { NDKEvent } from "@nostr-dev-kit/ndk";
   import { getFileTree, parsePath, setFile, setPackFileTree } from "../helpers/tree";
@@ -8,7 +9,6 @@
   import { ndk, signEventTemplate } from "../services/ndk";
   import { cloneEvent } from "../helpers/event";
   import { getPackName } from "../helpers/packs";
-  import { BlossomClient } from "../services/blossom-client";
 
   export let open = false;
   export let pack: NDKEvent | undefined = undefined;

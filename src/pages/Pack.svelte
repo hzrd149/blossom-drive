@@ -4,6 +4,7 @@
   import SpeedDialMenu from "../components/SpeedDialMenu.svelte";
   import { nip19 } from "nostr-tools";
   import { Button, Spinner } from "flowbite-svelte";
+  import { BlossomClient, type Blob } from "blossom-client";
 
   import {
     cloneTree,
@@ -25,7 +26,6 @@
   import { TrashBinSolid } from "flowbite-svelte-icons";
   import DeleteModal from "../components/DeleteModal.svelte";
   import RenameModal from "../components/RenameModal.svelte";
-  import { BlossomClient, type Blob } from "../services/blossom-client";
   import { signEventTemplate } from "../services/ndk";
   import { servers } from "../services/servers";
 

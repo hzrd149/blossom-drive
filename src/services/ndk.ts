@@ -1,7 +1,7 @@
 import NDKSvelte from "@nostr-dev-kit/ndk-svelte";
 import NDKCacheAdapterDexie from "@nostr-dev-kit/ndk-cache-dexie";
 import { writable } from "svelte/store";
-import type { EventTemplate, SignedEvent } from "./blossom-client";
+import type { EventTemplate, SignedEvent } from "blossom-client";
 import { NDKEvent } from "@nostr-dev-kit/ndk";
 
 const cacheAdapter = new NDKCacheAdapterDexie({ dbName: "ndk-cache" });
