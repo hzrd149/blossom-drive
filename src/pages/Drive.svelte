@@ -28,6 +28,7 @@
   import RenameModal from "../components/RenameModal.svelte";
   import { signEventTemplate } from "../services/ndk";
   import { servers } from "../services/servers";
+  import { readFileSystemFile, getAllFileEntriesInTree, readFileSystemDirectory } from "../helpers/file-system";
 
   export let params: Record<string, string | undefined> = {};
   const naddr = params["naddr"];
@@ -116,39 +117,77 @@
 
   function drop(e: DragEvent) {
     e.preventDefault();
-    if (e.dataTransfer?.files.length) uploadFiles(e.dataTransfer.files);
+    if (e.dataTransfer?.files.length) {
+      uploadFiles(e.dataTransfer.items[0].webkitGetAsEntry() || e.dataTransfer.files);
+    }
   }
   function dragover(e: DragEvent) {
     e.preventDefault();
   }
-  async function uploadFiles(files: FileList, folder?: string) {
+  async function uploadFiles(fileList: FileList | FileSystemEntry, folder?: string) {
     if (!drive) return;
     const newTree = cloneTree(tree);
     const path = parsePath(parsed.get("path"));
 
-    for (const file of files) {
-      try {
-        const auth = await BlossomClient.getUploadAuth(file, signEventTemplate);
-        let blob: Blob | undefined = undefined;
-        for (const server of $servers) {
+    async function uploadFile(file: File) {
+      const auth = await BlossomClient.getUploadAuth(file, signEventTemplate);
+      let descriptor: Blob | undefined = undefined;
+      for (const server of $servers) {
+        try {
+          descriptor = await BlossomClient.uploadBlob(server, file, auth);
+        } catch (e) {
+          console.log("Failed to upload to", server);
+          console.log(e);
+        }
+      }
+
+      return descriptor;
+    }
+
+    if (fileList instanceof FileSystemEntry) {
+      const getPath = (entry: FileSystemEntry) =>
+        folder ? [...path, folder, ...parsePath(entry.fullPath)] : [...path, ...parsePath(entry.fullPath)];
+
+      async function walkTree(entry: FileSystemEntry) {
+        if (entry instanceof FileSystemFileEntry && entry.isFile) {
           try {
-            blob = await BlossomClient.uploadBlob(server, file, auth);
+            const file = await readFileSystemFile(entry);
+            let descriptor = await uploadFile(file);
+            if (descriptor) {
+              setFile(newTree, getPath(entry), {
+                hash: descriptor.sha256,
+                size: descriptor.size,
+                mimeType: descriptor.type,
+              });
+            }
           } catch (e) {
-            console.log("Failed to upload to", server);
+            console.log("Failed to upload" + entry.fullPath);
             console.log(e);
           }
+        } else if (entry instanceof FileSystemDirectoryEntry && entry.isDirectory) {
+          const entries = await readFileSystemDirectory(entry);
+          // create empty folders
+          getFolder(newTree, getPath(entry), true);
+          for (const e of entries) await walkTree(e);
         }
+      }
 
-        if (blob) {
-          setFile(newTree, folder ? [...path, folder, file.name] : [...path, file.name], {
-            hash: blob.sha256,
-            size: blob.size,
-            mimeType: blob.type,
-          });
+      await walkTree(fileList);
+    } else if (fileList instanceof FileList) {
+      for (const file of fileList) {
+        try {
+          let descriptor = await uploadFile(file);
+          if (descriptor) {
+            setFile(newTree, folder ? [...path, folder, file.name] : [...path, file.name], {
+              hash: descriptor.sha256,
+              size: descriptor.size,
+              mimeType: descriptor.type,
+            });
+          }
+        } catch (e) {
+          console.log("Failed to upload" + file.name);
+          console.log(e);
         }
-      } catch (e) {
-        console.log("Failed to upload" + file.name);
-        console.log(e);
       }
     }
 
@@ -163,7 +202,7 @@
 {#if !drive}
   <Spinner />
 {:else}
-  <main class="flex flex-grow flex-col gap-4 p-4">
+  <main class="flex flex-grow flex-col gap-4 p-4" on:drop={drop} on:dragover={dragover}>
     <div class="flex justify-between gap-2">
       <PathBreadcrumbs root={getDriveName(drive) ?? "Drive"} />
       {#if selected.length > 0}
@@ -174,8 +213,7 @@
         </div>
       {/if}
     </div>
-    <!-- svelte-ignore a11y-no-static-element-interactions -->
-    <div class="flex flex-grow flex-wrap items-start gap-4" on:drop={drop} on:dragover={dragover}>
+    <div class="flex flex-wrap items-start gap-4">
       {#each folders as folder}
         <FolderCard
           name={folder}

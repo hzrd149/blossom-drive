@@ -19,6 +19,9 @@
     ? new URL(file.hash + (file.mimeType ? "." + mime.getExtension(file.mimeType) : ""), $servers[0]).toString()
     : undefined;
 
+  $: extension = file.mimeType ? mime.getExtension(file.mimeType) : "bin";
+  $: preview = file.mimeType?.startsWith("image/") && file.size < 1024 * 100;
+
   function toggleSelect() {
     if (selected) dispatch("unselect", file.name);
     else dispatch("select", file.name);
@@ -46,8 +49,12 @@
     }}
     bind:checked={selected}
   />
-  <div class="flex flex-grow items-center justify-center p-4 text-xl font-bold">
-    {file.mimeType ? mime.getExtension(file.mimeType) : "bin"}
+  <div class="flex flex-grow items-center justify-center overflow-hidden text-xl font-bold">
+    {#if preview && link}
+      <div class="preview-image" style="background-image: url({link});" />
+    {:else}
+      <span class="m-4">{extension}</span>
+    {/if}
   </div>
   <hr />
   <div class="max-w-40 truncate px-4 py-2 text-center text-sm">{file.name}</div>
@@ -69,3 +76,14 @@
     >
   </Dropdown>
 </a>
+
+<style>
+  .preview-image {
+    image-rendering: pixelated;
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 100%;
+    height: 100%;
+  }
+</style>

@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { NDKEvent } from "@nostr-dev-kit/ndk";
   import { SpeedDial, SpeedDialButton } from "flowbite-svelte";
-  import { UploadSolid, FolderSolid, GiftBoxSolid } from "flowbite-svelte-icons";
+  import { UploadSolid, FolderSolid, ArchiveSolid } from "flowbite-svelte-icons";
   import UploadFileModal from "./UploadFileModal.svelte";
   import NewDriveModal from "./NewDriveModal.svelte";
   import NewFolderModal from "./NewFolderModal.svelte";
@@ -28,7 +28,7 @@
     </SpeedDialButton>
   {/if}
   <SpeedDialButton name="Drive" on:click={() => (newDriveModal = true)}>
-    <GiftBoxSolid class="h-6 w-6" />
+    <ArchiveSolid class="h-6 w-6" />
   </SpeedDialButton>
 </SpeedDial>
 

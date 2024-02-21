@@ -26,7 +26,9 @@
   };
 </script>
 
-<div class="flex w-full flex-1 flex-col gap-2 overflow-y-auto overflow-x-hidden bg-white dark:bg-gray-900">
+<div
+  class="flex w-full flex-1 flex-col gap-2 overflow-y-auto overflow-x-hidden bg-white text-gray-900 dark:bg-gray-900 dark:text-white"
+>
   {#if $activeUser}
     <TopNav />
     <Router {routes} />
