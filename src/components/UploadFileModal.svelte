@@ -56,7 +56,7 @@
     const draft = cloneEvent(selectedDrive);
     const tree = getFileTree(draft);
 
-    setFile(tree, [...parsePath(path), name], { hash: blob.sha256, size: blob.size, mimeType: blob.type });
+    setFile(tree, [...parsePath(path), name], { sha256: blob.sha256, size: blob.size, type: blob.type });
 
     setDriveFileTree(draft, tree);
 

@@ -14,7 +14,7 @@
   let newDriveModal = false;
 
   const createdDrive = (event: CustomEvent<NDKEvent>) => {
-    location.hash = "#/drive/" + event.detail.encode;
+    location.hash = "#/drive/" + event.detail.encode();
   };
 </script>
 

@@ -3,9 +3,9 @@ import type { NDKEvent, NDKTag } from "@nostr-dev-kit/ndk";
 export type TreeFile = {
   t: "file";
   name: string;
-  hash: string;
+  sha256: string;
   size: number;
-  mimeType?: string;
+  type?: string;
 };
 export interface TreeFolder {
   [x: string]: TreeFile | TreeFolder;
@@ -71,7 +71,7 @@ export function getFileTree(drive: NDKEvent) {
 
       if (hash && pathname && size) {
         const path = parsePath(pathname);
-        setFile(tree, path, { size, hash, mimeType });
+        setFile(tree, path, { size, sha256: hash, type: mimeType });
       }
     }
     if (tag[0] === "folder") getFolder(tree, parsePath(tag[1]), true);
@@ -82,8 +82,8 @@ export function getFileTree(drive: NDKEvent) {
 export function getTreeTags(entry: TreeFolder | TreeFile, path: string[] = []): NDKTag[] {
   if (entry.t === "file") {
     const file = entry as TreeFile;
-    const base: NDKTag = ["x", file.hash, "/" + path.join("/"), String(entry.size)];
-    if (file.mimeType) base.push(file.mimeType);
+    const base: NDKTag = ["x", file.sha256, "/" + path.join("/"), String(entry.size)];
+    if (file.type) base.push(file.type);
     return [base];
   } else if (Object.keys(entry).length === 0) {
     if (path.length > 0) return [["folder", "/" + path.join("/")]];
@@ -107,7 +107,7 @@ export function getFilePaths(dir: TreeFolder, hash: string, path: string[] = [])
   const paths: string[][] = [];
   for (const [name, entry] of Object.entries(dir)) {
     if ((entry.t = "file")) {
-      if (entry.hash === hash) paths.push([...path, name]);
+      if (entry.sha256 === hash) paths.push([...path, name]);
     } else {
       paths.push(...getFilePaths(dir[name] as TreeFolder, hash, [...path, name]));
     }

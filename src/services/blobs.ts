@@ -1,13 +1,8 @@
 import { get, writable } from "svelte/store";
 import { activeUser } from "./ndk";
 import { servers } from "./servers";
+import type { Blob } from "blossom-client";
 
-export type Blob = {
-  sha256: string;
-  type?: string;
-  created: number;
-  size: number;
-};
 type ServerList = {
   server: string;
   blobs: Blob[];

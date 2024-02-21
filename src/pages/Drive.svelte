@@ -155,9 +155,9 @@
             let descriptor = await uploadFile(file);
             if (descriptor) {
               setFile(newTree, getPath(entry), {
-                hash: descriptor.sha256,
+                sha256: descriptor.sha256,
                 size: descriptor.size,
-                mimeType: descriptor.type,
+                type: descriptor.type,
               });
             }
           } catch (e) {
@@ -179,9 +179,9 @@
           let descriptor = await uploadFile(file);
           if (descriptor) {
             setFile(newTree, folder ? [...path, folder, file.name] : [...path, file.name], {
-              hash: descriptor.sha256,
+              sha256: descriptor.sha256,
               size: descriptor.size,
-              mimeType: descriptor.type,
+              type: descriptor.type,
             });
           }
         } catch (e) {

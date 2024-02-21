@@ -5,6 +5,7 @@
   import { servers } from "../services/servers";
   import { DotsHorizontalSolid } from "flowbite-svelte-icons";
   import { createEventDispatcher } from "svelte";
+  import { getBlobURL } from "../helpers/blob";
 
   export let file: TreeFile;
   export let selected = false;
@@ -15,12 +16,10 @@
     ? "border border-primary-200 dark:border-primary-700"
     : "border border-gray-200 dark:border-gray-700";
 
-  $: link = $servers[0]
-    ? new URL(file.hash + (file.mimeType ? "." + mime.getExtension(file.mimeType) : ""), $servers[0]).toString()
-    : undefined;
+  $: link = getBlobURL(file, $servers[0]);
 
-  $: extension = file.mimeType ? mime.getExtension(file.mimeType) : "bin";
-  $: preview = file.mimeType?.startsWith("image/") && file.size < 1024 * 100;
+  $: extension = file.type ? mime.getExtension(file.type) : "bin";
+  $: preview = file.type?.startsWith("image/") && file.size < 1024 * 100;
 
   function toggleSelect() {
     if (selected) dispatch("unselect", file.name);
