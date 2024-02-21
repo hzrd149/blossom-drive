@@ -15,6 +15,10 @@
     ? "border border-primary-200 dark:border-primary-700"
     : "border border-gray-200 dark:border-gray-700";
 
+  $: link = $servers[0]
+    ? new URL(file.hash + (file.mimeType ? "." + mime.getExtension(file.mimeType) : ""), $servers[0]).toString()
+    : undefined;
+
   function toggleSelect() {
     if (selected) dispatch("unselect", file.name);
     else dispatch("select", file.name);
@@ -28,7 +32,7 @@
 </script>
 
 <a
-  href={new URL(file.hash + (file.mimeType ? "." + mime.getExtension(file.mimeType) : ""), $servers[0]).toString()}
+  href={link}
   class={"relative flex aspect-square min-w-40 flex-col divide-gray-200 rounded-md border bg-white text-gray-700 hover:bg-gray-100 dark:divide-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700" +
     borderClass}
   on:dragstart={dragStart}

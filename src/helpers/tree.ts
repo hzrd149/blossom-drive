@@ -61,10 +61,10 @@ export function getFile(dir: TreeFolder, pathname: string) {
   const folder = getFolder(dir, parts, true);
   return folder[name] as TreeFile | undefined;
 }
-export function getFileTree(pack: NDKEvent) {
+export function getFileTree(drive: NDKEvent) {
   const tree: TreeFolder = {};
 
-  for (const tag of pack.tags) {
+  for (const tag of drive.tags) {
     if (tag[0] === "x") {
       const [_, hash, pathname, sizeStr, mimeType] = tag;
       const size = parseInt(sizeStr);
@@ -98,7 +98,7 @@ export function getTreeTags(entry: TreeFolder | TreeFile, path: string[] = []): 
     .flat();
 }
 
-export function setPackFileTree(draft: NDKEvent, tree: TreeFolder) {
+export function setDriveFileTree(draft: NDKEvent, tree: TreeFolder) {
   draft.tags = draft.tags.filter((t) => t[0] !== "x" && t[0] !== "folder");
   draft.tags = draft.tags.concat(getTreeTags(tree));
 }

@@ -1,25 +1,25 @@
 <script lang="ts">
   import { Button, Input, Label, Modal, Select, Spinner } from "flowbite-svelte";
   import { BlossomClient } from "blossom-client";
-  import { handleEvent, packs } from "../services/packs";
+  import { handleEvent, drives } from "../services/drives";
   import { NDKEvent } from "@nostr-dev-kit/ndk";
-  import { getFileTree, parsePath, setFile, setPackFileTree } from "../helpers/tree";
+  import { getFileTree, parsePath, setFile, setDriveFileTree } from "../helpers/tree";
   import { servers } from "../services/servers";
   import type { Blob } from "../services/blobs";
-  import { ndk, signEventTemplate } from "../services/ndk";
+  import { signEventTemplate } from "../services/ndk";
   import { cloneEvent } from "../helpers/event";
-  import { getPackName } from "../helpers/packs";
+  import { getDriveName } from "../helpers/drives";
 
   export let open = false;
-  export let pack: NDKEvent | undefined = undefined;
+  export let drive: NDKEvent | undefined = undefined;
   export let path: string = "";
 
-  let packId = "";
+  let driveId = "";
   let file: File | undefined = undefined;
   let name = "";
 
-  let selectedPack: NDKEvent | undefined = undefined;
-  $: selectedPack = pack || $packs[packId];
+  let selectedDrive: NDKEvent | undefined = undefined;
+  $: selectedDrive = drive || $drives[driveId];
 
   function fileChange(e: Event) {
     if (e.target instanceof HTMLInputElement) {
@@ -32,7 +32,7 @@
   async function upload(e: SubmitEvent) {
     e.preventDefault();
     if (!file) return;
-    if (!selectedPack) return;
+    if (!selectedDrive) return;
 
     loading = "Signing Auth";
     const auth = await BlossomClient.getUploadAuth(file, signEventTemplate);
@@ -53,14 +53,14 @@
       return;
     }
 
-    const draft = cloneEvent(selectedPack);
+    const draft = cloneEvent(selectedDrive);
     const tree = getFileTree(draft);
 
     setFile(tree, [...parsePath(path), name], { hash: blob.sha256, size: blob.size, mimeType: blob.type });
 
-    setPackFileTree(draft, tree);
+    setDriveFileTree(draft, tree);
 
-    loading = "Adding to pack...";
+    loading = "Adding to drive...";
     await draft.sign();
     handleEvent(draft);
     await draft.publish();
@@ -79,12 +79,12 @@
   {:else}
     <form class="flex flex-col space-y-4" on:submit={upload}>
       <Input type="file" name="file" required on:change={fileChange} />
-      {#if !pack}
+      {#if !drive}
         <Label>
-          <span>Add to Pack</span>
-          <Select bind:value={packId} required>
-            {#each Object.entries($packs) as [d, pack]}
-              <option value={d}>{getPackName(pack)}</option>
+          <span>Add to Drive</span>
+          <Select bind:value={driveId} required>
+            {#each Object.entries($drives) as [d, drive]}
+              <option value={d}>{getDriveName(drive)}</option>
             {/each}
           </Select>
         </Label>

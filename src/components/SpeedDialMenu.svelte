@@ -1,21 +1,20 @@
 <script lang="ts">
   import type { NDKEvent } from "@nostr-dev-kit/ndk";
   import { SpeedDial, SpeedDialButton } from "flowbite-svelte";
-  import { UploadSolid, FolderSolid, GiftBoxSolid, UserHeadsetOutline } from "flowbite-svelte-icons";
+  import { UploadSolid, FolderSolid, GiftBoxSolid } from "flowbite-svelte-icons";
   import UploadFileModal from "./UploadFileModal.svelte";
-  import NewPackModal from "./NewPackModal.svelte";
+  import NewDriveModal from "./NewDriveModal.svelte";
   import NewFolderModal from "./NewFolderModal.svelte";
 
-  export let pack: NDKEvent | undefined = undefined;
+  export let drive: NDKEvent | undefined = undefined;
   export let path: string | undefined = undefined;
 
   let uploadFileModal = false;
   let newFolderModal = false;
-  let newPackModal = false;
+  let newDriveModal = false;
 
-  const createdPack = (event: CustomEvent<NDKEvent>) => {
-    newPackModal = false;
-    location.hash = "#/pack/" + event.detail.encode;
+  const createdDrive = (event: CustomEvent<NDKEvent>) => {
+    location.hash = "#/drive/" + event.detail.encode;
   };
 </script>
 
@@ -23,24 +22,24 @@
   <SpeedDialButton name="Upload" on:click={() => (uploadFileModal = true)}>
     <UploadSolid class="h-6 w-6" />
   </SpeedDialButton>
-  {#if pack}
+  {#if drive}
     <SpeedDialButton name="Folder" on:click={() => (newFolderModal = true)}>
       <FolderSolid class="h-6 w-6" />
     </SpeedDialButton>
   {/if}
-  <SpeedDialButton name="Pack" on:click={() => (newPackModal = true)}>
+  <SpeedDialButton name="Drive" on:click={() => (newDriveModal = true)}>
     <GiftBoxSolid class="h-6 w-6" />
   </SpeedDialButton>
 </SpeedDial>
 
 {#if uploadFileModal}
-  <UploadFileModal bind:open={uploadFileModal} {pack} {path} />
+  <UploadFileModal bind:open={uploadFileModal} {drive} {path} />
 {/if}
 
-{#if newFolderModal && pack}
-  <NewFolderModal bind:open={newFolderModal} {pack} path={path || "/"} />
+{#if newFolderModal && drive}
+  <NewFolderModal bind:open={newFolderModal} {drive} path={path || "/"} />
 {/if}
 
-{#if newPackModal}
-  <NewPackModal bind:open={newPackModal} on:created={createdPack} />
+{#if newDriveModal}
+  <NewDriveModal bind:open={newDriveModal} on:created={createdDrive} />
 {/if}

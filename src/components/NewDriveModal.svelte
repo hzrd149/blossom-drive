@@ -25,9 +25,9 @@
   };
 </script>
 
-<Modal bind:open size="xs" class="w-full" title="New Pack" outsideclose>
+<Modal bind:open size="xs" class="w-full" title="New Drive" outsideclose>
   <form id="new-folder-form`" class="flex flex-col gap-2 py-0" on:submit={submit}>
-    <Input placeholder="Pack name" required bind:value={name} />
+    <Input placeholder="Drive name" required bind:value={name} />
     <Textarea name="about" rows={4} placeholder="A short description" bind:value={description} />
     <div class="flex justify-end gap-2">
       <Button color="alternative" on:click={() => (open = false)}>Cancel</Button>

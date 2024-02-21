@@ -1,12 +1,12 @@
 <script lang="ts">
   import type { NDKEvent } from "@nostr-dev-kit/ndk";
   import { Button, Modal, Input } from "flowbite-svelte";
-  import { getFileTree, getFolder, parsePath, setPackFileTree } from "../helpers/tree";
+  import { getFileTree, getFolder, parsePath, setDriveFileTree } from "../helpers/tree";
   import { cloneEvent } from "../helpers/event";
-  import { handleEvent } from "../services/packs";
+  import { handleEvent } from "../services/drives";
   export let open = false;
 
-  export let pack: NDKEvent;
+  export let drive: NDKEvent;
   export let path: string;
 
   let name = "";
@@ -15,10 +15,10 @@
     e.preventDefault();
     loading = true;
 
-    const draft = cloneEvent(pack);
+    const draft = cloneEvent(drive);
     const tree = getFileTree(draft);
     getFolder(tree, parsePath(path).concat(name));
-    setPackFileTree(draft, tree);
+    setDriveFileTree(draft, tree);
     await draft.sign();
     handleEvent(draft);
     open = false;

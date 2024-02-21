@@ -14,15 +14,15 @@
     parsePath,
     removeEntry,
     setFile,
-    setPackFileTree,
+    setDriveFileTree,
     type TreeFile,
   } from "../helpers/tree";
-  import { getPackName } from "../helpers/packs";
+  import { getDriveName } from "../helpers/drives";
   import FileCard from "../components/FileCard.svelte";
   import FolderCard from "../components/FolderCard.svelte";
   import PathBreadcrumbs from "../components/PathBreadcrumbs.svelte";
   import { cloneEvent } from "../helpers/event";
-  import { handleEvent, packs } from "../services/packs";
+  import { handleEvent, drives } from "../services/drives";
   import { TrashBinSolid } from "flowbite-svelte-icons";
   import DeleteModal from "../components/DeleteModal.svelte";
   import RenameModal from "../components/RenameModal.svelte";
@@ -34,8 +34,8 @@
 
   $: parsed = new URLSearchParams($querystring);
 
-  let pack: NDKEvent | null = null;
-  $: tree = pack ? getFileTree(pack) : {};
+  let drive: NDKEvent | null = null;
+  $: tree = drive ? getFileTree(drive) : {};
   $: subTree = getFolder(tree, parsePath(parsed.get("path")));
 
   let confirmDelete = false;
@@ -63,18 +63,18 @@
       const decoded = nip19.decode(naddr);
       if (decoded.type !== "naddr") throw new Error("Unknown Type");
 
-      pack = $packs[decoded.data.identifier];
+      drive = $drives[decoded.data.identifier];
     }
   }
 
   async function move(e: CustomEvent<{ src: string; dest: string }>) {
-    if (!pack) return;
+    if (!drive) return;
     const path = parsePath(parsed.get("path"));
     const newTree = cloneTree(tree);
     moveEntry(newTree, [...path, e.detail.src], [...path, e.detail.dest, e.detail.src]);
 
-    const draft = cloneEvent(pack);
-    setPackFileTree(draft, newTree);
+    const draft = cloneEvent(drive);
+    setDriveFileTree(draft, newTree);
 
     await draft.sign();
     await draft.publish();
@@ -82,13 +82,13 @@
   }
 
   async function deleteSelected() {
-    if (!pack) return;
+    if (!drive) return;
     const path = parsePath(parsed.get("path"));
     const newTree = cloneTree(tree);
     for (const name of selected) removeEntry(newTree, [...path, name]);
 
-    const draft = cloneEvent(pack);
-    setPackFileTree(draft, newTree);
+    const draft = cloneEvent(drive);
+    setDriveFileTree(draft, newTree);
 
     await draft.sign();
     await draft.publish();
@@ -97,7 +97,7 @@
 
   let renameModal = false;
   async function renameEntry(e: CustomEvent<string>) {
-    if (!pack) return;
+    if (!drive) return;
     const name = selected[0];
     if (!name) return;
     const newName = e.detail;
@@ -106,8 +106,8 @@
     const newTree = cloneTree(tree);
     moveEntry(newTree, [...path, name], [...path, newName]);
 
-    const draft = cloneEvent(pack);
-    setPackFileTree(draft, newTree);
+    const draft = cloneEvent(drive);
+    setDriveFileTree(draft, newTree);
 
     await draft.sign();
     await draft.publish();
@@ -122,7 +122,7 @@
     e.preventDefault();
   }
   async function uploadFiles(files: FileList, folder?: string) {
-    if (!pack) return;
+    if (!drive) return;
     const newTree = cloneTree(tree);
     const path = parsePath(parsed.get("path"));
 
@@ -152,20 +152,20 @@
       }
     }
 
-    const draft = cloneEvent(pack);
-    setPackFileTree(draft, newTree);
+    const draft = cloneEvent(drive);
+    setDriveFileTree(draft, newTree);
     await draft.sign();
     handleEvent(draft);
     await draft.publish();
   }
 </script>
 
-{#if !pack}
+{#if !drive}
   <Spinner />
 {:else}
   <main class="flex flex-grow flex-col gap-4 p-4">
     <div class="flex justify-between gap-2">
-      <PathBreadcrumbs root={getPackName(pack) ?? "Pack"} />
+      <PathBreadcrumbs root={getDriveName(drive) ?? "Drive"} />
       {#if selected.length > 0}
         <div class="flex items-center gap-2">
           <p>{selected.length} selected</p>
@@ -214,10 +214,8 @@
       {/each}
     </div>
   </main>
-  <!-- <code class="whitespace-pre">{JSON.stringify(tree, null, 2)}</code>
-  <code class="whitespace-pre">{JSON.stringify(pack.rawEvent(), null, 2)}</code> -->
 {/if}
-<SpeedDialMenu pack={pack ?? undefined} path={parsed.get("path") || "/"} />
+<SpeedDialMenu drive={drive ?? undefined} path={parsed.get("path") || "/"} />
 
 {#if confirmDelete}
   <DeleteModal bind:open={confirmDelete} on:yes={deleteSelected} />
