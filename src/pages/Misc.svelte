@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Table, TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell } from "flowbite-svelte";
+  import { Select, Table, TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell } from "flowbite-svelte";
   import { blobs } from "../services/blobs";
   import { drives } from "../services/drives";
   import { getDriveName } from "../helpers/drives";
@@ -9,19 +9,47 @@
   import { getBlobURL } from "../helpers/blob";
   import type { Blob } from "blossom-client";
 
-  let miscBlobs: Blob[] = [];
-  $: {
-    miscBlobs = $blobs
-      .map((s) => s.blobs)
-      .flat()
-      .sort((a, b) => b.created - a.created);
-  }
+  let selectedDrive = "";
+  let selectedType = "";
+  $: miscBlobs = $blobs.map((s) => s.blobs).flat();
+  $: types = miscBlobs.reduce((set, b) => {
+    if (b.type) set.add(b.type);
+    return set;
+  }, new Set<string>());
+
+  $: sortedBlobs = miscBlobs
+    .filter((b) => {
+      if (selectedDrive) {
+        const isInDrive = getBlobDrives(b).some((d) => d.tags.find((t) => t[0] === "d")?.[1] === selectedDrive);
+        if (!isInDrive) return false;
+      }
+      if (selectedType) {
+        if (b.type !== selectedType) return false;
+      }
+
+      return true;
+    })
+    .sort((a, b) => b.created - a.created);
 
   function getBlobDrives(blob: Blob): NDKEvent[] {
     return Object.values($drives).filter((d) => d.tags.some((t) => t[0] === "x" && t[1] === blob.sha256));
   }
 </script>
 
+<div class="m-2 flex gap-2">
+  <Select placeholder="Select Drive..." bind:value={selectedDrive}>
+    <option value="">None</option>
+    {#each Object.entries($drives) as [id, drive]}
+      <option value={id}>{getDriveName(drive)}</option>
+    {/each}
+  </Select>
+  <Select placeholder="Select Type..." bind:value={selectedType}>
+    <option value="">Any</option>
+    {#each types as type}
+      <option value={type}>{type}</option>
+    {/each}
+  </Select>
+</div>
 <Table hoverable={true}>
   <TableHead>
     <TableHeadCell>ID</TableHeadCell>
@@ -34,7 +62,7 @@
     </TableHeadCell>
   </TableHead>
   <TableBody>
-    {#each miscBlobs as blob}
+    {#each sortedBlobs as blob}
       <TableBodyRow>
         <TableBodyCell>
           <a href={getBlobURL(blob)} target="_blank" class="hover:underline">{blob.sha256}</a>
