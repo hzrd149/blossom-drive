@@ -1,14 +1,14 @@
 <script lang="ts">
-  import { Button, Input, Label, Modal, Select, Spinner } from "flowbite-svelte";
-  import { BlossomClient } from "blossom-client";
+  import { Alert, Button, Input, Label, Modal, Select, Spinner } from "flowbite-svelte";
+  import { BlossomClient, type Blob } from "blossom-client";
   import { handleEvent, drives } from "../services/drives";
   import { NDKEvent } from "@nostr-dev-kit/ndk";
   import { getFileTree, parsePath, setFile, setDriveFileTree } from "../helpers/tree";
   import { servers } from "../services/servers";
-  import type { Blob } from "../services/blobs";
   import { signEventTemplate } from "../services/ndk";
   import { cloneEvent } from "../helpers/event";
   import { getDriveName } from "../helpers/drives";
+  import { InfoCircleSolid } from "flowbite-svelte-icons";
 
   export let open = false;
   export let drive: NDKEvent | undefined = undefined;
@@ -77,6 +77,13 @@
       <span>{loading}</span>
     </div>
   {:else}
+    {#if $servers.length === 0}
+      <Alert color="red">
+        <InfoCircleSolid slot="icon" class="h-4 w-4" />
+        <span class="font-medium">No Servers!</span>
+        Go setup some <a href="#/servers" class="underline">servers</a> first before uploading
+      </Alert>
+    {/if}
     <form class="flex flex-col space-y-4" on:submit={upload}>
       <Input type="file" name="file" required on:change={fileChange} />
       {#if !drive}
@@ -93,7 +100,7 @@
         ><span>Filename</span>
         <Input type="text" name="name" required bind:value={name} />
       </Label>
-      <Button type="submit" class="w-full">Upload</Button>
+      <Button type="submit" class="w-full" disabled={!file || $servers.length === 0}>Upload</Button>
     </form>
   {/if}
 </Modal>
