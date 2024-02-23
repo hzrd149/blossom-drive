@@ -64,6 +64,12 @@
     <DropdownItem
       on:click={(e) => {
         e.preventDefault();
+        dispatch("details", file);
+      }}>Details</DropdownItem
+    >
+    <DropdownItem
+      on:click={(e) => {
+        e.preventDefault();
         dispatch("delete", file.name);
       }}>Delete</DropdownItem
     >

@@ -29,6 +29,7 @@
   import { signEventTemplate } from "../services/ndk";
   import { servers } from "../services/servers";
   import { readFileSystemFile, getAllFileEntriesInTree, readFileSystemDirectory } from "../helpers/file-system";
+  import BlobDetailsModal from "../components/FileDetailsModal.svelte";
 
   export let params: Record<string, string | undefined> = {};
   const naddr = params["naddr"];
@@ -39,6 +40,8 @@
   $: tree = drive ? getFileTree(drive) : {};
   $: subTree = getFolder(tree, parsePath(parsed.get("path")));
 
+  let detailsModal = false;
+  let detailsFile: TreeFile | null = null;
   let confirmDelete = false;
   let selected: string[] = [];
   function toggleSelect(e: CustomEvent<string>) {
@@ -248,6 +251,10 @@
             selected = [e.detail];
             confirmDelete = true;
           }}
+          on:details={(e) => {
+            detailsFile = e.detail;
+            detailsModal = true;
+          }}
         />
       {/each}
     </div>
@@ -261,4 +268,8 @@
 
 {#if renameModal}
   <RenameModal bind:open={renameModal} on:submit={renameEntry} name={selected[0]} />
+{/if}
+
+{#if detailsModal && detailsFile}
+  <BlobDetailsModal bind:open={detailsModal} file={detailsFile} />
 {/if}
