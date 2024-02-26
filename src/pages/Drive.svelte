@@ -4,7 +4,7 @@
   import SpeedDialMenu from "../components/SpeedDialMenu.svelte";
   import { nip19 } from "nostr-tools";
   import { Button, Spinner } from "flowbite-svelte";
-  import { BlossomClient, type Blob } from "blossom-client";
+  import { BlossomClient, type BlobDescriptor } from "blossom-client";
 
   import {
     cloneTree,
@@ -134,7 +134,7 @@
 
     async function uploadFile(file: File) {
       const auth = await BlossomClient.getUploadAuth(file, signEventTemplate);
-      let descriptor: Blob | undefined = undefined;
+      let descriptor: BlobDescriptor | undefined = undefined;
       for (const server of $servers) {
         try {
           descriptor = await BlossomClient.uploadBlob(server, file, auth);

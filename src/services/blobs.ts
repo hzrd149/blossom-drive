@@ -1,11 +1,11 @@
 import { get, writable } from "svelte/store";
 import { activeUser } from "./ndk";
 import { servers } from "./servers";
-import type { Blob } from "blossom-client";
+import { BlossomClient, type BlobDescriptor } from "blossom-client";
 
 type ServerList = {
   server: string;
-  blobs: Blob[];
+  blobs: BlobDescriptor[];
 };
 
 export const blobs = writable<ServerList[]>([]);
@@ -22,7 +22,7 @@ export async function refreshBlobs(urls: string[] = get(servers)) {
 
   for (const server of urls) {
     try {
-      const res = await fetch(new URL("/list?pubkey=" + user.pubkey, server)).then((res) => res.json());
+      const res = await BlossomClient.listBlobs(server, user.pubkey);
       serverLists.push({ server, blobs: res });
     } catch (e) {}
   }

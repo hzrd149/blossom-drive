@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Alert, Button, Input, Label, Modal, Select, Spinner } from "flowbite-svelte";
-  import { BlossomClient, type Blob } from "blossom-client";
+  import { BlossomClient, type BlobDescriptor } from "blossom-client";
   import { handleEvent, drives } from "../services/drives";
   import { NDKEvent } from "@nostr-dev-kit/ndk";
   import { getFileTree, parsePath, setFile, setDriveFileTree } from "../helpers/tree";
@@ -37,7 +37,7 @@
     loading = "Signing Auth";
     const auth = await BlossomClient.getUploadAuth(file, signEventTemplate);
 
-    let blob: Blob | null = null;
+    let blob: BlobDescriptor | null = null;
     for (const server of $servers) {
       loading = `Uploading to ${server}`;
       try {

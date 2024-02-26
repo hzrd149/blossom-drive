@@ -1,13 +1,15 @@
 <script lang="ts">
   import { Select, Table, TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell } from "flowbite-svelte";
-  import { blobs } from "../services/blobs";
+  import { blobs, refreshBlobs } from "../services/blobs";
   import { drives } from "../services/drives";
   import { getDriveName } from "../helpers/drives";
   import type { NDKEvent } from "@nostr-dev-kit/ndk";
   import { formatBytes } from "../helpers/number";
   import dayjs from "dayjs";
   import { getBlobURL } from "../helpers/blob";
-  import type { Blob } from "blossom-client";
+  import { BlossomClient, type BlobDescriptor } from "blossom-client";
+  import { signEventTemplate } from "../services/ndk";
+  import { servers } from "../services/servers";
 
   let selectedDrive = "";
   let selectedType = "";
@@ -31,8 +33,19 @@
     })
     .sort((a, b) => b.created - a.created);
 
-  function getBlobDrives(blob: Blob): NDKEvent[] {
+  function getBlobDrives(blob: BlobDescriptor): NDKEvent[] {
     return Object.values($drives).filter((d) => d.tags.some((t) => t[0] === "x" && t[1] === blob.sha256));
+  }
+  async function deleteBlob(blob: BlobDescriptor) {
+    try {
+      const auth = await BlossomClient.getDeleteAuth(blob.sha256, signEventTemplate);
+      for (const server of $servers) await BlossomClient.deleteBlob(server, blob.sha256, auth);
+    } catch (e) {
+      console.log(e);
+      if (e instanceof Error) alert(e.message);
+    }
+
+    refreshBlobs();
   }
 </script>
 
@@ -79,7 +92,14 @@
         <TableBodyCell>
           <div class="flex gap-4">
             <a href={getBlobURL(blob)} target="_blank" class="font-medium text-blue-500 hover:underline">Open</a>
-            <a href="/tables" class="font-medium text-red-600 hover:underline dark:text-red-500">Delete</a>
+            <a
+              href="/#"
+              on:click={(e) => {
+                e.preventDefault();
+                deleteBlob(blob);
+              }}
+              class="font-medium text-red-600 hover:underline dark:text-red-500">Delete</a
+            >
           </div>
         </TableBodyCell>
       </TableBodyRow>
