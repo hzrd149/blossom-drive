@@ -10,6 +10,11 @@
   import { BlossomClient, type BlobDescriptor } from "blossom-client";
   import { signEventTemplate } from "../services/ndk";
   import { servers } from "../services/servers";
+  import { onMount } from "svelte";
+
+  onMount(() => {
+    refreshBlobs();
+  });
 
   let selectedDrive = "";
   let selectedType = "";
@@ -21,7 +26,9 @@
 
   $: sortedBlobs = miscBlobs
     .filter((b) => {
-      if (selectedDrive) {
+      if (selectedDrive === "--non--") {
+        if (getBlobDrives(b).length > 0) return false;
+      } else if (selectedDrive) {
         const isInDrive = getBlobDrives(b).some((d) => d.tags.find((t) => t[0] === "d")?.[1] === selectedDrive);
         if (!isInDrive) return false;
       }
@@ -51,10 +58,13 @@
 
 <div class="m-2 flex gap-2">
   <Select placeholder="Select Drive..." bind:value={selectedDrive}>
-    <option value="">None</option>
-    {#each Object.entries($drives) as [id, drive]}
-      <option value={id}>{getDriveName(drive)}</option>
-    {/each}
+    <option value="">Any</option>
+    <option value="--none--">None</option>
+    <optgroup label="Drives">
+      {#each Object.entries($drives) as [id, drive]}
+        <option value={id}>{getDriveName(drive)}</option>
+      {/each}
+    </optgroup>
   </Select>
   <Select placeholder="Select Type..." bind:value={selectedType}>
     <option value="">Any</option>
