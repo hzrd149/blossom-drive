@@ -16,9 +16,10 @@
 
     const event = new NDKEvent(ndk);
     event.kind = 30563;
+    event.content = "";
     event.tags.push(["d", name.toLowerCase().replaceAll(/\s/g, "-") || nanoid(8)]);
     event.tags.push(["name", name]);
-    event.content = description;
+    event.tags.push(["summary", description]);
 
     await event.publish();
     dispatch("created", event);

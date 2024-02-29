@@ -3,7 +3,7 @@
   import mime from "mime";
   import type { TreeFile } from "../helpers/tree";
   import { servers } from "../services/servers";
-  import { DotsHorizontalSolid } from "flowbite-svelte-icons";
+  import { DotsHorizontalSolid, ClipboardOutline } from "flowbite-svelte-icons";
   import { createEventDispatcher } from "svelte";
   import { getBlobURL } from "../helpers/blob";
 
@@ -57,6 +57,18 @@
   </div>
   <hr />
   <div class="max-w-40 truncate px-4 py-2 text-center text-sm">{file.name}</div>
+  <Button
+    size="xs"
+    color="none"
+    class="absolute right-1 top-1 !p-1"
+    on:click={(e) => {
+      e.preventDefault();
+      const url = getBlobURL(file);
+      if (url) window.navigator.clipboard.writeText(url);
+    }}
+  >
+    <ClipboardOutline />
+  </Button>
   <Button size="xs" color="none" class="absolute bottom-1 right-1 !p-1" on:click={(e) => e.preventDefault()}>
     <DotsHorizontalSolid />
   </Button>
