@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Button, Card } from "flowbite-svelte";
+  import { Card } from "flowbite-svelte";
   import { NDKKind } from "@nostr-dev-kit/ndk";
   import { activeUser, ndk } from "../services/ndk";
   import { onDestroy } from "svelte";

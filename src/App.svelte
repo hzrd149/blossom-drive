@@ -10,6 +10,8 @@
   import Drive from "./pages/Drive.svelte";
   import { Alert, Button, Checkbox } from "flowbite-svelte";
   import { InfoCircleSolid } from "flowbite-svelte-icons";
+  import Hosting from "./pages/Hosting.svelte";
+  import { lastError } from "./services/error";
 
   let remember = localStorage.getItem("auto-login") === "true";
 
@@ -19,6 +21,7 @@
 
   const routes = {
     "/files": Files,
+    "/hosting": Hosting,
     "/servers": Servers,
     "/misc": Misc,
     "/drive/:naddr": Drive,
@@ -47,3 +50,14 @@
     </div>
   {/if}
 </div>
+
+{#if $lastError}
+  <Alert class="!items-start" dismissable on:close={() => ($lastError = null)}>
+    <span slot="icon">
+      <InfoCircleSolid slot="icon" class="h-4 w-4" />
+      <span class="sr-only">Error</span>
+    </span>
+    <p class="font-medium">{$lastError.message}</p>
+    <p class="whitespace-pre">{$lastError.stack}</p>
+  </Alert>
+{/if}
