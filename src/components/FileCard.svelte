@@ -3,7 +3,7 @@
   import mime from "mime";
   import type { TreeFile } from "../helpers/tree";
   import { servers } from "../services/servers";
-  import { DotsHorizontalSolid, ClipboardOutline } from "flowbite-svelte-icons";
+  import { DotsHorizontalSolid, ArrowUpRightFromSquareOutline } from "flowbite-svelte-icons";
   import { createEventDispatcher } from "svelte";
   import { getBlobURL } from "../helpers/blob";
 
@@ -14,7 +14,7 @@
 
   $: borderClass = selected
     ? "border border-primary-200 dark:border-primary-700"
-    : "border border-gray-200 dark:border-gray-700";
+    : "border border-gray-200 dark:border-gray-700 ";
 
   $: link = getBlobURL(file, $servers[0]);
 
@@ -33,21 +33,17 @@
   }
 </script>
 
-<a
-  href={link}
-  class={"relative flex aspect-square min-w-40 flex-col divide-gray-200 rounded-md border bg-white text-gray-700 hover:bg-gray-100 dark:divide-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700" +
+<!-- svelte-ignore a11y-click-events-have-key-events -->
+<div
+  class={"relative flex aspect-square min-w-40 flex-col divide-gray-200 rounded-md border-4 bg-white text-gray-700 hover:bg-gray-100 dark:divide-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700" +
     borderClass}
   on:dragstart={dragStart}
-  target="_blank"
+  on:click={toggleSelect}
+  on:dblclick={() => window.open(link, "_blank")}
+  role="row"
+  tabindex={0}
+  draggable="true"
 >
-  <Checkbox
-    class="absolute left-1 top-1"
-    on:click={(e) => {
-      e.preventDefault();
-      toggleSelect();
-    }}
-    bind:checked={selected}
-  />
   <div class="flex flex-grow items-center justify-center overflow-hidden text-xl font-bold">
     {#if preview && link}
       <div class="preview-image" style="background-image: url({link});" />
@@ -60,14 +56,12 @@
   <Button
     size="xs"
     color="none"
-    class="absolute right-1 top-1 !p-1"
-    on:click={(e) => {
-      e.preventDefault();
-      const url = getBlobURL(file);
-      if (url) window.navigator.clipboard.writeText(url);
-    }}
+    class="absolute right-0 top-0 !p-1"
+    href={link}
+    target="_blank"
+    on:click={(e) => e.stopPropagation()}
   >
-    <ClipboardOutline />
+    <ArrowUpRightFromSquareOutline />
   </Button>
   <Button size="xs" color="none" class="absolute bottom-1 right-1 !p-1" on:click={(e) => e.preventDefault()}>
     <DotsHorizontalSolid />
@@ -92,7 +86,7 @@
       }}>Rename</DropdownItem
     >
   </Dropdown>
-</a>
+</div>
 
 <style>
   .preview-image {

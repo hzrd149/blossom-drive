@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { Button, Checkbox, Dropdown, DropdownItem } from "flowbite-svelte";
+  import { Button, Dropdown, DropdownItem } from "flowbite-svelte";
   import { DotsHorizontalSolid, FolderSolid } from "flowbite-svelte-icons";
   import { createEventDispatcher } from "svelte";
-  import { location, querystring } from "svelte-spa-router";
+  import { location, push, querystring } from "svelte-spa-router";
 
   export let name: string;
   export let selected = false;
@@ -35,7 +35,8 @@
   function dragenter(e: DragEvent) {
     e.stopPropagation();
     e.stopImmediatePropagation();
-    if (!e.dataTransfer?.getData("text").startsWith("http")) {
+    const text = e.dataTransfer?.getData("text") ?? "";
+    if (!text.startsWith("http") && text !== name) {
       dropHighlight = true;
     }
   }
@@ -47,7 +48,8 @@
   function dragover(e: DragEvent) {
     e.stopPropagation();
     e.stopImmediatePropagation();
-    if (!e.dataTransfer?.getData("text").startsWith("http")) {
+    const text = e.dataTransfer?.getData("text") ?? "";
+    if (!text.startsWith("http") && text !== name) {
       e.preventDefault();
       dropHighlight = true;
     }
@@ -70,24 +72,21 @@
   }
 </script>
 
-<a
-  href={createDirLink(name, $querystring)}
-  class={"relative flex aspect-square min-w-40 flex-col rounded-md border bg-white text-gray-700 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700" +
+<!-- svelte-ignore a11y-click-events-have-key-events -->
+<div
+  class={"relative flex aspect-square min-w-40 flex-col divide-gray-200 rounded-md border-4 bg-white text-gray-700 hover:bg-gray-100 dark:divide-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700" +
     borderClass}
+  on:click={toggleSelect}
+  on:dblclick={() => push(createDirLink(name, $querystring))}
   on:drop={drop}
   on:dragover={dragover}
   on:dragenter={dragenter}
   on:dragleave={dragleave}
   on:dragstart={dragStart}
+  draggable="true"
+  role="row"
+  tabindex={0}
 >
-  <Checkbox
-    class="absolute left-1 top-1"
-    on:click={(e) => {
-      e.preventDefault();
-      toggleSelect();
-    }}
-    bind:checked={selected}
-  />
   <div class="flex flex-grow items-center justify-center p-4"><FolderSolid class="h-10 w-10" /></div>
   <hr />
   <div class="max-w-40 truncate px-4 py-2 text-center text-sm">{name}</div>
@@ -108,4 +107,4 @@
       }}>Rename</DropdownItem
     >
   </Dropdown>
-</a>
+</div>

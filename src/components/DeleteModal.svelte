@@ -18,7 +18,7 @@
     <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
       Are you sure you want to delete these files?
     </h3>
-    <Checkbox bind:checked={deleteRemote} class="mb-4 px-4">Delete from servers</Checkbox>
+    <!-- <Checkbox bind:checked={deleteRemote} class="mb-4 px-4">Delete from servers</Checkbox> -->
     <Button color="red" class="me-2" on:click={() => dispatch("yes")}>Yes, I'm sure</Button>
     <Button color="alternative" on:click={() => (open = false)}>No, cancel</Button>
   </div>

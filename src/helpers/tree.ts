@@ -1,4 +1,4 @@
-import type { NDKEvent, NDKTag } from "@nostr-dev-kit/ndk";
+import type { NDKEvent, NDKTag, NostrEvent } from "@nostr-dev-kit/ndk";
 
 export type TreeFile = {
   t: "file";
@@ -61,7 +61,7 @@ export function getFile(dir: TreeFolder, pathname: string) {
   const folder = getFolder(dir, parts, true);
   return folder[name] as TreeFile | undefined;
 }
-export function getFileTree(drive: NDKEvent) {
+export function getFileTree(drive: NDKEvent|NostrEvent) {
   const tree: TreeFolder = {};
 
   for (const tag of drive.tags) {

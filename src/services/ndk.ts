@@ -2,7 +2,7 @@ import NDKSvelte from "@nostr-dev-kit/ndk-svelte";
 import NDKCacheAdapterDexie from "@nostr-dev-kit/ndk-cache-dexie";
 import { writable } from "svelte/store";
 import type { EventTemplate, SignedEvent } from "blossom-client";
-import { NDKEvent, NDKNip07Signer } from "@nostr-dev-kit/ndk";
+import { NDKEvent, NDKNip07Signer, NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
 
 const cacheAdapter = new NDKCacheAdapterDexie({ dbName: "ndk-cache" });
 
@@ -15,10 +15,14 @@ export const activeUser = writable(ndk.activeUser);
 
 export async function loginWithExtension() {
   const signer: NDKNip07Signer = (ndk.signer = new NDKNip07Signer());
+  console.log("Waiting for NIP-07 signer");
   await signer.blockUntilReady();
+  console.log("Fetching user");
   const user = await signer.user();
-  await user.fetchProfile();
-  await user.relayList();
+  console.log("Fetching profile");
+  user.fetchProfile();
+  console.log("Fetching relay list");
+  user.relayList();
   activeUser.set(user);
 }
 
@@ -40,5 +44,14 @@ if (import.meta.env.DEV) {
 }
 
 if (localStorage.getItem("auto-login") === "true") {
-  await loginWithExtension();
+  await loginWithExtension().catch(() => {});
+  // window.addEventListener("load", () => {
+  //   loginWithExtension()
+  //     .then(() => {
+  //       console.log("Got pubkey automatically");
+  //     })
+  //     .catch((e) => {
+  //       console.log("Failed to automatically login");
+  //     });
+  // });
 }

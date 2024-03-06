@@ -12,6 +12,8 @@
   import { InfoCircleSolid } from "flowbite-svelte-icons";
   import Hosting from "./pages/Hosting.svelte";
   import { lastError } from "./services/error";
+  import History from "./pages/History.svelte";
+  import Sidebar from "./components/Sidebar.svelte";
 
   let remember = localStorage.getItem("auto-login") === "true";
 
@@ -25,6 +27,7 @@
     "/servers": Servers,
     "/misc": Misc,
     "/drive/:naddr": Drive,
+    "/history/:naddr": History,
     "/": Home,
     "*": NotFound,
   };
@@ -35,7 +38,12 @@
 >
   {#if $activeUser}
     <TopNav />
-    <Router {routes} />
+    <div class="flex h-full">
+      <Sidebar />
+      <div class="flex flex-1 flex-col gap-2">
+        <Router {routes} />
+      </div>
+    </div>
   {:else}
     <div class="flex h-full w-full flex-col items-center gap-4">
       <h1 class="text-4xl" style="margin-bottom: 20vh; margin-top: 10vh;">🌸 Blossom Drive</h1>

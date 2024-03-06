@@ -1,9 +1,9 @@
 <script lang="ts">
   import type { NDKEvent } from "@nostr-dev-kit/ndk";
-  import { querystring } from "svelte-spa-router";
+  import { location, querystring, params } from "svelte-spa-router";
   import SpeedDialMenu from "../components/SpeedDialMenu.svelte";
   import { nip19 } from "nostr-tools";
-  import { Button, Spinner } from "flowbite-svelte";
+  import { Button, CloseButton, Spinner } from "flowbite-svelte";
   import { BlossomClient, type BlobDescriptor } from "blossom-client";
 
   import {
@@ -23,16 +23,13 @@
   import PathBreadcrumbs from "../components/PathBreadcrumbs.svelte";
   import { cloneEvent } from "../helpers/event";
   import { handleEvent, drives } from "../services/drives";
-  import { TrashBinSolid } from "flowbite-svelte-icons";
+  import { CloseSolid, TrashBinSolid } from "flowbite-svelte-icons";
   import DeleteModal from "../components/DeleteModal.svelte";
   import RenameModal from "../components/RenameModal.svelte";
   import { signEventTemplate } from "../services/ndk";
   import { servers } from "../services/servers";
-  import { readFileSystemFile, getAllFileEntriesInTree, readFileSystemDirectory } from "../helpers/file-system";
+  import { readFileSystemFile, readFileSystemDirectory } from "../helpers/file-system";
   import BlobDetailsModal from "../components/FileDetailsModal.svelte";
-
-  export let params: Record<string, string | undefined> = {};
-  const naddr = params["naddr"];
 
   $: parsed = new URLSearchParams($querystring);
 
@@ -63,8 +60,8 @@
     .map((e) => e[0]);
 
   $: {
-    if (naddr) {
-      const decoded = nip19.decode(naddr);
+    if ($params?.naddr) {
+      const decoded = nip19.decode($params?.naddr);
       if (decoded.type !== "naddr") throw new Error("Unknown Type");
 
       drive = $drives[decoded.data.identifier];
@@ -206,16 +203,20 @@
   <Spinner />
 {:else}
   <main class="flex flex-grow flex-col gap-4 p-4" on:drop={drop} on:dragover={dragover}>
-    <div class="flex justify-between gap-2">
+    <div class="flex gap-2">
       <PathBreadcrumbs root={getDriveName(drive) ?? "Drive"} />
-      {#if selected.length > 0}
-        <div class="flex items-center gap-2">
-          <p>{selected.length} selected</p>
-          <Button size="sm" on:click={() => (selected = [])}>Clear</Button>
-          <Button size="sm" class="!p-2" on:click={() => (confirmDelete = true)}><TrashBinSolid /></Button>
-        </div>
-      {/if}
+      <div class="flex-1" />
+      <Button href="#/history/{drive.encode()}" color="alternative" size="xs">History</Button>
     </div>
+    {#if selected.length > 0}
+      <div class="flex items-center gap-2 rounded-lg border p-1">
+        <p class="ml-2">{selected.length} selected</p>
+        <Button size="sm" color="none" class="!p-2" on:click={() => (confirmDelete = true)}><TrashBinSolid /></Button>
+        <CloseButton class="ml-0" on:click={() => (selected = [])} />
+      </div>
+    {:else}
+      <div class="flex h-11 gap-2"></div>
+    {/if}
     <div class="flex flex-wrap items-start gap-4">
       {#each folders as folder}
         <FolderCard
