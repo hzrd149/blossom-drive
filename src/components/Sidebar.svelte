@@ -29,7 +29,7 @@
       <SidebarDropdownWrapper label="Drives">
         <ArchiveSolid slot="icon" class="h-5 w-5" />
         {#each Object.values($drives) as drive}
-          <SidebarDropdownItem label={getDriveName(drive)} href="#/drive/{drive.encode()}" />
+          <SidebarDropdownItem label={getDriveName(drive.event)} href="#/drive/{drive.address}" />
         {/each}
       </SidebarDropdownWrapper>
       <SidebarItem label="Hosting" href="#/hosting">

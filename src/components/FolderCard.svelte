@@ -3,15 +3,16 @@
   import { DotsHorizontalSolid, FolderSolid } from "flowbite-svelte-icons";
   import { createEventDispatcher } from "svelte";
   import { location, push, querystring } from "svelte-spa-router";
+  import type TreeFolder from "../blossom-drive-client/FileTree/TreeFolder";
 
-  export let name: string;
+  export let folder: TreeFolder;
   export let selected = false;
 
   const dispatch = createEventDispatcher();
 
   function toggleSelect() {
-    if (selected) dispatch("unselect", name);
-    else dispatch("select", name);
+    if (selected) dispatch("unselect", folder.name);
+    else dispatch("select", folder.name);
   }
 
   let dropHighlight = false;
@@ -30,13 +31,13 @@
   function dragStart(e: DragEvent) {
     if (!e.dataTransfer) return;
     e.dataTransfer.dropEffect = "move";
-    e.dataTransfer.setData("text", name);
+    e.dataTransfer.setData("text", folder.name);
   }
   function dragenter(e: DragEvent) {
     e.stopPropagation();
     e.stopImmediatePropagation();
     const text = e.dataTransfer?.getData("text") ?? "";
-    if (!text.startsWith("http") && text !== name) {
+    if (!text.startsWith("http") && text !== folder.name) {
       dropHighlight = true;
     }
   }
@@ -49,7 +50,7 @@
     e.stopPropagation();
     e.stopImmediatePropagation();
     const text = e.dataTransfer?.getData("text") ?? "";
-    if (!text.startsWith("http") && text !== name) {
+    if (!text.startsWith("http") && text !== folder.name) {
       e.preventDefault();
       dropHighlight = true;
     }
@@ -66,7 +67,7 @@
         dispatch("upload-files", files);
       } else {
         const src = e.dataTransfer.getData("text");
-        if (src) dispatch("move-blob", { src, dest: name });
+        if (src) dispatch("move-blob", { src, dest: folder.name });
       }
     }
   }
@@ -77,7 +78,7 @@
   class={"relative flex aspect-square min-w-40 flex-col divide-gray-200 rounded-md border-4 bg-white text-gray-700 hover:bg-gray-100 dark:divide-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700" +
     borderClass}
   on:click={toggleSelect}
-  on:dblclick={() => push(createDirLink(name, $querystring))}
+  on:dblclick={() => push(createDirLink(folder.name, $querystring))}
   on:drop={drop}
   on:dragover={dragover}
   on:dragenter={dragenter}
@@ -89,21 +90,31 @@
 >
   <div class="flex flex-grow items-center justify-center p-4"><FolderSolid class="h-10 w-10" /></div>
   <hr />
-  <div class="max-w-40 truncate px-4 py-2 text-center text-sm">{name}</div>
-  <Button size="xs" color="none" class="absolute bottom-1 right-1 !p-1" on:click={(e) => e.preventDefault()}>
+  <div class="max-w-40 truncate px-4 py-2 text-center text-sm">{folder.name}</div>
+  <Button
+    size="xs"
+    color="none"
+    class="absolute bottom-1 right-1 !p-1"
+    on:click={(e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    }}
+  >
     <DotsHorizontalSolid />
   </Button>
   <Dropdown>
     <DropdownItem
       on:click={(e) => {
         e.preventDefault();
-        dispatch("delete", name);
+        e.stopPropagation();
+        dispatch("delete", folder.name);
       }}>Delete</DropdownItem
     >
     <DropdownItem
       on:click={(e) => {
         e.preventDefault();
-        dispatch("rename", name);
+        e.stopPropagation();
+        dispatch("rename", folder.name);
       }}>Rename</DropdownItem
     >
   </Dropdown>

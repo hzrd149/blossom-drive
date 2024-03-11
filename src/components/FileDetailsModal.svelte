@@ -1,12 +1,13 @@
 <script lang="ts">
-  import { Button, Modal } from "flowbite-svelte";
-  import type { TreeFile } from "../helpers/tree";
+  import { Name } from "@nostr-dev-kit/ndk-svelte-components";
+  import { Modal } from "flowbite-svelte";
   import { formatBytes } from "../helpers/number";
   import { getBlobURL } from "../helpers/blob";
   import { ndk } from "../services/ndk";
   import { onDestroy } from "svelte";
   import { getDriveName } from "../helpers/drives";
-  import { Name } from "@nostr-dev-kit/ndk-svelte-components";
+  import type TreeFile from "../blossom-drive-client/FileTree/TreeFile";
+
   export let open = false;
   export let file: TreeFile;
 

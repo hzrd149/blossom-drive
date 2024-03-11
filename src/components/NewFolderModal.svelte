@@ -1,12 +1,10 @@
 <script lang="ts">
-  import type { NDKEvent } from "@nostr-dev-kit/ndk";
   import { Button, Modal, Input } from "flowbite-svelte";
-  import { getFileTree, getFolder, parsePath, setDriveFileTree } from "../helpers/tree";
-  import { cloneEvent } from "../helpers/event";
-  import { handleEvent } from "../services/drives";
+  import type Drive from "../blossom-drive-client/Drive";
+  import { joinPath } from "../blossom-drive-client/FileTree/methods";
   export let open = false;
 
-  export let drive: NDKEvent;
+  export let drive: Drive;
   export let path: string;
 
   let name = "";
@@ -15,14 +13,12 @@
     e.preventDefault();
     loading = true;
 
-    const draft = cloneEvent(drive);
-    const tree = getFileTree(draft);
-    getFolder(tree, parsePath(path).concat(name));
-    setDriveFileTree(draft, tree);
-    await draft.sign();
-    handleEvent(draft);
+    drive.getFolder(joinPath(path, name), true);
+
     open = false;
-    await draft.publish();
+    name = "";
+    await drive.save();
+
     loading = false;
   }
 </script>

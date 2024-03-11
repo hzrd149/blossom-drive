@@ -5,8 +5,9 @@
   import UploadFileModal from "./UploadFileModal.svelte";
   import NewDriveModal from "./NewDriveModal.svelte";
   import NewFolderModal from "./NewFolderModal.svelte";
+  import type Drive from "../blossom-drive-client/Drive";
 
-  export let drive: NDKEvent | undefined = undefined;
+  export let drive: Drive | undefined = undefined;
   export let path: string | undefined = undefined;
 
   let uploadFileModal = false;

@@ -1,4 +1,4 @@
-import type { NDKEvent, NostrEvent } from "@nostr-dev-kit/ndk";
+import { NDKKind, type NDKEvent, type NostrEvent } from "@nostr-dev-kit/ndk";
 
 type DVMMetadata = {
   name?: string;
@@ -102,7 +102,7 @@ export function groupEventsIntoJobs(events: NostrEvent[]) {
 
     if (event.kind! >= 6000 && event.kind! < 7000) {
       if (!response.result || response.result.created_at < event.created_at) response.result = event;
-    } else if (event.kind === DVM_STATUS_KIND) {
+    } else if (event.kind === NDKKind.DVMJobFeedback) {
       if (!response.status || response.status.created_at < event.created_at) response.status = event;
     }
   }

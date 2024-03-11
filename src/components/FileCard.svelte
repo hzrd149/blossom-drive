@@ -1,11 +1,11 @@
 <script lang="ts">
-  import { Button, Checkbox, DropdownItem, Dropdown } from "flowbite-svelte";
+  import { Button, DropdownItem, Dropdown } from "flowbite-svelte";
   import mime from "mime";
-  import type { TreeFile } from "../helpers/tree";
   import { servers } from "../services/servers";
   import { DotsHorizontalSolid, ArrowUpRightFromSquareOutline } from "flowbite-svelte-icons";
   import { createEventDispatcher } from "svelte";
   import { getBlobURL } from "../helpers/blob";
+  import type TreeFile from "../blossom-drive-client/FileTree/TreeFile";
 
   export let file: TreeFile;
   export let selected = false;
@@ -63,25 +63,36 @@
   >
     <ArrowUpRightFromSquareOutline />
   </Button>
-  <Button size="xs" color="none" class="absolute bottom-1 right-1 !p-1" on:click={(e) => e.preventDefault()}>
+  <Button
+    size="xs"
+    color="none"
+    class="absolute bottom-1 right-1 !p-1"
+    on:click={(e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    }}
+  >
     <DotsHorizontalSolid />
   </Button>
   <Dropdown>
     <DropdownItem
       on:click={(e) => {
         e.preventDefault();
+        e.stopPropagation();
         dispatch("details", file);
       }}>Details</DropdownItem
     >
     <DropdownItem
       on:click={(e) => {
         e.preventDefault();
+        e.stopPropagation();
         dispatch("delete", file.name);
       }}>Delete</DropdownItem
     >
     <DropdownItem
       on:click={(e) => {
         e.preventDefault();
+        e.stopPropagation();
         dispatch("rename", file.name);
       }}>Rename</DropdownItem
     >

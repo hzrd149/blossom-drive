@@ -7,7 +7,7 @@
   import Servers from "./pages/Servers.svelte";
   import Files from "./pages/Files.svelte";
   import Misc from "./pages/Misc.svelte";
-  import Drive from "./pages/Drive.svelte";
+  import Drive from "./pages/Drive/Drive.svelte";
   import { Alert, Button, Checkbox } from "flowbite-svelte";
   import { InfoCircleSolid } from "flowbite-svelte-icons";
   import Hosting from "./pages/Hosting.svelte";

@@ -31,7 +31,7 @@
       // TODO: find correct kind
       request.kind = 5902;
       request.content = "";
-      request.tags.push(["i", drive.encode(), "text"]);
+      request.tags.push(["i", drive.address, "text"]);
       request.tags.push(["param", "name", name]);
       request.tags.push(["param", "start", String(dayjs(start, format).unix())]);
       request.tags.push(["param", "end", String(dayjs(end, format).unix())]);
@@ -56,7 +56,7 @@
         <label for="drive">Drive</label>
         <Select id="drive" name="drive" placeholder="Select Drive..." bind:value={selectedDrive} required>
           {#each Object.entries($drives) as [id, drive]}
-            <option value={id}>{getDriveName(drive)}</option>
+            <option value={id}>{getDriveName(drive.event)}</option>
           {/each}
         </Select>
       </div>

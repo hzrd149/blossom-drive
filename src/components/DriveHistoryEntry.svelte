@@ -2,7 +2,6 @@
   import type { NostrEvent } from "@nostr-dev-kit/ndk";
   import dayjs from "dayjs";
   import { getDriveName } from "../helpers/drives";
-  import { getFileTree } from "../helpers/tree";
   import { Button } from "flowbite-svelte";
 
   export let version: NostrEvent;
@@ -14,8 +13,8 @@
   $: removedHashes = prevHashes.filter((h) => !hashes.includes(h));
   $: addedHashes = hashes.filter((h) => !prevHashes.includes(h));
 
-  $: tree = getFileTree(version);
-  $: prevTree = getFileTree(prev);
+  // $: tree = getFileTree(version);
+  // $: prevTree = getFileTree(prev);
 </script>
 
 <div class="flex items-center gap-2">

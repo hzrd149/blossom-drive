@@ -1,12 +1,12 @@
 <script lang="ts">
   import { Breadcrumb, BreadcrumbItem } from "flowbite-svelte";
-  import { parsePath } from "../helpers/tree";
   import { location, querystring } from "svelte-spa-router";
+  import { parsePath } from "../blossom-drive-client/FileTree/methods";
 
   export let root: string;
 
   $: parsed = new URLSearchParams($querystring);
-  $: path = parsePath(parsed.get("path"));
+  $: path = parsePath(parsed.get("path") ?? "");
 </script>
 
 <Breadcrumb>

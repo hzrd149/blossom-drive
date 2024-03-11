@@ -1,16 +1,16 @@
 <script lang="ts">
+  import { onMount } from "svelte";
   import { Select, Table, TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell } from "flowbite-svelte";
+  import dayjs from "dayjs";
   import { blobs, refreshBlobs } from "../services/blobs";
   import { drives } from "../services/drives";
   import { getDriveName } from "../helpers/drives";
-  import type { NDKEvent } from "@nostr-dev-kit/ndk";
   import { formatBytes } from "../helpers/number";
-  import dayjs from "dayjs";
   import { getBlobURL } from "../helpers/blob";
   import { BlossomClient, type BlobDescriptor } from "blossom-client";
   import { signEventTemplate } from "../services/ndk";
   import { servers } from "../services/servers";
-  import { onMount } from "svelte";
+  import type Drive from "../blossom-drive-client/Drive";
 
   onMount(() => {
     refreshBlobs();
@@ -29,7 +29,7 @@
       if (selectedDrive === "--non--") {
         if (getBlobDrives(b).length > 0) return false;
       } else if (selectedDrive) {
-        const isInDrive = getBlobDrives(b).some((d) => d.tags.find((t) => t[0] === "d")?.[1] === selectedDrive);
+        const isInDrive = getBlobDrives(b).some((d) => d.identifier === selectedDrive);
         if (!isInDrive) return false;
       }
       if (selectedType) {
@@ -40,8 +40,8 @@
     })
     .sort((a, b) => b.created - a.created);
 
-  function getBlobDrives(blob: BlobDescriptor): NDKEvent[] {
-    return Object.values($drives).filter((d) => d.tags.some((t) => t[0] === "x" && t[1] === blob.sha256));
+  function getBlobDrives(blob: BlobDescriptor): Drive[] {
+    return Object.values($drives).filter((d) => d.hasHash(blob.sha256));
   }
   async function deleteBlob(blob: BlobDescriptor) {
     try {
@@ -62,7 +62,7 @@
     <option value="--none--">None</option>
     <optgroup label="Drives">
       {#each Object.entries($drives) as [id, drive]}
-        <option value={id}>{getDriveName(drive)}</option>
+        <option value={id}>{getDriveName(drive.event)}</option>
       {/each}
     </optgroup>
   </Select>
@@ -94,9 +94,9 @@
         <TableBodyCell>{formatBytes(blob.size)}</TableBodyCell>
         <TableBodyCell>{dayjs.unix(blob.created).format("ll")}</TableBodyCell>
         <TableBodyCell>
-          {#each getBlobDrives(blob) as drive, i (drive.id)}
+          {#each getBlobDrives(blob) as drive, i (drive.identifier)}
             {#if i !== 0}<span>, </span>{/if}
-            <a href="#/drive/{drive.encode()}" class="text-primary-200 hover:underline">{getDriveName(drive)}</a>
+            <a href="#/drive/{drive.address}" class="text-primary-200 hover:underline">{getDriveName(drive.event)}</a>
           {/each}
         </TableBodyCell>
         <TableBodyCell>

@@ -38,12 +38,12 @@
           {#each results as result}
             <a
               class="flex items-center gap-2 px-2 py-1 hover:bg-gray-200 dark:hover:bg-gray-800"
-              href="#/drive/{result.drive.encode()}?path={encodeURIComponent(result.path)}"
+              href="#/drive/{result.drive.address}?path={encodeURIComponent(result.path)}"
               on:click={reset}
             >
               <FileSolid class="h-4 w-4" />
               <span>{result.filename}</span>
-              <span class="text-xs text-gray-500">{getDriveName(result.drive)}{result.path}</span>
+              <span class="text-xs text-gray-500">{getDriveName(result.drive.event)}{result.path}</span>
             </a>
           {/each}
         </div>

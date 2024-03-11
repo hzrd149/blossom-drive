@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { NDKEvent, NostrEvent } from "@nostr-dev-kit/ndk";
+  import type { NostrEvent } from "@nostr-dev-kit/ndk";
   import { nip19 } from "nostr-tools";
   import { Spinner } from "flowbite-svelte";
 
@@ -8,12 +8,13 @@
   import { get } from "svelte/store";
   import { getDriveName } from "../helpers/drives";
   import DriveHistoryEntry from "../components/DriveHistoryEntry.svelte";
+  import type Drive from "../blossom-drive-client/Drive";
 
   export let params: Record<string, string | undefined> = {};
   const naddr = params["naddr"];
 
   let versions: NostrEvent[] = [];
-  let drive: NDKEvent | null = null;
+  let drive: Drive | null = null;
 
   $: {
     const parsed = naddr && nip19.decode(naddr);
@@ -30,7 +31,7 @@
 {:else}
   <main class="flex flex-grow flex-col gap-4 p-4">
     <div class="flex justify-between gap-2">
-      <h1 class="text-xl font-bold">{drive && getDriveName(drive)} - History</h1>
+      <h1 class="text-xl font-bold">{drive && getDriveName(drive.event)} - History</h1>
     </div>
 
     {#each versions as version, i}

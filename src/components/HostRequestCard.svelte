@@ -62,7 +62,7 @@
     </h5>
     <span> - </span>
     <a href="#/drive/{input?.value}" class="text-primary-500 hover:underline">
-      {drive ? getDriveName(drive) : "Unknown"}
+      {drive ? getDriveName(drive.event) : "Unknown"}
     </a>
   </div>
   <div class="font-normal leading-tight text-gray-700 dark:text-gray-400">

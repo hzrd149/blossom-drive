@@ -1,9 +1,13 @@
+import { writable, get, readable } from "svelte/store";
 import type { NDKEvent, NDKSubscription } from "@nostr-dev-kit/ndk";
-import { activeUser, ndk } from "./ndk";
-import { writable } from "svelte/store";
-import { addDriveEvents } from "./db";
+import type { SignedEvent } from "blossom-client";
 
-export const drives = writable<Record<string, NDKEvent>>({});
+import { activeUser, ndk, publishSignedEvent, signEventTemplate } from "./ndk";
+import { backupDriveEvents } from "./db";
+import Drive, { DRIVE_KIND } from "../blossom-drive-client/Drive";
+import type TreeFolder from "../blossom-drive-client/FileTree/TreeFolder";
+
+export const drives = writable<Record<string, Drive>>({});
 
 let sub: NDKSubscription;
 activeUser.subscribe((user) => {
@@ -11,17 +15,45 @@ activeUser.subscribe((user) => {
   if (!user) return;
 
   drives.set({});
-  sub = ndk.subscribe({ kinds: [30563 as number], authors: [user.pubkey] });
+  sub = ndk.subscribe({ kinds: [DRIVE_KIND as number], authors: [user.pubkey] });
   sub.on("event", handleEvent);
   sub.start();
 });
 
-export function handleEvent(event: NDKEvent) {
-  const d = event.tags.find((t) => t[0] === "d")?.[1];
-  if (d) drives.update((dir) => ({ ...dir, [d]: event }));
+async function handleDriveUpdate(drive: Drive) {
+  await backupDriveEvents([drive.event as SignedEvent]);
 }
 
-drives.subscribe(async (dir) => {
-  await addDriveEvents(Object.values(dir).map((e) => e.rawEvent()));
-  console.log("Saved drives locally");
-});
+export function getReadableDrive(drive: Drive) {
+  return readable<Drive>(drive, (set) => {
+    const listener = () => set(drive);
+    drive.on("change", listener);
+
+    set(drive);
+    return () => {
+      drive.off("change", listener);
+    };
+  });
+}
+
+export function handleEvent(event: NDKEvent) {
+  const d = event.tags.find((t) => t[0] === "d")?.[1];
+  if (d) {
+    const existing = get(drives);
+
+    if (existing[d]) {
+      existing[d].update(event.rawEvent() as SignedEvent);
+    } else {
+      const drive = new Drive(event.rawEvent() as SignedEvent, signEventTemplate, publishSignedEvent);
+
+      // backup the event when the drive updates
+      drive.on("update", handleDriveUpdate);
+
+      // add the drive to the list
+      drives.update((dir) => ({
+        ...dir,
+        [d]: drive,
+      }));
+    }
+  }
+}

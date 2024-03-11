@@ -2,23 +2,23 @@
   import { Alert, Button, Input, Label, Modal, Select, Spinner } from "flowbite-svelte";
   import { BlossomClient, type BlobDescriptor } from "blossom-client";
   import { handleEvent, drives } from "../services/drives";
-  import { NDKEvent } from "@nostr-dev-kit/ndk";
-  import { getFileTree, parsePath, setFile, setDriveFileTree } from "../helpers/tree";
   import { servers } from "../services/servers";
   import { signEventTemplate } from "../services/ndk";
   import { cloneEvent } from "../helpers/event";
   import { getDriveName } from "../helpers/drives";
   import { InfoCircleSolid } from "flowbite-svelte-icons";
+  import type Drive from "../blossom-drive-client/Drive";
+  import { joinPath } from "../blossom-drive-client/FileTree/methods";
 
   export let open = false;
-  export let drive: NDKEvent | undefined = undefined;
+  export let drive: Drive | undefined = undefined;
   export let path: string = "";
 
   let driveId = "";
   let file: File | undefined = undefined;
   let name = "";
 
-  let selectedDrive: NDKEvent | undefined = undefined;
+  let selectedDrive: Drive | undefined = undefined;
   $: selectedDrive = drive || $drives[driveId];
 
   function fileChange(e: Event) {
@@ -53,17 +53,9 @@
       return;
     }
 
-    const draft = cloneEvent(selectedDrive);
-    const tree = getFileTree(draft);
-
-    setFile(tree, [...parsePath(path), name], { sha256: blob.sha256, size: blob.size, type: blob.type });
-
-    setDriveFileTree(draft, tree);
-
     loading = "Adding to drive...";
-    await draft.sign();
-    handleEvent(draft);
-    await draft.publish();
+    selectedDrive.setFile(joinPath(path, name), { sha256: blob.sha256, size: blob.size, type: blob.type ?? "" });
+    await selectedDrive.save();
 
     loading = "";
     open = false;
@@ -91,7 +83,7 @@
           <span>Add to Drive</span>
           <Select bind:value={driveId} required>
             {#each Object.entries($drives) as [d, drive]}
-              <option value={d}>{getDriveName(drive)}</option>
+              <option value={d}>{getDriveName(drive.event)}</option>
             {/each}
           </Select>
         </Label>

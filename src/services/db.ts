@@ -16,7 +16,7 @@ const db = await openDB<Schema>("blossom-drive-backup", version, {
   },
 });
 
-export async function addDriveEvents(events: NostrEvent[]) {
+export async function backupDriveEvents(events: NostrEvent[]) {
   const transaction = db.transaction("drives", "readwrite");
 
   for (const event of events) {

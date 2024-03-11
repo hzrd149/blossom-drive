@@ -10,9 +10,9 @@
   <h2 class="text-xl font-bold">Drives</h2>
   <div class="flex w-full flex-wrap gap-4">
     {#each Object.values($drives) as drive}
-      <SimpleCard href={`#/drive/${drive.encode()}`}>
-        <span slot="title">{getDriveName(drive)}</span>
-        <span slot="description">{getDriveSummary(drive)}</span>
+      <SimpleCard href={`#/drive/${drive.address}`}>
+        <span slot="title">{getDriveName(drive.event)}</span>
+        <span slot="description">{getDriveSummary(drive.event)}</span>
       </SimpleCard>
     {/each}
   </div>
