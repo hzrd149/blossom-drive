@@ -4,7 +4,6 @@
   import dayjs from "dayjs";
   import { blobs, refreshBlobs } from "../services/blobs";
   import { drives } from "../services/drives";
-  import { getDriveName } from "../helpers/drives";
   import { formatBytes } from "../helpers/number";
   import { getBlobURL } from "../helpers/blob";
   import { BlossomClient, type BlobDescriptor } from "blossom-client";
@@ -26,7 +25,7 @@
 
   $: sortedBlobs = miscBlobs
     .filter((b) => {
-      if (selectedDrive === "--non--") {
+      if (selectedDrive === "--none--") {
         if (getBlobDrives(b).length > 0) return false;
       } else if (selectedDrive) {
         const isInDrive = getBlobDrives(b).some((d) => d.identifier === selectedDrive);
@@ -62,7 +61,7 @@
     <option value="--none--">None</option>
     <optgroup label="Drives">
       {#each Object.entries($drives) as [id, drive]}
-        <option value={id}>{getDriveName(drive.event)}</option>
+        <option value={id}>{drive.name}</option>
       {/each}
     </optgroup>
   </Select>
@@ -96,7 +95,7 @@
         <TableBodyCell>
           {#each getBlobDrives(blob) as drive, i (drive.identifier)}
             {#if i !== 0}<span>, </span>{/if}
-            <a href="#/drive/{drive.address}" class="text-primary-200 hover:underline">{getDriveName(drive.event)}</a>
+            <a href="#/drive/{drive.address}" class="text-primary-200 hover:underline">{drive.name}</a>
           {/each}
         </TableBodyCell>
         <TableBodyCell>

@@ -31,7 +31,7 @@ export function createTreeFromTags(tags: string[][], quite = true) {
         getFolder(root, dirname(path), true).set(basename(path), file);
       }
       if (tag[0] === "folder") {
-        const path = getPathFromTag(tag);
+        const [_, path] = tag;
         getFolder(root, path, true);
       }
     } catch (e) {

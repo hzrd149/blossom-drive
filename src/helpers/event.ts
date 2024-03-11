@@ -1,7 +1,7 @@
 import { NDKEvent, type NostrEvent } from "@nostr-dev-kit/ndk";
 import { ndk } from "../services/ndk";
 
-export function getTagValue(event: {tags: string[][]}, tag: string) {
+export function getTagValue(event: { tags: string[][] }, tag: string) {
   return event.tags.find((t) => t[0] === tag)?.[1];
 }
 

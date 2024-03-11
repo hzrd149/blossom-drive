@@ -1,21 +1,14 @@
 <script lang="ts">
   import type { NDKEvent } from "@nostr-dev-kit/ndk";
-  import { A, Button, Card } from "flowbite-svelte";
-  import {
-    getHostStatusMetadata,
-    getJobStatusType,
-    getRequestInput,
-    getRequestInputParam,
-    getStatusType,
-  } from "../helpers/dvm";
+  import { Button, Card } from "flowbite-svelte";
+  import { Name } from "@nostr-dev-kit/ndk-svelte-components";
+  import { getHostStatusMetadata, getRequestInput, getRequestInputParam, getStatusType } from "../helpers/dvm";
   import { nip19 } from "nostr-tools";
   import { drives } from "../services/drives";
-  import { getDriveName } from "../helpers/drives";
   import dayjs from "dayjs";
   import { ArrowRightOutline } from "flowbite-svelte-icons";
   import { onDestroy } from "svelte";
   import { ndk } from "../services/ndk";
-  import { Avatar, Name } from "@nostr-dev-kit/ndk-svelte-components";
 
   export let request: NDKEvent;
 
@@ -62,7 +55,7 @@
     </h5>
     <span> - </span>
     <a href="#/drive/{input?.value}" class="text-primary-500 hover:underline">
-      {drive ? getDriveName(drive.event) : "Unknown"}
+      {drive ? drive.name : "Unknown"}
     </a>
   </div>
   <div class="font-normal leading-tight text-gray-700 dark:text-gray-400">

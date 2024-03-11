@@ -6,7 +6,6 @@
   import { getDriveVersions } from "../services/db";
   import { drives } from "../services/drives";
   import { get } from "svelte/store";
-  import { getDriveName } from "../helpers/drives";
   import DriveHistoryEntry from "../components/DriveHistoryEntry.svelte";
   import type Drive from "../blossom-drive-client/Drive";
 
@@ -31,7 +30,7 @@
 {:else}
   <main class="flex flex-grow flex-col gap-4 p-4">
     <div class="flex justify-between gap-2">
-      <h1 class="text-xl font-bold">{drive && getDriveName(drive.event)} - History</h1>
+      <h1 class="text-xl font-bold">{drive?.name} - History</h1>
     </div>
 
     {#each versions as version, i}

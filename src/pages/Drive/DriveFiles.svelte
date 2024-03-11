@@ -1,13 +1,12 @@
 <script lang="ts">
   import SpeedDialMenu from "../../components/SpeedDialMenu.svelte";
-  import { Button, CloseButton, Spinner } from "flowbite-svelte";
+  import { Button, CloseButton, Select, Spinner } from "flowbite-svelte";
+  import { TrashBinSolid } from "flowbite-svelte-icons";
 
-  import { getDriveName } from "../../helpers/drives";
   import FileCard from "../../components/FileCard.svelte";
   import FolderCard from "../../components/FolderCard.svelte";
   import PathBreadcrumbs from "../../components/PathBreadcrumbs.svelte";
   import { getReadableDrive } from "../../services/drives";
-  import { TrashBinSolid } from "flowbite-svelte-icons";
   import DeleteModal from "../../components/DeleteModal.svelte";
   import RenameModal from "../../components/RenameModal.svelte";
   import BlobDetailsModal from "../../components/FileDetailsModal.svelte";
@@ -15,11 +14,14 @@
   import TreeFolder from "../../blossom-drive-client/FileTree/TreeFolder";
   import TreeFile from "../../blossom-drive-client/FileTree/TreeFile";
   import { joinPath } from "../../blossom-drive-client/FileTree/methods";
+  import DriveEditModal from "../../components/DriveEditModal.svelte";
 
   export let currentPath: string;
   export let drive: Drive;
   $: readableDrive = getReadableDrive(drive);
   $: subTree = $readableDrive.getFolder(currentPath);
+
+  let editModal = false;
 
   let detailsModal = false;
   let detailsFile: TreeFile | null = null;
@@ -36,7 +38,15 @@
     selected = [];
   }
 
-  $: files = subTree.children.filter((e) => e instanceof TreeFile) as TreeFile[];
+  let filterType = "";
+  $: typesInDrive = $readableDrive.event.tags.reduce((set, t) => {
+    if (t[0] === "x" && t[4]) set.add(t[4]);
+    return set;
+  }, new Set<string>());
+
+  $: files = (subTree.children.filter((e) => e instanceof TreeFile) as TreeFile[]).filter((f) =>
+    filterType ? f.type === filterType : true,
+  );
   $: folders = subTree.children.filter((e) => e instanceof TreeFolder) as TreeFolder[];
 
   async function moveIntoFolder(e: CustomEvent<{ src: string; dest: string }>) {
@@ -149,19 +159,28 @@
 {:else}
   <main class="flex flex-grow flex-col gap-4 p-4" on:drop={drop} on:dragover={dragover}>
     <div class="flex gap-2">
-      <PathBreadcrumbs root={getDriveName(drive.event) ?? "Drive"} />
+      <PathBreadcrumbs root={drive.name ?? "Drive"} />
       <div class="flex-1" />
+      <Button on:click={() => (editModal = true)} color="alternative" size="xs">Edit</Button>
       <Button href="#/history/{drive.address}" color="alternative" size="xs">History</Button>
     </div>
-    {#if selected.length > 0}
-      <div class="flex items-center gap-2 rounded-lg border border-gray-200 p-1 dark:border-gray-800">
+    <div class="flex items-center gap-2 rounded-lg border border-gray-200 p-1 dark:border-gray-800">
+      {#if selected.length > 0}
         <p class="ml-2">{selected.length} selected</p>
         <Button size="sm" color="none" class="!p-2" on:click={() => (confirmDelete = true)}><TrashBinSolid /></Button>
         <CloseButton class="ml-0" on:click={() => (selected = [])} />
-      </div>
-    {:else}
-      <div class="flex h-11 gap-2"></div>
-    {/if}
+      {:else}
+        <Select placeholder="Select Type..." bind:value={filterType} size="sm" class="max-w-60">
+          <option value="">Any</option>
+          {#each typesInDrive as type}
+            <option value={type}>{type}</option>
+          {/each}
+        </Select>
+        {#if filterType}
+          <Button size="sm" on:click={() => (filterType = "")} color="alternative">Clear Filter</Button>
+        {/if}
+      {/if}
+    </div>
     <div class="flex flex-wrap items-start gap-4">
       {#each folders as folder}
         <FolderCard
@@ -218,4 +237,8 @@
 
 {#if detailsModal && detailsFile}
   <BlobDetailsModal bind:open={detailsModal} file={detailsFile} />
+{/if}
+
+{#if editModal}
+  <DriveEditModal bind:open={editModal} drive={$readableDrive} />
 {/if}

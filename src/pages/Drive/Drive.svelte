@@ -15,6 +15,7 @@
       if (decoded.type !== "naddr") throw new Error("Unknown Type");
 
       drive = $drives[decoded.data.identifier];
+      console.log("Viewing", drive);
     }
   }
 </script>

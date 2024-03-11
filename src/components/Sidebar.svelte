@@ -9,7 +9,6 @@
   } from "flowbite-svelte";
   import { GridSolid, HomeSolid, ArchiveSolid, CogSolid } from "flowbite-svelte-icons";
   import { drives } from "../services/drives";
-  import { getDriveName } from "../helpers/drives";
 </script>
 
 <Sidebar class="h-full">
@@ -29,7 +28,7 @@
       <SidebarDropdownWrapper label="Drives">
         <ArchiveSolid slot="icon" class="h-5 w-5" />
         {#each Object.values($drives) as drive}
-          <SidebarDropdownItem label={getDriveName(drive.event)} href="#/drive/{drive.address}" />
+          <SidebarDropdownItem label={drive.name} href="#/drive/{drive.address}" />
         {/each}
       </SidebarDropdownWrapper>
       <SidebarItem label="Hosting" href="#/hosting">

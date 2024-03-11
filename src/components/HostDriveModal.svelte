@@ -1,7 +1,6 @@
 <script lang="ts">
   import { Button, Input, Modal, Select, Spinner } from "flowbite-svelte";
   import { ndk } from "../services/ndk";
-  import { getDriveName } from "../helpers/drives";
   import { NDKEvent } from "@nostr-dev-kit/ndk";
   import { drives } from "../services/drives";
   import dayjs from "dayjs";
@@ -56,7 +55,7 @@
         <label for="drive">Drive</label>
         <Select id="drive" name="drive" placeholder="Select Drive..." bind:value={selectedDrive} required>
           {#each Object.entries($drives) as [id, drive]}
-            <option value={id}>{getDriveName(drive.event)}</option>
+            <option value={id}>{drive.name}</option>
           {/each}
         </Select>
       </div>

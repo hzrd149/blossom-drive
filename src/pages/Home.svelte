@@ -1,7 +1,6 @@
 <script lang="ts">
   import SpeedDialMenu from "../components/SpeedDialMenu.svelte";
   import { activeUser } from "../services/ndk";
-  import { getDriveName, getDriveSummary } from "../helpers/drives";
   import SimpleCard from "../components/SimpleCard.svelte";
   import { drives } from "../services/drives";
 </script>
@@ -11,8 +10,8 @@
   <div class="flex w-full flex-wrap gap-4">
     {#each Object.values($drives) as drive}
       <SimpleCard href={`#/drive/${drive.address}`}>
-        <span slot="title">{getDriveName(drive.event)}</span>
-        <span slot="description">{getDriveSummary(drive.event)}</span>
+        <span slot="title">{drive.name}</span>
+        <span slot="description">{drive.description}</span>
       </SimpleCard>
     {/each}
   </div>

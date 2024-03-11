@@ -1,11 +1,9 @@
 <script lang="ts">
   import { Alert, Button, Input, Label, Modal, Select, Spinner } from "flowbite-svelte";
   import { BlossomClient, type BlobDescriptor } from "blossom-client";
-  import { handleEvent, drives } from "../services/drives";
+  import { drives } from "../services/drives";
   import { servers } from "../services/servers";
   import { signEventTemplate } from "../services/ndk";
-  import { cloneEvent } from "../helpers/event";
-  import { getDriveName } from "../helpers/drives";
   import { InfoCircleSolid } from "flowbite-svelte-icons";
   import type Drive from "../blossom-drive-client/Drive";
   import { joinPath } from "../blossom-drive-client/FileTree/methods";
@@ -83,7 +81,7 @@
           <span>Add to Drive</span>
           <Select bind:value={driveId} required>
             {#each Object.entries($drives) as [d, drive]}
-              <option value={d}>{getDriveName(drive.event)}</option>
+              <option value={d}>{drive.name}</option>
             {/each}
           </Select>
         </Label>

@@ -36,8 +36,8 @@
     <div>
       <h2 class="text-xl font-bold">Drives:</h2>
       <ul>
-        {#each $drives as drive}
-          <li><span class="font-bold">{getDriveName(drive)}</span> by <Name user={drive.author} /></li>
+        {#each $drives as event}
+          <li><span class="font-bold">{getDriveName(event)}</span> by <Name user={event.author} /></li>
         {/each}
       </ul>
     </div>

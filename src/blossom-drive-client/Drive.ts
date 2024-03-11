@@ -18,10 +18,32 @@ export type Publisher = (event: SignedEvent) => Promise<void>;
 export default class Drive extends EventEmitter {
   tree: TreeFolder;
   event: EventTemplate;
+
   identifier: string;
   pubkey?: string;
 
+  /** whether the drive has been modified and needs to be saved */
   modified = false;
+
+  protected _name: string;
+  protected _description: string;
+  get name() {
+    return this._name;
+  }
+  set name(v: string) {
+    this._name = v;
+    this.modified = true;
+    this.emit("change", this);
+  }
+  get description() {
+    return this._description;
+  }
+  set description(v: string) {
+    this._description = v;
+    this.modified = true;
+    this.emit("change", this);
+  }
+
   signer: Signer;
   publisher: Publisher;
 
@@ -44,17 +66,25 @@ export default class Drive extends EventEmitter {
     if (!d) throw new Error("Missing d tag");
     this.identifier = d;
 
+    this._name = event.tags.find((t) => t[0] === "name")?.[1] ?? this.identifier ?? "";
+    this._description = event.tags.find((t) => t[0] === "description")?.[1] ?? "";
+
     this.tree = createTreeFromTags(event.tags);
   }
 
   async save() {
     if (!this.modified) return;
     try {
+      let newTags = updateTreeInTags(this.event.tags, this.tree);
+
+      newTags = newTags.filter((t) => t[0] !== "name" && t[0] !== "description");
+      newTags.unshift(["name", this.name], ["description", this.description]);
+
       const signed = await this.signer({
         kind: DRIVE_KIND,
         content: this.event.content || "",
         created_at: now(),
-        tags: updateTreeInTags(this.event.tags, this.tree),
+        tags: newTags,
       });
       await this.publisher(signed);
       this.update(signed);
@@ -83,6 +113,8 @@ export default class Drive extends EventEmitter {
   reset() {
     if (this.modified) {
       this.tree = createTreeFromTags(this.event.tags);
+      this._name = this.event.tags.find((t) => t[0] === "name")?.[1] ?? this.identifier ?? "";
+      this._description = this.event.tags.find((t) => t[0] === "description")?.[1] ?? "";
       this.modified = false;
       this.emit("change", this);
     }
@@ -92,7 +124,9 @@ export default class Drive extends EventEmitter {
     return getPath(this.tree, path, create);
   }
   getFolder(path: Path, create = false) {
-    return getFolder(this.tree, path, create);
+    const folder = getFolder(this.tree, path, create);
+    if (create) this.modified = true;
+    return folder;
   }
   getFile(path: Path) {
     return getFile(this.tree, path);

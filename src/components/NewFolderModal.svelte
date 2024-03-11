@@ -25,7 +25,7 @@
 
 <Modal bind:open size="xs" class="w-full" title="New Folder" outsideclose>
   <form id="new-folder-form`" class="flex flex-col gap-2 py-0" on:submit={createFolder}>
-    <Input placeholder="New Folder" required bind:value={name} />
+    <Input placeholder="New Folder" required bind:value={name} autofocus />
     <div class="flex justify-end gap-2">
       <Button color="alternative" on:click={() => (open = false)}>Cancel</Button>
       <Button type="submit" for="new-folder-form">Create</Button>

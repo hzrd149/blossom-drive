@@ -4,7 +4,6 @@
   import _throttle from "lodash.throttle";
   import { FileSolid } from "flowbite-svelte-icons";
   import { searchForFiles, type FileResult } from "../services/search";
-  import { getDriveName } from "../helpers/drives";
 
   let search = "";
 
@@ -43,7 +42,7 @@
             >
               <FileSolid class="h-4 w-4" />
               <span>{result.filename}</span>
-              <span class="text-xs text-gray-500">{getDriveName(result.drive.event)}{result.path}</span>
+              <span class="text-xs text-gray-500">{result.drive.name}{result.path}</span>
             </a>
           {/each}
         </div>
