@@ -1,7 +1,19 @@
 <script lang="ts">
-  import SpeedDialMenu from "../../components/SpeedDialMenu.svelte";
-  import { Button, CloseButton, Select, Spinner } from "flowbite-svelte";
-  import { TrashBinSolid } from "flowbite-svelte-icons";
+  import { Button, CloseButton, Select, Spinner, Tooltip } from "flowbite-svelte";
+  import {
+    ArrowLeftToBracketOutline,
+    CogOutline,
+    DownloadOutline,
+    EditOutline,
+    FileImportOutline,
+    FolderArrowRightOutline,
+    FolderPlusOutline,
+    InfoCircleOutline,
+    LinkOutline,
+    ListSolid,
+    TrashBinOutline,
+    TrashBinSolid,
+  } from "flowbite-svelte-icons";
 
   import FileCard from "../../components/FileCard.svelte";
   import FolderCard from "../../components/FolderCard.svelte";
@@ -15,6 +27,10 @@
   import TreeFile from "../../blossom-drive-client/FileTree/TreeFile";
   import { joinPath } from "../../blossom-drive-client/FileTree/methods";
   import DriveEditModal from "../../components/DriveEditModal.svelte";
+  import NewFolderModal from "../../components/NewFolderModal.svelte";
+  import UploadFileModal from "../../components/UploadFileModal.svelte";
+  import { servers } from "../../services/servers";
+  import { getBlobURL } from "../../helpers/blob";
 
   export let currentPath: string;
   export let drive: Drive;
@@ -22,9 +38,21 @@
   $: subTree = $readableDrive.getFolder(currentPath);
 
   let editModal = false;
+  let newFolderModal = false;
+  let uploadFilesModal = false;
 
   let detailsModal = false;
   let detailsFile: TreeFile | null = null;
+  function showDetailsModal() {
+    if (selected[0]) {
+      const file = subTree.get(selected[0]);
+      if (file instanceof TreeFile) {
+        detailsFile = file;
+        detailsModal = true;
+      }
+    }
+  }
+
   let confirmDelete = false;
   let selected: string[] = [];
   function toggleSelect(e: CustomEvent<string>) {
@@ -52,6 +80,16 @@
   async function moveIntoFolder(e: CustomEvent<{ src: string; dest: string }>) {
     drive.move(joinPath(currentPath, e.detail.src), joinPath(currentPath, [e.detail.dest, e.detail.src]));
     await drive.save();
+  }
+
+  function copySelectedLink() {
+    if (selected[0]) {
+      const file = subTree.get(selected[0]);
+      if (file instanceof TreeFile) {
+        const url = getBlobURL(file, $servers[0]);
+        if (url) window.navigator.clipboard.writeText(url);
+      }
+    }
   }
 
   async function deleteSelected() {
@@ -152,19 +190,91 @@
   //   handleEvent(draft);
   //   await draft.publish();
   // }
+
+  let folderInput: HTMLInputElement;
+  let filesInput: HTMLInputElement;
 </script>
 
 {#if !drive}
   <Spinner />
 {:else}
-  <main class="flex flex-grow flex-col gap-4 p-4" on:drop={drop} on:dragover={dragover}>
-    <div class="flex gap-2">
-      <PathBreadcrumbs root={drive.name ?? "Drive"} />
-      <div class="flex-1" />
-      <Button on:click={() => (editModal = true)} color="alternative" size="xs">Edit</Button>
+  <main class="flex flex-grow flex-col" on:drop={drop} on:dragover={dragover}>
+    <div class="flex items-center gap-2 border-b border-gray-200 p-2 dark:border-gray-800">
+      <PathBreadcrumbs root={drive.name ?? "Drive"} class="mx-2" />
       <Button href="#/history/{drive.address}" color="alternative" size="xs">History</Button>
+
+      <div class="flex-1" />
+
+      {#if selected.length === 0}
+        <Button size="sm" class="!p-2" color="alternative" on:click={() => (newFolderModal = true)}>
+          <FolderPlusOutline />
+        </Button>
+        <Tooltip placement="bottom">Create Folder</Tooltip>
+
+        <div class="h-8 border border-gray-200 dark:border-gray-800" />
+
+        <input class="hidden" type="file" webkitdirectory multiple bind:this={folderInput} />
+        <Button size="sm" class="!p-2" color="alternative" on:click={() => folderInput.click()}>
+          <FolderArrowRightOutline />
+        </Button>
+        <Tooltip placement="bottom">Upload Folder</Tooltip>
+
+        <input class="hidden" type="file" multiple bind:this={filesInput} />
+        <Button size="sm" class="!p-2" color="alternative" on:click={() => filesInput.click()}>
+          <FileImportOutline />
+        </Button>
+        <Tooltip placement="bottom">Upload Files</Tooltip>
+      {:else}
+        {#if selected.length === 1}
+          <Button size="sm" class="!p-2" color="alternative" disabled>
+            <DownloadOutline />
+          </Button>
+          <Tooltip placement="bottom">Download</Tooltip>
+
+          <Button size="sm" class="!p-2" color="alternative" on:click={copySelectedLink}>
+            <LinkOutline />
+          </Button>
+          <Tooltip placement="bottom">Copy Link</Tooltip>
+
+          <div class="h-8 border border-gray-200 dark:border-gray-800" />
+
+          <Button size="sm" class="!p-2" color="alternative" disabled>
+            <ArrowLeftToBracketOutline />
+          </Button>
+          <Tooltip placement="bottom">Move</Tooltip>
+
+          <Button size="sm" class="!p-2" color="alternative" on:click={() => (renameModal = true)}>
+            <EditOutline />
+          </Button>
+          <Tooltip placement="bottom">Rename</Tooltip>
+
+          <Button size="sm" class="!p-2" color="alternative" on:click={showDetailsModal}>
+            <InfoCircleOutline />
+          </Button>
+          <Tooltip placement="bottom">Details</Tooltip>
+        {/if}
+
+        <div class="h-8 border border-gray-200 dark:border-gray-800" />
+
+        <Button size="sm" class="!p-2" color="alternative" on:click={() => (confirmDelete = true)}>
+          <TrashBinOutline />
+        </Button>
+        <Tooltip placement="bottom">Delete</Tooltip>
+      {/if}
+
+      <div class="h-8 border border-gray-200 dark:border-gray-800" />
+
+      <Button size="sm" class="!p-2" color="alternative" disabled>
+        <ListSolid />
+      </Button>
+      <Tooltip placement="bottom">Change Layout</Tooltip>
+
+      <Button size="sm" class="!p-2" color="alternative" on:click={() => (editModal = true)}>
+        <CogOutline />
+      </Button>
+      <Tooltip placement="bottom">Drive Settings</Tooltip>
     </div>
-    <div class="flex items-center gap-2 rounded-lg border border-gray-200 p-1 dark:border-gray-800">
+    <div class="flex items-center gap-2 rounded-lg px-4 pt-2">
       {#if selected.length > 0}
         <p class="ml-2">{selected.length} selected</p>
         <Button size="sm" color="none" class="!p-2" on:click={() => (confirmDelete = true)}><TrashBinSolid /></Button>
@@ -180,8 +290,12 @@
           <Button size="sm" on:click={() => (filterType = "")} color="alternative">Clear Filter</Button>
         {/if}
       {/if}
+
+      <div class="mx-auto"></div>
     </div>
-    <div class="flex flex-wrap items-start gap-4">
+    <!-- svelte-ignore a11y-click-events-have-key-events -->
+    <!-- svelte-ignore a11y-no-static-element-interactions -->
+    <div class="flex flex-1 flex-wrap items-start gap-4 p-4" on:click={() => (selected = [])}>
       {#each folders as folder}
         <FolderCard
           {folder}
@@ -225,7 +339,6 @@
     </div>
   </main>
 {/if}
-<SpeedDialMenu drive={drive ?? undefined} path={currentPath} />
 
 {#if confirmDelete}
   <DeleteModal bind:open={confirmDelete} on:yes={deleteSelected} />
@@ -241,4 +354,12 @@
 
 {#if editModal}
   <DriveEditModal bind:open={editModal} drive={$readableDrive} />
+{/if}
+
+{#if newFolderModal && drive}
+  <NewFolderModal bind:open={newFolderModal} {drive} path={currentPath} />
+{/if}
+
+{#if uploadFilesModal}
+  <UploadFileModal bind:open={uploadFilesModal} {drive} path={currentPath} />
 {/if}

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { NDKEvent } from "@nostr-dev-kit/ndk";
-  import { Button, Modal, Input, Textarea } from "flowbite-svelte";
+  import { Button, Modal, Input, Textarea, Spinner } from "flowbite-svelte";
   import { createEventDispatcher } from "svelte";
   import { ndk } from "../services/ndk";
   import { nanoid } from "nanoid";
@@ -8,6 +8,8 @@
 
   let name = "";
   let description = "";
+
+  let loading = false;
 
   const dispatch = createEventDispatcher();
 
@@ -27,12 +29,16 @@
 </script>
 
 <Modal bind:open size="xs" class="w-full" title="New Drive" outsideclose>
-  <form id="new-folder-form" class="flex flex-col gap-2 py-0" on:submit={submit}>
-    <Input placeholder="Drive name" required bind:value={name} />
-    <Textarea name="about" rows={4} placeholder="A short description" bind:value={description} />
-    <div class="flex justify-end gap-2">
-      <Button color="alternative" on:click={() => (open = false)}>Cancel</Button>
-      <Button type="submit">Create</Button>
-    </div>
-  </form>
+  {#if loading}
+    <Spinner />
+  {:else}
+    <form id="new-folder-form" class="flex flex-col gap-2 py-0" on:submit={submit}>
+      <Input placeholder="Drive name" required bind:value={name} />
+      <Textarea name="about" rows={4} placeholder="A short description" bind:value={description} />
+      <div class="flex justify-end gap-2">
+        <Button color="alternative" on:click={() => (open = false)}>Cancel</Button>
+        <Button type="submit">Create</Button>
+      </div>
+    </form>
+  {/if}
 </Modal>

@@ -3,6 +3,8 @@ import type Drive from "./Drive";
 
 export type UploadableItem = FileList | File | FileSystemDirectoryEntry;
 
+// NOTE: make sure to support webkitRelativePath on File if its defined
+
 export default class Upload {
   drive: Drive;
   servers: string[];

@@ -9,7 +9,7 @@
   $: path = parsePath(parsed.get("path") ?? "");
 </script>
 
-<Breadcrumb>
+<Breadcrumb class={$$props.class}>
   <BreadcrumbItem href={"#" + $location} home>{root}</BreadcrumbItem>
   {#each path as name, i}
     <BreadcrumbItem href={"#" + $location + "?path=/" + [...path.slice(0, i), name].join("/")}>{name}</BreadcrumbItem>

@@ -35,10 +35,10 @@
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div
-  class={"relative flex aspect-square min-w-40 flex-col divide-gray-200 rounded-md border-4 bg-white text-gray-700 hover:bg-gray-100 dark:divide-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700" +
+  class={"relative flex h-40 w-48 flex-col divide-gray-200 rounded-md border-2 bg-white text-gray-700 hover:bg-gray-100 dark:divide-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700" +
     borderClass}
   on:dragstart={dragStart}
-  on:click={toggleSelect}
+  on:click|stopPropagation={toggleSelect}
   on:dblclick={() => window.open(link, "_blank")}
   role="row"
   tabindex={0}
@@ -101,7 +101,6 @@
 
 <style>
   .preview-image {
-    image-rendering: pixelated;
     background-position: center;
     background-size: contain;
     background-repeat: no-repeat;
