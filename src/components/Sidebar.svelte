@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import {
     Sidebar,
     SidebarGroup,
@@ -8,14 +8,36 @@
     SidebarDropdownWrapper,
     Button,
     SidebarBrand,
+    DropdownItem,
+    DropdownDivider,
+    Dropdown,
   } from "flowbite-svelte";
-  import { HomeSolid, ArchiveSolid, CogSolid, PlusSolid, TagSolid, DatabaseOutline } from "flowbite-svelte-icons";
+  import {
+    HomeSolid,
+    ArchiveSolid,
+    PlusSolid,
+    TagSolid,
+    DatabaseOutline,
+    FolderArrowRightOutline,
+    FileImportOutline,
+    InfoCircleOutline,
+  } from "flowbite-svelte-icons";
+  import type { NDKEvent } from "@nostr-dev-kit/ndk";
+
   import { drives } from "../services/drives";
+  import { servers } from "../services/servers";
+  import NewDriveModal from "./NewDriveModal.svelte";
 
   let site = {
     name: "Blossom Drive",
     href: "/#/",
     img: "/pwa-192x192.png",
+  };
+
+  let newDriveModal = false;
+
+  const createdDrive = (event: CustomEvent<NDKEvent>) => {
+    location.hash = "#/drive/" + event.detail.encode();
   };
 </script>
 
@@ -23,6 +45,15 @@
   <SidebarWrapper class="h-full">
     <SidebarBrand {site} />
     <Button size="lg" class="mb-2 w-full"><PlusSolid class="me-2 h-6 w-6" />New</Button>
+    <Dropdown class="w-60">
+      <DropdownItem on:click={() => (newDriveModal = true)}
+        ><ArchiveSolid class="inline-block h-6 w-6" /> Drive</DropdownItem
+      >
+      <DropdownDivider />
+      <DropdownItem><FileImportOutline class="inline-block h-6 w-6" /> Upload Files</DropdownItem>
+      <DropdownItem><FolderArrowRightOutline class="inline-block h-6 w-6" /> Upload Folder</DropdownItem>
+    </Dropdown>
+
     <SidebarGroup>
       <SidebarItem label="Home" href="#/">
         <HomeSolid slot="icon" class="h-5 w-5" />
@@ -41,6 +72,9 @@
       </SidebarItem>
       <SidebarItem label="Servers" href="#/servers">
         <DatabaseOutline class="h-5 w-5" slot="icon" />
+        {#if $servers.length === 0}
+          <InfoCircleOutline slot="subtext" class="ml-auto h-5 w-5 text-red-500" />
+        {/if}
       </SidebarItem>
       <!-- <SidebarItem label="Logout">
         <ArrowRightToBracketSolid slot="icon" class="h-5 w-5" />
@@ -48,3 +82,7 @@
     </SidebarGroup>
   </SidebarWrapper>
 </Sidebar>
+
+{#if newDriveModal}
+  <NewDriveModal bind:open={newDriveModal} on:created={createdDrive} />
+{/if}

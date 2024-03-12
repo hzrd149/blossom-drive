@@ -2,7 +2,13 @@
   import { Button, DropdownItem, Dropdown } from "flowbite-svelte";
   import mime from "mime";
   import { servers } from "../services/servers";
-  import { DotsHorizontalSolid, ArrowUpRightFromSquareOutline } from "flowbite-svelte-icons";
+  import {
+    DotsHorizontalSolid,
+    ArrowUpRightFromSquareOutline,
+    InfoCircleOutline,
+    EditOutline,
+    TrashBinOutline,
+  } from "flowbite-svelte-icons";
   import { createEventDispatcher } from "svelte";
   import { getBlobURL } from "../helpers/blob";
   import type TreeFile from "../blossom-drive-client/FileTree/TreeFile";
@@ -74,27 +80,27 @@
   >
     <DotsHorizontalSolid />
   </Button>
-  <Dropdown>
+  <Dropdown class="w-48" placement="bottom-start">
     <DropdownItem
       on:click={(e) => {
         e.preventDefault();
         e.stopPropagation();
         dispatch("details", file);
-      }}>Details</DropdownItem
+      }}><InfoCircleOutline class="mr-2 inline-block h-5 w-5" />Details</DropdownItem
     >
     <DropdownItem
       on:click={(e) => {
         e.preventDefault();
         e.stopPropagation();
-        dispatch("delete", file.name);
-      }}>Delete</DropdownItem
+        dispatch("rename", file);
+      }}><EditOutline class="mr-2 inline-block h-5 w-5" />Rename</DropdownItem
     >
     <DropdownItem
       on:click={(e) => {
         e.preventDefault();
         e.stopPropagation();
-        dispatch("rename", file.name);
-      }}>Rename</DropdownItem
+        dispatch("delete", file);
+      }}><TrashBinOutline class="mr-2 inline-block h-5 w-5" />Delete</DropdownItem
     >
   </Dropdown>
 </div>

@@ -14,6 +14,7 @@
   import { lastError } from "./services/error";
   import History from "./pages/History.svelte";
   import Sidebar from "./components/Sidebar.svelte";
+  import UploadDrawer from "./components/UploadDrawer.svelte";
 
   let remember = localStorage.getItem("auto-login") === "true";
 
@@ -42,6 +43,7 @@
       <TopNav />
       <Router {routes} />
     </div>
+    <UploadDrawer />
   {:else}
     <div class="flex flex-1 flex-col items-center gap-4">
       <h1 class="text-4xl" style="margin-bottom: 20vh; margin-top: 10vh;">🌸 Blossom Drive</h1>

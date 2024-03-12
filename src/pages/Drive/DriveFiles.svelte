@@ -33,6 +33,10 @@
   import UploadFileModal from "../../components/UploadFileModal.svelte";
   import { servers } from "../../services/servers";
   import { getBlobURL } from "../../helpers/blob";
+  import type { ChangeEventHandler } from "svelte/elements";
+  import Upload from "../../blossom-drive-client/Upload";
+  import { signEventTemplate } from "../../services/ndk";
+  import { addUpload } from "../../services/uploads";
 
   export let currentPath: string;
   export let drive: Drive;
@@ -110,10 +114,28 @@
     await drive.save();
   }
 
-  function drop(e: DragEvent) {
+  const handleFileInputChange: ChangeEventHandler<HTMLInputElement> = async (e) => {
+    const files = e.currentTarget.files;
+    if (files && files.length > 0) {
+      const upload = new Upload(drive, currentPath, $servers, signEventTemplate);
+      await upload.addFileList(files);
+      addUpload(upload);
+    }
+  };
+
+  async function drop(e: DragEvent) {
     e.preventDefault();
-    if (e.dataTransfer?.files.length) {
-      // uploadFiles(e.dataTransfer.items[0].webkitGetAsEntry() || e.dataTransfer.files);
+    if (e.dataTransfer) {
+      const fs = e.dataTransfer.items?.[0].webkitGetAsEntry();
+      if (fs) {
+        const upload = new Upload(drive, currentPath, $servers, signEventTemplate);
+        await upload.addFileSystemEntry(fs);
+        addUpload(upload);
+      } else if (e.dataTransfer.files.length > 0) {
+        const upload = new Upload(drive, currentPath, $servers, signEventTemplate);
+        await upload.addFileList(e.dataTransfer.files);
+        addUpload(upload);
+      }
     }
   }
   function dragover(e: DragEvent) {
@@ -226,13 +248,20 @@
 
         <div class="h-8 border border-gray-200 dark:border-gray-800" />
 
-        <input class="hidden" type="file" webkitdirectory multiple bind:this={folderInput} />
+        <input
+          class="hidden"
+          type="file"
+          webkitdirectory
+          multiple
+          bind:this={folderInput}
+          on:change={handleFileInputChange}
+        />
         <Button size="sm" class="!p-2" color="alternative" on:click={() => folderInput.click()}>
           <FolderArrowRightOutline />
         </Button>
         <Tooltip placement="bottom">Upload Folder</Tooltip>
 
-        <input class="hidden" type="file" multiple bind:this={filesInput} />
+        <input class="hidden" type="file" multiple bind:this={filesInput} on:change={handleFileInputChange} />
         <Button size="sm" class="!p-2" color="alternative" on:click={() => filesInput.click()}>
           <FileImportOutline />
         </Button>
@@ -308,50 +337,49 @@
     </div>
     <!-- svelte-ignore a11y-click-events-have-key-events -->
     <!-- svelte-ignore a11y-no-static-element-interactions -->
-    <div
-      class="flex h-0 flex-1 flex-wrap items-start gap-4 overflow-auto px-4 pb-10 pt-2"
-      on:click={() => (selected = [])}
-    >
-      {#each folders as folder}
-        <FolderCard
-          {folder}
-          on:move-blob={moveIntoFolder}
-          selected={selected.includes(folder.name)}
-          on:select={toggleSelect}
-          on:unselect={toggleSelect}
-          on:rename={(e) => {
-            selected = [e.detail];
-            renameModal = true;
-          }}
-          on:delete={(e) => {
-            selected = [e.detail];
-            confirmDelete = true;
-          }}
-          on:upload-files={(e) => {
-            // uploadFiles(e.detail, folder);
-          }}
-        />
-      {/each}
-      {#each files as file}
-        <FileCard
-          {file}
-          selected={selected.includes(file.name)}
-          on:select={toggleSelect}
-          on:unselect={toggleSelect}
-          on:rename={(e) => {
-            selected = [e.detail];
-            renameModal = true;
-          }}
-          on:delete={(e) => {
-            selected = [e.detail];
-            confirmDelete = true;
-          }}
-          on:details={(e) => {
-            detailsFile = e.detail;
-            detailsModal = true;
-          }}
-        />
-      {/each}
+    <div class="flex h-0 flex-1 flex-col overflow-auto px-4 pb-10 pt-2" on:click={() => (selected = [])}>
+      <div class="flex flex-wrap gap-4">
+        {#each folders as folder}
+          <FolderCard
+            {folder}
+            on:move-blob={moveIntoFolder}
+            selected={selected.includes(folder.name)}
+            on:select={toggleSelect}
+            on:unselect={toggleSelect}
+            on:rename={(e) => {
+              selected = [e.detail.name];
+              renameModal = true;
+            }}
+            on:delete={(e) => {
+              selected = [e.detail.name];
+              confirmDelete = true;
+            }}
+            on:upload-files={(e) => {
+              // uploadFiles(e.detail, folder);
+            }}
+          />
+        {/each}
+        {#each files as file}
+          <FileCard
+            {file}
+            selected={selected.includes(file.name)}
+            on:select={toggleSelect}
+            on:unselect={toggleSelect}
+            on:rename={(e) => {
+              selected = [e.detail.name];
+              renameModal = true;
+            }}
+            on:delete={(e) => {
+              selected = [e.detail.name];
+              confirmDelete = true;
+            }}
+            on:details={(e) => {
+              detailsFile = e.detail;
+              detailsModal = true;
+            }}
+          />
+        {/each}
+      </div>
     </div>
   </main>
 {/if}
