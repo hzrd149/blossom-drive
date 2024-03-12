@@ -2,6 +2,7 @@
   import { Button, CloseButton, Select, Spinner, Tooltip } from "flowbite-svelte";
   import {
     ArrowLeftToBracketOutline,
+    CloseOutline,
     CogOutline,
     DownloadOutline,
     EditOutline,
@@ -9,6 +10,7 @@
     FolderArrowRightOutline,
     FolderPlusOutline,
     InfoCircleOutline,
+    InfoCircleSolid,
     LinkOutline,
     ListSolid,
     TrashBinOutline,
@@ -193,12 +195,23 @@
 
   let folderInput: HTMLInputElement;
   let filesInput: HTMLInputElement;
+
+  let showWarning = false;
 </script>
 
 {#if !drive}
   <Spinner />
 {:else}
-  <main class="flex flex-grow flex-col" on:drop={drop} on:dragover={dragover}>
+  <main class="flex flex-1 flex-grow flex-col overflow-hidden" on:drop={drop} on:dragover={dragover}>
+    <div class="relative flex w-full flex-row items-center bg-purple-500">
+      {#if showWarning}
+        <InfoCircleSolid class="m-2 h-5 w-5" />
+        <p>This drive is public, anyone can view it and download files</p>
+        <Button color="none" class="ml-auto" on:click={() => (showWarning = false)}><CloseOutline /></Button>
+      {:else}
+        <button class="h-3 w-full border-none bg-none" on:click={() => (showWarning = true)} />
+      {/if}
+    </div>
     <div class="flex items-center gap-2 border-b border-gray-200 p-2 dark:border-gray-800">
       <PathBreadcrumbs root={drive.name ?? "Drive"} class="mx-2" />
       <Button href="#/history/{drive.address}" color="alternative" size="xs">History</Button>
@@ -274,7 +287,7 @@
       </Button>
       <Tooltip placement="bottom">Drive Settings</Tooltip>
     </div>
-    <div class="flex items-center gap-2 rounded-lg px-4 pt-2">
+    <div class="flex items-center gap-2 rounded-lg px-4 py-2">
       {#if selected.length > 0}
         <p class="ml-2">{selected.length} selected</p>
         <Button size="sm" color="none" class="!p-2" on:click={() => (confirmDelete = true)}><TrashBinSolid /></Button>
@@ -295,7 +308,10 @@
     </div>
     <!-- svelte-ignore a11y-click-events-have-key-events -->
     <!-- svelte-ignore a11y-no-static-element-interactions -->
-    <div class="flex flex-1 flex-wrap items-start gap-4 p-4" on:click={() => (selected = [])}>
+    <div
+      class="flex h-0 flex-1 flex-wrap items-start gap-4 overflow-auto px-4 pb-10 pt-2"
+      on:click={() => (selected = [])}
+    >
       {#each folders as folder}
         <FolderCard
           {folder}

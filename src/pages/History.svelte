@@ -1,13 +1,14 @@
 <script lang="ts">
   import type { NostrEvent } from "@nostr-dev-kit/ndk";
   import { nip19 } from "nostr-tools";
-  import { Spinner } from "flowbite-svelte";
+  import { Button, Spinner, Timeline, TimelineItem } from "flowbite-svelte";
 
   import { getDriveVersions } from "../services/db";
   import { drives } from "../services/drives";
   import { get } from "svelte/store";
   import DriveHistoryEntry from "../components/DriveHistoryEntry.svelte";
   import type Drive from "../blossom-drive-client/Drive";
+  import { ArrowRightOutline } from "flowbite-svelte-icons";
 
   export let params: Record<string, string | undefined> = {};
   const naddr = params["naddr"];
@@ -20,7 +21,7 @@
     if (parsed && parsed.type === "naddr") {
       drive = get(drives)[parsed.data.identifier];
       const cord = [parsed.data.kind, parsed.data.pubkey, parsed.data.identifier].join(":");
-      getDriveVersions(cord).then((events) => (versions = events));
+      getDriveVersions(cord).then((events) => (versions = events.sort((a, b) => b.created_at - a.created_at)));
     }
   }
 </script>
@@ -33,10 +34,12 @@
       <h1 class="text-xl font-bold">{drive?.name} - History</h1>
     </div>
 
-    {#each versions as version, i}
-      {#if i >= 1}
-        <DriveHistoryEntry {version} prev={versions[i - 1]} />
-      {/if}
-    {/each}
+    <Timeline>
+      {#each versions as version, i}
+        {#if i >= 1}
+          <DriveHistoryEntry {version} prev={versions[i - 1]} />
+        {/if}
+      {/each}
+    </Timeline>
   </main>
 {/if}

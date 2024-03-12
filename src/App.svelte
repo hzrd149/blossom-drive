@@ -6,7 +6,7 @@
   import { activeUser, loginWithExtension } from "./services/ndk";
   import Servers from "./pages/Servers.svelte";
   import Files from "./pages/Files.svelte";
-  import Misc from "./pages/Misc.svelte";
+  import Blobs from "./pages/Blobs.svelte";
   import Drive from "./pages/Drive/Drive.svelte";
   import { Alert, Button, Checkbox } from "flowbite-svelte";
   import { InfoCircleSolid } from "flowbite-svelte-icons";
@@ -25,7 +25,7 @@
     "/files": Files,
     "/hosting": Hosting,
     "/servers": Servers,
-    "/misc": Misc,
+    "/blobs": Blobs,
     "/drive/:naddr": Drive,
     "/history/:naddr": History,
     "/": Home,
@@ -34,18 +34,16 @@
 </script>
 
 <div
-  class="flex w-full flex-1 flex-col overflow-y-auto overflow-x-hidden bg-white text-gray-900 dark:bg-gray-900 dark:text-white"
+  class="flex w-full flex-1 overflow-y-auto overflow-x-hidden bg-white text-gray-900 dark:bg-gray-900 dark:text-white"
 >
   {#if $activeUser}
-    <TopNav />
-    <div class="flex h-full">
-      <Sidebar />
-      <div class="flex flex-1 flex-col gap-2">
-        <Router {routes} />
-      </div>
+    <Sidebar />
+    <div class="flex flex-1 flex-col">
+      <TopNav />
+      <Router {routes} />
     </div>
   {:else}
-    <div class="flex h-full w-full flex-col items-center gap-4">
+    <div class="flex flex-1 flex-col items-center gap-4">
       <h1 class="text-4xl" style="margin-bottom: 20vh; margin-top: 10vh;">🌸 Blossom Drive</h1>
       <Alert color="red">
         <InfoCircleSolid slot="icon" class="h-4 w-4" />

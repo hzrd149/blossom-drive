@@ -22,12 +22,8 @@
   $: throttleSearch(search);
 </script>
 
-<div class="flex flex-wrap items-center gap-2 bg-gray-50 px-6 py-2 text-gray-700 dark:bg-gray-800 dark:text-gray-200">
-  <h1 class="text-lg font-bold">
-    <a href="#/">🌸 Blossom Drive</a>
-  </h1>
-
-  <div class="mx-10 mr-auto flex max-w-lg flex-1 flex-col">
+<div class="flex flex-wrap items-center gap-2 bg-gray-50 p-2 text-gray-700 dark:bg-gray-800 dark:text-gray-200">
+  <div class="mr-auto flex max-w-lg flex-1 flex-col">
     <Input type="search" size="sm" placeholder="Search Drives" bind:value={search} />
     {#if results.length > 0}
       <div class="relative w-full">

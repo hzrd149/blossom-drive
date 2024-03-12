@@ -2,7 +2,7 @@
   import type { NostrEvent } from "@nostr-dev-kit/ndk";
   import dayjs from "dayjs";
   import { getDriveName } from "../helpers/drives";
-  import { Button } from "flowbite-svelte";
+  import { TimelineItem } from "flowbite-svelte";
 
   export let version: NostrEvent;
   export let prev: NostrEvent;
@@ -17,26 +17,23 @@
   // $: prevTree = getFileTree(prev);
 </script>
 
-<div class="flex items-center gap-2">
-  <h2 class="text-lg font-bold">{dayjs.unix(version.created_at).format("llll")}</h2>
-  <Button color="alternative" size="sm" class="ml-auto">Raw</Button>
-</div>
+<TimelineItem date={dayjs.unix(version.created_at).format("llll")}>
+  <ul class="text-base font-normal">
+    {#if getDriveName(version) !== getDriveName(prev)}
+      <li>Renamed {getDriveName(prev)} to {getDriveName(version)}</li>
+    {/if}
 
-<ul>
-  {#if getDriveName(version) !== getDriveName(prev)}
-    <li>Renamed {getDriveName(prev)} to {getDriveName(version)}</li>
-  {/if}
-
-  {#each addedHashes as hash}
-    <li>
-      <span>Added {version.tags.find((t) => t[0] === "x" && t[1] === hash)?.[2]}</span>
+    {#each addedHashes as hash}
+      <li>
+        <span>Added {version.tags.find((t) => t[0] === "x" && t[1] === hash)?.[2]}</span>
+        <br />
+        <code>{hash}</code>
+      </li>
+    {/each}
+    {#each removedHashes as hash}
+      <span>Removed {prev.tags.find((t) => t[0] === "x" && t[1] === hash)?.[2]}</span>
       <br />
       <code>{hash}</code>
-    </li>
-  {/each}
-  {#each removedHashes as hash}
-    <span>Removed {prev.tags.find((t) => t[0] === "x" && t[1] === hash)?.[2]}</span>
-    <br />
-    <code>{hash}</code>
-  {/each}
-</ul>
+    {/each}
+  </ul>
+</TimelineItem>
