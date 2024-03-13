@@ -23,28 +23,32 @@
 </script>
 
 <div class="flex flex-wrap items-center gap-2 bg-gray-50 p-2 text-gray-700 dark:bg-gray-800 dark:text-gray-200">
-  <div class="mr-auto flex max-w-lg flex-1 flex-col">
-    <Input type="search" size="sm" placeholder="Search Drives" bind:value={search} />
-    {#if results.length > 0}
-      <div class="relative w-full">
-        <div
-          class="absolute left-0 right-0 top-1 z-50 flex flex-col gap-2 rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"
-        >
-          {#each results as result}
-            <a
-              class="flex items-center gap-2 px-2 py-1 hover:bg-gray-200 dark:hover:bg-gray-800"
-              href="#/drive/{result.drive.address}?path={encodeURIComponent(result.path)}"
-              on:click={reset}
-            >
-              <FileSolid class="h-4 w-4" />
-              <span>{result.filename}</span>
-              <span class="text-xs text-gray-500">{result.drive.name}{result.path}</span>
-            </a>
-          {/each}
+  {#if $activeUser}
+    <div class="flex max-w-lg flex-1 flex-col">
+      <Input type="search" size="sm" placeholder="Search Drives" bind:value={search} />
+      {#if results.length > 0}
+        <div class="relative w-full">
+          <div
+            class="absolute left-0 right-0 top-1 z-50 flex flex-col gap-2 rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"
+          >
+            {#each results as result}
+              <a
+                class="flex items-center gap-2 px-2 py-1 hover:bg-gray-200 dark:hover:bg-gray-800"
+                href="#/drive/{result.drive.address}?path={encodeURIComponent(result.path)}"
+                on:click={reset}
+              >
+                <FileSolid class="h-4 w-4" />
+                <span>{result.filename}</span>
+                <span class="text-xs text-gray-500">{result.drive.name}{result.path}</span>
+              </a>
+            {/each}
+          </div>
         </div>
-      </div>
-    {/if}
-  </div>
+      {/if}
+    </div>
+  {/if}
+
+  <div class="flex-1" />
 
   <DarkMode size="sm" />
   {#if $activeUser}

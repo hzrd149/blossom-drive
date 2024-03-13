@@ -27,6 +27,7 @@
   import { drives } from "../services/drives";
   import { servers } from "../services/servers";
   import NewDriveModal from "./NewDriveModal.svelte";
+  import { activeUser } from "../services/ndk";
 
   let site = {
     name: "Blossom Drive",
@@ -44,7 +45,10 @@
 <Sidebar class="h-full">
   <SidebarWrapper class="h-full">
     <SidebarBrand {site} />
-    <Button size="lg" class="mb-2 w-full"><PlusSolid class="me-2 h-6 w-6" />New</Button>
+
+    <Button size="lg" class="mb-2 w-full" disabled={$activeUser === undefined}
+      ><PlusSolid class="me-2 h-6 w-6" />New</Button
+    >
     <Dropdown class="w-60">
       <DropdownItem on:click={() => (newDriveModal = true)}
         ><ArchiveSolid class="inline-block h-6 w-6" /> Drive</DropdownItem
@@ -54,32 +58,34 @@
       <DropdownItem><FolderArrowRightOutline class="inline-block h-6 w-6" /> Upload Folder</DropdownItem>
     </Dropdown>
 
-    <SidebarGroup>
-      <SidebarItem label="Home" href="#/">
-        <HomeSolid slot="icon" class="h-5 w-5" />
-      </SidebarItem>
-      <SidebarDropdownWrapper label="Drives">
-        <ArchiveSolid slot="icon" class="h-5 w-5" />
-        {#each Object.values($drives) as drive}
-          <SidebarDropdownItem label={drive.name} href="#/drive/{drive.address}" />
-        {/each}
-      </SidebarDropdownWrapper>
-      <!-- <SidebarItem label="Hosting" href="#/hosting">
+    {#if $activeUser}
+      <SidebarGroup>
+        <SidebarItem label="Home" href="#/">
+          <HomeSolid slot="icon" class="h-5 w-5" />
+        </SidebarItem>
+        <SidebarDropdownWrapper label="Drives">
+          <ArchiveSolid slot="icon" class="h-5 w-5" />
+          {#each Object.values($drives) as drive}
+            <SidebarDropdownItem label={drive.name} href="#/drive/{drive.address}" />
+          {/each}
+        </SidebarDropdownWrapper>
+        <!-- <SidebarItem label="Hosting" href="#/hosting">
         <GridSolid slot="icon" class="h-5 w-5" />
       </SidebarItem> -->
-      <SidebarItem label="Blobs" href="#/blobs">
-        <TagSolid class="h-5 w-5" slot="icon" />
-      </SidebarItem>
-      <SidebarItem label="Servers" href="#/servers">
-        <DatabaseOutline class="h-5 w-5" slot="icon" />
-        {#if $servers.length === 0}
-          <InfoCircleOutline slot="subtext" class="ml-auto h-5 w-5 text-red-500" />
-        {/if}
-      </SidebarItem>
-      <!-- <SidebarItem label="Logout">
+        <SidebarItem label="Blobs" href="#/blobs">
+          <TagSolid class="h-5 w-5" slot="icon" />
+        </SidebarItem>
+        <SidebarItem label="Servers" href="#/servers">
+          <DatabaseOutline class="h-5 w-5" slot="icon" />
+          {#if $servers.length === 0}
+            <InfoCircleOutline slot="subtext" class="ml-auto h-5 w-5 text-red-500" />
+          {/if}
+        </SidebarItem>
+        <!-- <SidebarItem label="Logout">
         <ArrowRightToBracketSolid slot="icon" class="h-5 w-5" />
       </SidebarItem> -->
-    </SidebarGroup>
+      </SidebarGroup>
+    {/if}
   </SidebarWrapper>
 </Sidebar>
 

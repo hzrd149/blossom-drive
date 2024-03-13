@@ -8,10 +8,12 @@
     InfoCircleOutline,
     EditOutline,
     TrashBinOutline,
+    FileCopyOutline,
   } from "flowbite-svelte-icons";
   import { createEventDispatcher } from "svelte";
   import { getBlobURL } from "../helpers/blob";
   import type TreeFile from "../blossom-drive-client/FileTree/TreeFile";
+  import { extname } from "path-browserify";
 
   export let file: TreeFile;
   export let selected = false;
@@ -24,7 +26,7 @@
 
   $: link = getBlobURL(file, $servers[0]);
 
-  $: extension = file.type ? mime.getExtension(file.type) : "bin";
+  $: extension = file.type ? mime.getExtension(file.type) ?? extname(file.name) : extname(file.name);
   $: preview = file.type?.startsWith("image/") && file.size < 1024 * 100;
 
   function toggleSelect() {
@@ -45,7 +47,7 @@
     borderClass}
   on:dragstart={dragStart}
   on:click|stopPropagation={toggleSelect}
-  on:dblclick={() => window.open(link, "_blank")}
+  on:dblclick={() => link && window.open(link, "_blank")}
   role="row"
   tabindex={0}
   draggable="true"
@@ -58,17 +60,19 @@
     {/if}
   </div>
   <hr />
-  <div class="max-w-40 truncate px-4 py-2 text-center text-sm">{file.name}</div>
-  <Button
-    size="xs"
-    color="none"
-    class="absolute right-0 top-0 !p-1"
-    href={link}
-    target="_blank"
-    on:click={(e) => e.stopPropagation()}
-  >
-    <ArrowUpRightFromSquareOutline />
-  </Button>
+  <div class="w-full max-w-48 truncate px-4 py-2 text-center text-sm">{file.name}</div>
+  {#if link}
+    <Button
+      size="xs"
+      color="none"
+      class="absolute right-0 top-0 !p-1"
+      href={link}
+      target="_blank"
+      on:click={(e) => e.stopPropagation()}
+    >
+      <ArrowUpRightFromSquareOutline />
+    </Button>
+  {/if}
   <Button
     size="xs"
     color="none"
@@ -86,22 +90,38 @@
         e.preventDefault();
         e.stopPropagation();
         dispatch("details", file);
-      }}><InfoCircleOutline class="mr-2 inline-block h-5 w-5" />Details</DropdownItem
+      }}
     >
+      <InfoCircleOutline class="mr-2 inline-block h-5 w-5" />Details
+    </DropdownItem>
+    <DropdownItem
+      on:click={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        window.navigator.clipboard.writeText(file.sha256);
+      }}
+    >
+      <FileCopyOutline class="mr-2 inline-block h-5 w-5" />Copy Hash
+    </DropdownItem>
     <DropdownItem
       on:click={(e) => {
         e.preventDefault();
         e.stopPropagation();
         dispatch("rename", file);
-      }}><EditOutline class="mr-2 inline-block h-5 w-5" />Rename</DropdownItem
+      }}
     >
+      <EditOutline class="mr-2 inline-block h-5 w-5" />Rename
+    </DropdownItem>
     <DropdownItem
+      class="text-red-500"
       on:click={(e) => {
         e.preventDefault();
         e.stopPropagation();
         dispatch("delete", file);
-      }}><TrashBinOutline class="mr-2 inline-block h-5 w-5" />Delete</DropdownItem
+      }}
     >
+      <TrashBinOutline class="mr-2 inline-block h-5 w-5" />Delete
+    </DropdownItem>
   </Dropdown>
 </div>
 

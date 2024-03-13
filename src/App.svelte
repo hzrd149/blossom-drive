@@ -3,18 +3,18 @@
   import NotFound from "./pages/404.svelte";
   import Home from "./pages/Home.svelte";
   import TopNav from "./components/TopNav.svelte";
-  import { activeUser, loginWithExtension } from "./services/ndk";
   import Servers from "./pages/Servers.svelte";
   import Files from "./pages/Files.svelte";
   import Blobs from "./pages/Blobs.svelte";
   import Drive from "./pages/Drive/Drive.svelte";
-  import { Alert, Button, Checkbox } from "flowbite-svelte";
+  import { Alert } from "flowbite-svelte";
   import { InfoCircleSolid } from "flowbite-svelte-icons";
   import Hosting from "./pages/Hosting.svelte";
   import { lastError } from "./services/error";
   import History from "./pages/History.svelte";
   import Sidebar from "./components/Sidebar.svelte";
   import UploadDrawer from "./components/UploadDrawer.svelte";
+  import Login from "./pages/Login.svelte";
 
   let remember = localStorage.getItem("auto-login") === "true";
 
@@ -29,6 +29,7 @@
     "/blobs": Blobs,
     "/drive/:naddr": Drive,
     "/history/:naddr": History,
+    "/login": Login,
     "/": Home,
     "*": NotFound,
   };
@@ -37,26 +38,12 @@
 <div
   class="flex w-full flex-1 overflow-y-auto overflow-x-hidden bg-white text-gray-900 dark:bg-gray-900 dark:text-white"
 >
-  {#if $activeUser}
-    <Sidebar />
-    <div class="flex flex-1 flex-col">
-      <TopNav />
-      <Router {routes} />
-    </div>
-    <UploadDrawer />
-  {:else}
-    <div class="flex flex-1 flex-col items-center gap-4">
-      <h1 class="text-4xl" style="margin-bottom: 20vh; margin-top: 10vh;">🌸 Blossom Drive</h1>
-      <Alert color="red">
-        <InfoCircleSolid slot="icon" class="h-4 w-4" />
-        <span class="font-medium">Warning!</span>
-        Everything on blossom is public, don't upload private files
-      </Alert>
-
-      <Button size="xl" on:click={loginWithExtension}>Login with nostr</Button>
-      <Checkbox bind:checked={remember}>Stay logged in</Checkbox>
-    </div>
-  {/if}
+  <Sidebar />
+  <div class="flex flex-1 flex-col">
+    <TopNav />
+    <Router {routes} />
+  </div>
+  <UploadDrawer />
 </div>
 
 {#if $lastError}

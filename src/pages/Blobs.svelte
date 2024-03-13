@@ -24,10 +24,12 @@
     .map((s) => s.blobs)
     .flat();
 
-  $: types = filteredBlobs.reduce((set, b) => {
-    if (b.type) set.add(b.type);
-    return set;
-  }, new Set<string>());
+  $: types = Array.from(
+    filteredBlobs.reduce((set, b) => {
+      if (b.type) set.add(b.type);
+      return set;
+    }, new Set<string>()),
+  ).sort();
 
   $: sortedBlobs = filteredBlobs
     .filter((b) => {

@@ -25,8 +25,9 @@ export default class Drive extends EventEmitter {
   /** whether the drive has been modified and needs to be saved */
   modified = false;
 
-  protected _name: string;
-  protected _description: string;
+  protected _name: string = "";
+  protected _description: string = "";
+  protected _servers: string[] = [];
   get name() {
     return this._name;
   }
@@ -40,6 +41,14 @@ export default class Drive extends EventEmitter {
   }
   set description(v: string) {
     this._description = v;
+    this.modified = true;
+    this.emit("change", this);
+  }
+  get servers() {
+    return this._servers;
+  }
+  set servers(v: string[]) {
+    this._servers = v;
     this.modified = true;
     this.emit("change", this);
   }
@@ -66,8 +75,7 @@ export default class Drive extends EventEmitter {
     if (!d) throw new Error("Missing d tag");
     this.identifier = d;
 
-    this._name = event.tags.find((t) => t[0] === "name")?.[1] ?? this.identifier ?? "";
-    this._description = event.tags.find((t) => t[0] === "description")?.[1] ?? "";
+    this.resetMetadata();
 
     this.tree = createTreeFromTags(event.tags);
   }
@@ -110,11 +118,16 @@ export default class Drive extends EventEmitter {
     }
     return false;
   }
+
+  protected resetMetadata() {
+    this._name = this.event.tags.find((t) => t[0] === "name")?.[1] ?? this.identifier ?? "";
+    this._description = this.event.tags.find((t) => t[0] === "description")?.[1] ?? "";
+    this._servers = this.event.tags.filter((t) => t[0] === "r" && t[1]).map((t) => new URL("/", t[1]).toString());
+  }
   reset() {
     if (this.modified) {
       this.tree = createTreeFromTags(this.event.tags);
-      this._name = this.event.tags.find((t) => t[0] === "name")?.[1] ?? this.identifier ?? "";
-      this._description = this.event.tags.find((t) => t[0] === "description")?.[1] ?? "";
+      this.resetMetadata();
       this.modified = false;
       this.emit("change", this);
     }

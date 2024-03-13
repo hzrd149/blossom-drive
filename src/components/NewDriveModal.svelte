@@ -15,7 +15,7 @@
 
   const submit = async (e: SubmitEvent) => {
     e.preventDefault();
-
+    loading = true;
     const event = new NDKEvent(ndk);
     event.kind = 30563;
     event.content = "";
@@ -25,12 +25,17 @@
 
     await event.publish();
     dispatch("created", event);
+    open = false;
+    loading = false;
   };
 </script>
 
 <Modal bind:open size="xs" class="w-full" title="New Drive" outsideclose>
   {#if loading}
-    <Spinner />
+    <div class="flex items-center justify-center gap-4">
+      <Spinner />
+      <p class="text-lg font-bold">Saving...</p>
+    </div>
   {:else}
     <form id="new-folder-form" class="flex flex-col gap-2 py-0" on:submit={submit}>
       <Input placeholder="Drive name" required bind:value={name} />
