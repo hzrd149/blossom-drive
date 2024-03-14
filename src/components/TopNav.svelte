@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Button, DarkMode, Avatar, Input } from "flowbite-svelte";
+  import { Button, DarkMode, Avatar, Search } from "flowbite-svelte";
   import { activeUser } from "../services/ndk";
   import _throttle from "lodash.throttle";
   import { FileSolid } from "flowbite-svelte-icons";
@@ -25,7 +25,7 @@
 <div class="flex flex-wrap items-center gap-2 bg-gray-50 p-2 text-gray-700 dark:bg-gray-800 dark:text-gray-200">
   {#if $activeUser}
     <div class="flex max-w-lg flex-1 flex-col">
-      <Input type="search" size="sm" placeholder="Search Drives" bind:value={search} />
+      <Search type="search" size="sm" placeholder="Search Drives" bind:value={search} />
       {#if results.length > 0}
         <div class="relative w-full">
           <div

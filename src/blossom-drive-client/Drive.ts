@@ -96,8 +96,10 @@ export default class Drive extends EventEmitter {
   protected createEventTemplate() {
     let newTags = updateTreeInTags(this.event?.tags || [], this.tree);
 
-    const replaceTags = ["name", "description", "d"];
-    newTags = newTags.filter((t) => !replaceTags.includes(t[0]));
+    const removeTags = ["name", "description", "d", "r"];
+    newTags = newTags.filter((t) => !removeTags.includes(t[0]));
+
+    for (const server of this.servers) newTags.unshift(["r", new URL("/", server).toString()]);
     newTags.unshift(["name", this.name], ["description", this.description], ["d", this.identifier]);
 
     const template: EventTemplate = {

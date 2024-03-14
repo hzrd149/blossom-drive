@@ -1,15 +1,16 @@
 <script lang="ts">
-  import { NDKEvent } from "@nostr-dev-kit/ndk";
-  import { Button, Modal, Input, Textarea, Spinner, Checkbox, Alert } from "flowbite-svelte";
+  import { Button, Modal, Input, Textarea, Spinner, Checkbox, Label } from "flowbite-svelte";
   import { createEventDispatcher } from "svelte";
   import { publishSignedEvent, signEventTemplate } from "../services/ndk";
   import { nanoid } from "nanoid";
   import Drive from "../blossom-drive-client/Drive";
   import { EncryptedDrive } from "../blossom-drive-client/EncryptedDrive";
+  import { servers } from "../services/servers";
   export let open = false;
 
   let name = "";
   let description = "";
+  let selectedServers: string[] = [];
   let encrypted = false;
   let password = "";
   let pwd2 = "";
@@ -17,6 +18,11 @@
   let loading = false;
 
   const dispatch = createEventDispatcher();
+
+  function toggleServer(server: string) {
+    if (selectedServers.includes(server)) selectedServers = selectedServers.filter((s) => s !== server);
+    else selectedServers = selectedServers.concat(server);
+  }
 
   const submit = async (e: SubmitEvent) => {
     try {
@@ -54,6 +60,14 @@
     <form id="new-folder-form" class="flex flex-col gap-2 py-0" on:submit={submit}>
       <Input placeholder="Drive name" required bind:value={name} />
       <Textarea name="about" rows={4} placeholder="A short description" bind:value={description} />
+
+      <Label>Media Servers</Label>
+      {#each $servers as server}
+        <Checkbox checked={selectedServers.includes(server)} on:change={() => toggleServer(server)}
+          >{new URL(server).hostname}</Checkbox
+        >
+      {/each}
+
       <!-- <Checkbox bind:checked={encrypted}>Encrypted</Checkbox>
       {#if encrypted}
         <p>Encrypted drives are password protected. anyone with the password will be able to decrypt and view files</p>
