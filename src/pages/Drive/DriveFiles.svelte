@@ -6,6 +6,7 @@
     CogOutline,
     DownloadOutline,
     EditOutline,
+    EyeSolid,
     FileImportOutline,
     FolderArrowRightOutline,
     FolderPlusOutline,
@@ -13,9 +14,11 @@
     InfoCircleSolid,
     LinkOutline,
     ListSolid,
+    LockSolid,
     TrashBinOutline,
     TrashBinSolid,
   } from "flowbite-svelte-icons";
+  import { BlossomClient } from "blossom-client";
 
   import FileCard from "../../components/FileCard.svelte";
   import FolderCard from "../../components/FolderCard.svelte";
@@ -37,10 +40,14 @@
   import Upload from "../../blossom-drive-client/Upload";
   import { signEventTemplate } from "../../services/ndk";
   import { addUpload } from "../../services/uploads";
+  import { EncryptedDrive } from "../../blossom-drive-client/EncryptedDrive";
+  import UnlockDrive from "../../components/UnlockDrive.svelte";
+  import { saveAs } from "file-saver";
 
   export let currentPath: string;
   export let drive: Drive;
   $: readableDrive = getReadableDrive(drive);
+  $: encryptedDrive = $readableDrive instanceof EncryptedDrive ? (drive as EncryptedDrive) : null;
   $: subTree = $readableDrive.getFolder(currentPath);
 
   let editModal = false;
@@ -72,8 +79,11 @@
     selected = [];
   }
 
+  $: encrypted = $readableDrive instanceof EncryptedDrive;
+  $: locked = $readableDrive instanceof EncryptedDrive ? $readableDrive.locked : undefined;
+
   let filterType = "";
-  $: typesInDrive = $readableDrive.event.tags.reduce((set, t) => {
+  $: typesInDrive = ($readableDrive.event?.tags ?? []).reduce((set, t) => {
     if (t[0] === "x" && t[4]) set.add(t[4]);
     return set;
   }, new Set<string>());
@@ -102,6 +112,27 @@
     for (const name of selected) drive.remove(joinPath(currentPath, name));
     selected = [];
     await drive.save();
+  }
+
+  async function downloadSelected() {
+    for (const file of subTree) {
+      if (file instanceof TreeFile && selected.includes(file.name)) {
+        let blob: Blob | null = null;
+        for (const server of $servers) {
+          try {
+            blob = await BlossomClient.getBlob(server, file.sha256);
+            break;
+          } catch (e) {}
+        }
+
+        if (blob) {
+          if (drive instanceof EncryptedDrive) blob = await drive.decryptBlob(blob, file.type);
+
+          const download = new File([blob], file.name, { type: blob.type });
+          await saveAs(download, download.name);
+        }
+      }
+    }
   }
 
   let renameModal = false;
@@ -145,24 +176,36 @@
   let folderInput: HTMLInputElement;
   let filesInput: HTMLInputElement;
 
-  let showWarning = false;
+  let showInfo = false;
 </script>
 
 {#if !drive}
   <Spinner />
 {:else}
   <main class="flex flex-1 flex-grow flex-col overflow-hidden" on:drop={drop} on:dragover={dragover}>
-    <div class="relative flex w-full flex-row items-center bg-purple-500">
-      {#if showWarning}
-        <InfoCircleSolid class="m-2 h-5 w-5" />
-        <p>This drive is public, anyone can view it and download files</p>
-        <Button color="none" class="ml-auto" on:click={() => (showWarning = false)}><CloseOutline /></Button>
-      {:else}
-        <button class="h-3 w-full border-none bg-none" on:click={() => (showWarning = true)} />
-      {/if}
-    </div>
+    {#if encrypted}
+      <div class="relative flex w-full flex-row items-center bg-green-500">
+        {#if showInfo}
+          <LockSolid class="m-2 h-6 w-6" />
+          <p>This drive is encrypted, only users who know the password can view it and download files</p>
+          <Button color="none" class="ml-auto" on:click={() => (showInfo = false)}><CloseOutline /></Button>
+        {:else}
+          <button class="h-3 w-full border-none bg-none" on:click={() => (showInfo = true)} />
+        {/if}
+      </div>
+    {:else}
+      <div class="relative flex w-full flex-row items-center bg-purple-500">
+        {#if showInfo}
+          <EyeSolid class="m-2 h-6 w-6" />
+          <p>This drive is public, anyone can view it and download files</p>
+          <Button color="none" class="ml-auto" on:click={() => (showInfo = false)}><CloseOutline /></Button>
+        {:else}
+          <button class="h-3 w-full border-none bg-none" on:click={() => (showInfo = true)} />
+        {/if}
+      </div>
+    {/if}
     <div class="flex items-center gap-2 border-b border-gray-200 p-2 dark:border-gray-800">
-      <PathBreadcrumbs root={drive.name ?? "Drive"} class="mx-2" />
+      <PathBreadcrumbs root={encrypted && locked ? "[Locked]" : drive.name ?? "Drive"} class="mx-2" />
       <Button href="#/history/{drive.address}" color="alternative" size="xs">History</Button>
 
       <div class="flex-1" />
@@ -195,15 +238,17 @@
         <Tooltip placement="bottom">Upload Files</Tooltip>
       {:else}
         {#if selected.length === 1}
-          <Button size="sm" class="!p-2" color="alternative" disabled>
+          <Button size="sm" class="!p-2" color="alternative" on:click={downloadSelected}>
             <DownloadOutline />
           </Button>
           <Tooltip placement="bottom">Download</Tooltip>
 
-          <Button size="sm" class="!p-2" color="alternative" on:click={copySelectedLink}>
-            <LinkOutline />
-          </Button>
-          <Tooltip placement="bottom">Copy Link</Tooltip>
+          {#if !encrypted}
+            <Button size="sm" class="!p-2" color="alternative" on:click={copySelectedLink}>
+              <LinkOutline />
+            </Button>
+            <Tooltip placement="bottom">Copy Link</Tooltip>
+          {/if}
 
           <div class="h-8 border border-gray-200 dark:border-gray-800" />
 
@@ -225,7 +270,7 @@
 
         <div class="h-8 border border-gray-200 dark:border-gray-800" />
 
-        <Button size="sm" class="!p-2" color="alternative" on:click={() => (confirmDelete = true)}>
+        <Button size="sm" class="!p-2" color="red" outline on:click={() => (confirmDelete = true)}>
           <TrashBinOutline />
         </Button>
         <Tooltip placement="bottom">Delete</Tooltip>
@@ -262,52 +307,57 @@
 
       <div class="mx-auto"></div>
     </div>
-    <!-- svelte-ignore a11y-click-events-have-key-events -->
-    <!-- svelte-ignore a11y-no-static-element-interactions -->
-    <div class="flex h-0 flex-1 flex-col overflow-auto px-4 pb-10 pt-2" on:click={() => (selected = [])}>
-      <div class="flex flex-wrap gap-4">
-        {#each folders as folder}
-          <FolderCard
-            {folder}
-            on:move-blob={moveIntoFolder}
-            selected={selected.includes(folder.name)}
-            on:select={toggleSelect}
-            on:unselect={toggleSelect}
-            on:rename={(e) => {
-              selected = [e.detail.name];
-              renameModal = true;
-            }}
-            on:delete={(e) => {
-              selected = [e.detail.name];
-              confirmDelete = true;
-            }}
-            on:upload-files={(e) => {
-              // uploadFiles(e.detail, folder);
-            }}
-          />
-        {/each}
-        {#each files as file}
-          <FileCard
-            {file}
-            selected={selected.includes(file.name)}
-            on:select={toggleSelect}
-            on:unselect={toggleSelect}
-            on:rename={(e) => {
-              selected = [e.detail.name];
-              renameModal = true;
-            }}
-            on:delete={(e) => {
-              selected = [e.detail.name];
-              confirmDelete = true;
-            }}
-            on:details={(e) => {
-              detailsFile = e.detail;
-              detailsModal = true;
-            }}
-          />
-        {/each}
+    {#if encrypted && locked && encryptedDrive}
+      <UnlockDrive drive={encryptedDrive} />
+    {:else}
+      <!-- svelte-ignore a11y-click-events-have-key-events -->
+      <!-- svelte-ignore a11y-no-static-element-interactions -->
+      <div class="flex h-0 flex-1 flex-col overflow-auto px-4 pb-10 pt-2" on:click={() => (selected = [])}>
+        <div class="flex flex-wrap gap-4">
+          {#each folders as folder}
+            <FolderCard
+              {folder}
+              on:move-blob={moveIntoFolder}
+              selected={selected.includes(folder.name)}
+              on:select={toggleSelect}
+              on:unselect={toggleSelect}
+              on:rename={(e) => {
+                selected = [e.detail.name];
+                renameModal = true;
+              }}
+              on:delete={(e) => {
+                selected = [e.detail.name];
+                confirmDelete = true;
+              }}
+              on:upload-files={(e) => {
+                // uploadFiles(e.detail, folder);
+              }}
+            />
+          {/each}
+          {#each files as file}
+            <FileCard
+              {file}
+              {encrypted}
+              selected={selected.includes(file.name)}
+              on:select={toggleSelect}
+              on:unselect={toggleSelect}
+              on:rename={(e) => {
+                selected = [e.detail.name];
+                renameModal = true;
+              }}
+              on:delete={(e) => {
+                selected = [e.detail.name];
+                confirmDelete = true;
+              }}
+              on:details={(e) => {
+                detailsFile = e.detail;
+                detailsModal = true;
+              }}
+            />
+          {/each}
+        </div>
       </div>
-    </div>
+    {/if}
   </main>
 {/if}
 

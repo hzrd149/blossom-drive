@@ -51,9 +51,9 @@
       ><PlusSolid class="me-2 h-6 w-6" />New</Button
     >
     <Dropdown class="w-60">
-      <DropdownItem on:click={() => (newDriveModal = true)}
-        ><ArchiveSolid class="inline-block h-6 w-6" /> Drive</DropdownItem
-      >
+      <DropdownItem on:click={() => (newDriveModal = true)}>
+        <ArchiveSolid class="inline-block h-6 w-6" /> Drive
+      </DropdownItem>
       <DropdownDivider />
       <DropdownItem><FileImportOutline class="inline-block h-6 w-6" /> Upload Files</DropdownItem>
       <DropdownItem><FolderArrowRightOutline class="inline-block h-6 w-6" /> Upload Folder</DropdownItem>

@@ -5,7 +5,7 @@ import type { SignedEvent } from "blossom-client";
 import { activeUser, ndk, publishSignedEvent, signEventTemplate } from "./ndk";
 import { backupDriveEvents } from "./db";
 import Drive, { DRIVE_KIND } from "../blossom-drive-client/Drive";
-import { ENCRYPTED_DRIVE_KIND } from "../blossom-drive-client/EncryptedDrive";
+import { ENCRYPTED_DRIVE_KIND, EncryptedDrive } from "../blossom-drive-client/EncryptedDrive";
 
 export const drives = writable<Record<string, Drive>>({});
 
@@ -44,8 +44,13 @@ export function handleEvent(event: NDKEvent) {
     if (existing[d]) {
       existing[d].update(event.rawEvent() as SignedEvent);
     } else {
-      const drive = new Drive(signEventTemplate, publishSignedEvent);
+      let drive: Drive;
+      if (event.kind === ENCRYPTED_DRIVE_KIND) drive = new EncryptedDrive(signEventTemplate, publishSignedEvent);
+      else drive = new Drive(signEventTemplate, publishSignedEvent);
+
       drive.update(event.rawEvent() as SignedEvent);
+
+      console.log("Created drive", drive);
 
       // backup the event when the drive updates
       drive.on("update", handleDriveUpdate);

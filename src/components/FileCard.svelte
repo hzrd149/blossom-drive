@@ -17,6 +17,7 @@
 
   export let file: TreeFile;
   export let selected = false;
+  export let encrypted = false;
 
   const dispatch = createEventDispatcher();
 
@@ -27,7 +28,7 @@
   $: link = getBlobURL(file, $servers[0]);
 
   $: extension = file.type ? mime.getExtension(file.type) ?? extname(file.name) : extname(file.name);
-  $: preview = file.type?.startsWith("image/") && file.size < 1024 * 100;
+  $: preview = !encrypted && file.type?.startsWith("image/") && file.size < 1024 * 100;
 
   function toggleSelect() {
     if (selected) dispatch("unselect", file.name);
@@ -47,7 +48,7 @@
     borderClass}
   on:dragstart={dragStart}
   on:click|stopPropagation={toggleSelect}
-  on:dblclick={() => link && window.open(link, "_blank")}
+  on:dblclick={() => !encrypted && link && window.open(link, "_blank")}
   role="row"
   tabindex={0}
   draggable="true"
@@ -61,7 +62,7 @@
   </div>
   <hr />
   <div class="w-full max-w-48 truncate px-4 py-2 text-center text-sm">{file.name}</div>
-  {#if link}
+  {#if link && !encrypted}
     <Button
       size="xs"
       color="none"

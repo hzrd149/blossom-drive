@@ -110,10 +110,9 @@ export default class Drive extends EventEmitter {
     return template;
   }
   protected readEvent(event: EventTemplate | SignedEvent): DriveMetadata {
-    const name = this.event?.tags.find((t) => t[0] === "name")?.[1] ?? this.identifier ?? "";
-    const description = this.event?.tags.find((t) => t[0] === "description")?.[1] ?? "";
-    const servers =
-      this.event?.tags.filter((t) => t[0] === "r" && t[1]).map((t) => new URL("/", t[1]).toString()) || [];
+    const name = event.tags.find((t) => t[0] === "name")?.[1] ?? this.identifier ?? "";
+    const description = event.tags.find((t) => t[0] === "description")?.[1] ?? "";
+    const servers = event.tags.filter((t) => t[0] === "r" && t[1]).map((t) => new URL("/", t[1]).toString()) || [];
 
     const identifier = event.tags.find((t) => t[0] === "d")?.[1];
     if (!identifier) throw new Error("Missing d tag");
@@ -135,7 +134,7 @@ export default class Drive extends EventEmitter {
     return signed;
   }
 
-  async update(event: EventTemplate | SignedEvent) {
+  update(event: EventTemplate | SignedEvent) {
     if (!this.event || event.created_at > this.event.created_at) {
       this.event = event;
 
@@ -151,6 +150,7 @@ export default class Drive extends EventEmitter {
     this._metadata = this.readEvent(this.event);
     this.tree = createTreeFromTags(this._metadata.treeTags);
     this.modified = false;
+    this.emit("change", this);
   }
   reset() {
     if (this.modified) {

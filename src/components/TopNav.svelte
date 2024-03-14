@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Button, DarkMode, Avatar, Input } from "flowbite-svelte";
-  import { activeUser, loginWithExtension } from "../services/ndk";
+  import { activeUser } from "../services/ndk";
   import _throttle from "lodash.throttle";
   import { FileSolid } from "flowbite-svelte-icons";
   import { searchForFiles, type FileResult } from "../services/search";
@@ -54,6 +54,6 @@
   {#if $activeUser}
     <Avatar src={$activeUser.profile?.image} />
   {:else}
-    <Button on:click={loginWithExtension}>Login</Button>
+    <Button href="#/login">Login</Button>
   {/if}
 </div>

@@ -1,14 +1,15 @@
-import { BlossomClient, type BlobDescriptor, type Signer, type SignedEvent } from "blossom-client";
+import { BlossomClient, type BlobDescriptor, type Signer } from "blossom-client";
 import { nanoid } from "nanoid";
 import type Drive from "./Drive";
 import EventEmitter from "events";
 import { readFileSystemDirectory, readFileSystemFile } from "./helpers";
 import { joinPath } from "./FileTree/methods";
+import { EncryptedDrive } from "./EncryptedDrive";
 
 export type UploadableItem = FileList | File | FileSystemDirectoryEntry;
 
 export default class Upload extends EventEmitter {
-  drive: Drive;
+  drive: Drive | EncryptedDrive;
   servers: string[];
   signer: Signer;
   basePath: string;
@@ -21,7 +22,7 @@ export default class Upload extends EventEmitter {
   /** file id -> server -> status */
   progress: Record<string, Record<string, { blob?: BlobDescriptor; error?: Error }>> = {};
 
-  constructor(drive: Drive, basePath: string, servers: string[], signer: Signer) {
+  constructor(drive: Drive | EncryptedDrive, basePath: string, servers: string[], signer: Signer) {
     super();
     this.drive = drive;
     this.servers = servers;
@@ -54,28 +55,30 @@ export default class Upload extends EventEmitter {
     if (this.running || this.complete) return;
     this.running = true;
     this.emit("start", this);
+    for (const upload of this.files) {
+      let _file = upload.file;
 
-    const auth: Record<string, SignedEvent> = {};
-    for (const file of this.files) {
-      const token = await BlossomClient.getUploadAuth(file.file, this.signer, `Upload ${file.file.name}`);
-      auth[file.id] = token;
-    }
+      if (this.drive instanceof EncryptedDrive) {
+        const blob = await this.drive.encryptBlob(_file);
+        _file = new File([blob], "encrypted.bin", { type: "application/octet-stream" });
+      }
 
-    for (const file of this.files) {
-      if (!this.progress[file.id]) this.progress[file.id] = {};
+      const token = await BlossomClient.getUploadAuth(_file, this.signer, `Upload ${_file.name}`);
+
+      if (!this.progress[upload.id]) this.progress[upload.id] = {};
 
       for (const server of this.servers) {
         try {
-          const blob = await BlossomClient.uploadBlob(server, file.file, auth[file.id]);
-          this.progress[file.id][server] = { blob };
-          this.drive.setFile(joinPath(this.basePath, file.path), {
+          const blob = await BlossomClient.uploadBlob(server, _file, token);
+          this.progress[upload.id][server] = { blob };
+          this.drive.setFile(joinPath(this.basePath, upload.path), {
             sha256: blob.sha256,
             size: blob.size,
-            type: blob.type ?? "",
+            type: upload.file.type || blob.type || "",
           });
           this.emit("progress", this.progress);
         } catch (error) {
-          if (error instanceof Error) this.progress[file.id][server] = { error };
+          if (error instanceof Error) this.progress[upload.id][server] = { error };
         }
       }
     }
