@@ -5,7 +5,7 @@ import type { SignedEvent } from "blossom-client";
 import { activeUser, ndk, publishSignedEvent, signEventTemplate } from "./ndk";
 import { backupDriveEvents } from "./db";
 import Drive, { DRIVE_KIND } from "../blossom-drive-client/Drive";
-import type TreeFolder from "../blossom-drive-client/FileTree/TreeFolder";
+import { ENCRYPTED_DRIVE_KIND } from "../blossom-drive-client/EncryptedDrive";
 
 export const drives = writable<Record<string, Drive>>({});
 
@@ -15,7 +15,7 @@ activeUser.subscribe((user) => {
   if (!user) return;
 
   drives.set({});
-  sub = ndk.subscribe({ kinds: [DRIVE_KIND as number], authors: [user.pubkey] });
+  sub = ndk.subscribe({ kinds: [DRIVE_KIND as number, ENCRYPTED_DRIVE_KIND as number], authors: [user.pubkey] });
   sub.on("event", handleEvent);
   sub.start();
 });
@@ -44,7 +44,8 @@ export function handleEvent(event: NDKEvent) {
     if (existing[d]) {
       existing[d].update(event.rawEvent() as SignedEvent);
     } else {
-      const drive = new Drive(event.rawEvent() as SignedEvent, signEventTemplate, publishSignedEvent);
+      const drive = new Drive(signEventTemplate, publishSignedEvent);
+      drive.update(event.rawEvent() as SignedEvent);
 
       // backup the event when the drive updates
       drive.on("update", handleDriveUpdate);

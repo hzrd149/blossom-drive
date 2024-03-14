@@ -2,10 +2,11 @@ import type { SignedEvent, EventTemplate, Signer } from "blossom-client";
 import EventEmitter from "events";
 import { nip19 } from "nostr-tools";
 
-import type TreeFolder from "./FileTree/TreeFolder";
+import TreeFolder from "./FileTree/TreeFolder";
 import { createTreeFromTags, updateTreeInTags } from "./FileTree/nostr";
 import { getFile, getFolder, getPath, setFile, type Path, remove, move } from "./FileTree/methods";
 import type { FileMetadata } from "./FileTree/TreeFile";
+import TreeFile from "./FileTree/TreeFile";
 
 function now() {
   return Math.floor(Date.now() / 1000);
@@ -14,41 +15,57 @@ function now() {
 export const DRIVE_KIND = 30563;
 
 export type Publisher = (event: SignedEvent) => Promise<void>;
+export type DriveMetadata = {
+  name: string;
+  identifier: string;
+  description: string;
+  servers: string[];
+  pubkey?: string;
+  treeTags: string[][];
+};
+
+export const emptyMetadata: DriveMetadata = { name: "", identifier: "", description: "", servers: [], treeTags: [] };
 
 export default class Drive extends EventEmitter {
   tree: TreeFolder;
-  event: EventTemplate;
-
-  identifier: string;
-  pubkey?: string;
+  event?: EventTemplate | SignedEvent;
 
   /** whether the drive has been modified and needs to be saved */
   modified = false;
 
-  protected _name: string = "";
-  protected _description: string = "";
-  protected _servers: string[] = [];
+  protected _metadata: DriveMetadata = emptyMetadata;
+  get pubkey() {
+    return this._metadata.pubkey;
+  }
+  get identifier() {
+    return this._metadata.identifier;
+  }
+  set identifier(v: string) {
+    this._metadata.identifier = v;
+    this.modified = true;
+    this.emit("change", this);
+  }
   get name() {
-    return this._name;
+    return this._metadata.name;
   }
   set name(v: string) {
-    this._name = v;
+    this._metadata.name = v;
     this.modified = true;
     this.emit("change", this);
   }
   get description() {
-    return this._description;
+    return this._metadata.description;
   }
   set description(v: string) {
-    this._description = v;
+    this._metadata.description = v;
     this.modified = true;
     this.emit("change", this);
   }
   get servers() {
-    return this._servers;
+    return this._metadata.servers;
   }
   set servers(v: string[]) {
-    this._servers = v;
+    this._metadata.servers = v;
     this.modified = true;
     this.emit("change", this);
   }
@@ -57,77 +74,87 @@ export default class Drive extends EventEmitter {
   publisher: Publisher;
 
   get address() {
+    if (!this.event) return "";
     return this.pubkey
       ? nip19.naddrEncode({ identifier: this.identifier, pubkey: this.pubkey, kind: this.event.kind })
       : "";
   }
 
-  constructor(event: EventTemplate | SignedEvent, signer: Signer, publisher: Publisher) {
+  static fromEvent(event: SignedEvent, signer: Signer, publisher: Publisher) {
+    const drive = new Drive(signer, publisher);
+    drive.update(event);
+    return drive;
+  }
+
+  constructor(signer: Signer, publisher: Publisher) {
     super();
-    this.event = event;
     this.signer = signer;
     this.publisher = publisher;
+    this.tree = new TreeFolder("");
+  }
 
+  protected createEventTemplate() {
+    let newTags = updateTreeInTags(this.event?.tags || [], this.tree);
+
+    const replaceTags = ["name", "description", "d"];
+    newTags = newTags.filter((t) => !replaceTags.includes(t[0]));
+    newTags.unshift(["name", this.name], ["description", this.description], ["d", this.identifier]);
+
+    const template: EventTemplate = {
+      kind: DRIVE_KIND,
+      content: this.event?.content || "",
+      created_at: now(),
+      tags: newTags,
+    };
+
+    return template;
+  }
+  protected readEvent(event: EventTemplate | SignedEvent): DriveMetadata {
+    const name = this.event?.tags.find((t) => t[0] === "name")?.[1] ?? this.identifier ?? "";
+    const description = this.event?.tags.find((t) => t[0] === "description")?.[1] ?? "";
+    const servers =
+      this.event?.tags.filter((t) => t[0] === "r" && t[1]).map((t) => new URL("/", t[1]).toString()) || [];
+
+    const identifier = event.tags.find((t) => t[0] === "d")?.[1];
+    if (!identifier) throw new Error("Missing d tag");
+
+    let pubkey: string | undefined = undefined;
     // @ts-expect-error
-    if (Object.hasOwn(event, "pubkey")) this.pubkey = event.pubkey;
+    if (Object.hasOwn(event, "pubkey")) pubkey = event.pubkey;
 
-    const d = event.tags.find((t) => t[0] === "d")?.[1];
-    if (!d) throw new Error("Missing d tag");
-    this.identifier = d;
+    const treeTags = event.tags.filter((t) => t[0] === "x" || t[0] === "folder");
 
-    this.resetMetadata();
-
-    this.tree = createTreeFromTags(event.tags);
+    return { name, description, servers, identifier, pubkey, treeTags };
   }
 
   async save() {
     if (!this.modified) return;
-    try {
-      let newTags = updateTreeInTags(this.event.tags, this.tree);
-
-      newTags = newTags.filter((t) => t[0] !== "name" && t[0] !== "description");
-      newTags.unshift(["name", this.name], ["description", this.description]);
-
-      const signed = await this.signer({
-        kind: DRIVE_KIND,
-        content: this.event.content || "",
-        created_at: now(),
-        tags: newTags,
-      });
-      await this.publisher(signed);
-      this.update(signed);
-      return signed;
-    } catch (e) {
-      this.reset();
-      throw e;
-    }
+    const signed = await this.signer(this.createEventTemplate());
+    await this.publisher(signed);
+    this.update(signed);
+    return signed;
   }
 
-  update(event: EventTemplate | SignedEvent) {
-    if (event.kind !== DRIVE_KIND) return false;
-
-    if (event.created_at > this.event.created_at) {
+  async update(event: EventTemplate | SignedEvent) {
+    if (!this.event || event.created_at > this.event.created_at) {
       this.event = event;
 
-      // @ts-expect-error
-      if (Object.hasOwn(event, "pubkey")) this.pubkey = event.pubkey;
-
-      this.reset();
+      this.resetFromEvent();
       this.emit("update", this);
       return true;
     }
     return false;
   }
 
-  protected resetMetadata() {
-    this._name = this.event.tags.find((t) => t[0] === "name")?.[1] ?? this.identifier ?? "";
-    this._description = this.event.tags.find((t) => t[0] === "description")?.[1] ?? "";
-    this._servers = this.event.tags.filter((t) => t[0] === "r" && t[1]).map((t) => new URL("/", t[1]).toString());
+  protected resetFromEvent() {
+    if (!this.event) return;
+    this._metadata = this.readEvent(this.event);
+    this.tree = createTreeFromTags(this._metadata.treeTags);
+    this.modified = false;
   }
   reset() {
     if (this.modified) {
-      this.tree = createTreeFromTags(this.event.tags);
-      this.resetMetadata();
+      this.resetFromEvent();
       this.modified = false;
       this.emit("change", this);
     }
@@ -164,7 +191,14 @@ export default class Drive extends EventEmitter {
   }
 
   hasHash(sha256: string) {
-    return this.event.tags.some((t) => t[0] === "x" && t[1] === sha256);
+    const walk = (entry: TreeFolder) => {
+      for (const child of entry) {
+        if (child instanceof TreeFile && child.sha256 === sha256) return true;
+        if (child instanceof TreeFolder && walk(child)) return true;
+      }
+      return false;
+    };
+    return walk(this.tree);
   }
 
   [Symbol.iterator]() {

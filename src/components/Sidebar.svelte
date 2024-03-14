@@ -28,6 +28,7 @@
   import { servers } from "../services/servers";
   import NewDriveModal from "./NewDriveModal.svelte";
   import { activeUser } from "../services/ndk";
+  import type Drive from "../blossom-drive-client/Drive";
 
   let site = {
     name: "Blossom Drive",
@@ -37,8 +38,8 @@
 
   let newDriveModal = false;
 
-  const createdDrive = (event: CustomEvent<NDKEvent>) => {
-    location.hash = "#/drive/" + event.detail.encode();
+  const createdDrive = (event: CustomEvent<Drive>) => {
+    location.hash = "#/drive/" + event.detail.address;
   };
 </script>
 

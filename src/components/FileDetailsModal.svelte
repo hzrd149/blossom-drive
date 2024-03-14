@@ -8,11 +8,12 @@
   import { getDriveName } from "../helpers/drives";
   import type TreeFile from "../blossom-drive-client/FileTree/TreeFile";
   import { blobs } from "../services/blobs";
+  import { DRIVE_KIND } from "../blossom-drive-client/Drive";
 
   export let open = false;
   export let file: TreeFile;
 
-  const drives = ndk.storeSubscribe({ kinds: [30563 as number], "#x": [file.sha256] });
+  const drives = ndk.storeSubscribe({ kinds: [DRIVE_KIND as number], "#x": [file.sha256] });
   const files = ndk.storeSubscribe({ kinds: [1063 as number], "#x": [file.sha256] });
 
   $: servers = $blobs.filter((s) => s.blobs.some((b) => b.sha256 === file.sha256)).map((s) => s.server);

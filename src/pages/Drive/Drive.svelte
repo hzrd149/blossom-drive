@@ -32,9 +32,7 @@
   $: {
     if (params?.naddr) {
       loadDrive(params.naddr)
-        .then(() => {
-          console.log("Viewing", drive);
-        })
+        .then(() => {})
         .catch((e) => {
           if (e instanceof Error) alert(e.message);
         });
