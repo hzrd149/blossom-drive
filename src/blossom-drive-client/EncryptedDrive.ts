@@ -1,8 +1,9 @@
-import type { EventTemplate, SignedEvent } from "blossom-client";
+import { BlossomClient, type EventTemplate, type SignedEvent } from "blossom-client";
 import Drive, { emptyMetadata, type DriveMetadata } from "./Drive";
 import { base64 } from "@scure/base";
 import { decrypt, encrypt } from "./crypto";
 import TreeFolder from "./FileTree/TreeFolder";
+import type { Path } from "./FileTree/methods";
 
 export const ENCRYPTED_DRIVE_KIND = 30564;
 export const DEFAULT_SCRYPT_LOGN = 4;
@@ -111,5 +112,26 @@ export class EncryptedDrive extends Drive {
     const buffer = await blob.arrayBuffer();
     const plaintext = decrypt(new Uint8Array(buffer), password);
     return new Blob([plaintext], { type });
+  }
+
+  async downloadFile(path: Path, additionalServers: string[] = []) {
+    if (this.locked) throw new Error("Drive locked");
+    const password = drivePassword.get(this);
+    if (!password) throw new Error("No password provided");
+
+    const file = this.getFile(path);
+    const servers = [...this.servers];
+    for (const server of additionalServers) {
+      if (!servers.includes(server)) servers.push(server);
+    }
+
+    for (const server of servers) {
+      try {
+        const data = await BlossomClient.getBlob(server, file.sha256);
+        const blob = await this.decryptBlob(data);
+        return new File([blob], file.name, { type: file.type });
+      } catch (e) {}
+    }
+    return null;
   }
 }

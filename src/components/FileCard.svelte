@@ -25,10 +25,9 @@
     ? "border border-primary-200 dark:border-primary-700"
     : "border border-gray-200 dark:border-gray-700 ";
 
-  $: link = getBlobURL(file, $servers[0]);
-
   $: extension = file.type ? mime.getExtension(file.type) ?? extname(file.name) : extname(file.name);
   $: preview = !encrypted && file.type?.startsWith("image/") && file.size < 1024 * 100;
+  $: link = getBlobURL(file, $servers[0]);
 
   function toggleSelect() {
     if (selected) dispatch("unselect", file.name);
@@ -48,7 +47,10 @@
     borderClass}
   on:dragstart={dragStart}
   on:click|stopPropagation={toggleSelect}
-  on:dblclick={() => !encrypted && link && window.open(link, "_blank")}
+  on:dblclick={() => {
+    dispatch("open", file);
+    // !encrypted && link && window.open(link, "_blank")
+  }}
   role="row"
   tabindex={0}
   draggable="true"
@@ -62,18 +64,17 @@
   </div>
   <hr />
   <div class="w-full max-w-48 truncate px-4 py-2 text-center text-sm">{file.name}</div>
-  {#if link && !encrypted}
-    <Button
-      size="xs"
-      color="none"
-      class="absolute right-0 top-0 !p-1"
-      href={link}
-      target="_blank"
-      on:click={(e) => e.stopPropagation()}
-    >
-      <ArrowUpRightFromSquareOutline />
-    </Button>
-  {/if}
+  <Button
+    size="xs"
+    color="none"
+    class="absolute right-0 top-0 !p-1"
+    on:click={(e) => {
+      e.stopPropagation();
+      dispatch("open", file);
+    }}
+  >
+    <ArrowUpRightFromSquareOutline />
+  </Button>
   <Button
     size="xs"
     color="none"
@@ -86,6 +87,15 @@
     <DotsHorizontalSolid />
   </Button>
   <Dropdown class="w-48" placement="bottom-start">
+    <DropdownItem
+      on:click={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dispatch("open", file);
+      }}
+    >
+      <ArrowUpRightFromSquareOutline class="mr-2 inline-block h-5 w-5" />Open
+    </DropdownItem>
     <DropdownItem
       on:click={(e) => {
         e.preventDefault();

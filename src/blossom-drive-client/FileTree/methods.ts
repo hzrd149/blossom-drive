@@ -20,6 +20,9 @@ export function dirname(path: string[]) {
 export function basename(path: string[]) {
   return path.slice(-1)[0];
 }
+export function extname(path: string | string[]) {
+  return (typeof path === "string" ? path : formatPath(path)).match(/\.[a-zA-Z0-9]$/)?.[0];
+}
 
 export function getPath(root: TreeFolder, path: Path, create = false) {
   const parts = parsePath(path);
@@ -74,4 +77,24 @@ export function move(root: TreeFolder, src: Path, dest: Path) {
 
   entry.parent?.remove(entry.name);
   destFolder.set(basename(parsePath(dest)), entry);
+}
+
+export function walkTree(
+  branch: TreeFolder | TreeFile,
+  fn: (branch: TreeFolder | TreeFile) => boolean | undefined | void,
+) {
+  const keepGoing = fn(branch);
+  if (keepGoing === false) return;
+
+  if (branch instanceof TreeFolder) {
+    for (const child of branch) walkTree(child, fn);
+  }
+}
+
+export function fileTypesInTree(root: TreeFolder) {
+  const types = new Set<string>();
+  walkTree(root, (branch) => {
+    if (branch instanceof TreeFile) types.add(branch.type);
+  });
+  return Array.from(types).sort();
 }

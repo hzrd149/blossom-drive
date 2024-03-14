@@ -1,4 +1,3 @@
-import type { Blob } from "blossom-client";
 import { servers } from "../services/servers";
 import { get } from "svelte/store";
 import mime from "mime";

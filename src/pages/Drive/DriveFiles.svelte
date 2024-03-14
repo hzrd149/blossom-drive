@@ -2,6 +2,7 @@
   import { Button, CloseButton, Select, Spinner, Tooltip } from "flowbite-svelte";
   import {
     ArrowLeftToBracketOutline,
+    ArrowUpRightFromSquareOutline,
     CloseOutline,
     CogOutline,
     DownloadOutline,
@@ -11,14 +12,13 @@
     FolderArrowRightOutline,
     FolderPlusOutline,
     InfoCircleOutline,
-    InfoCircleSolid,
     LinkOutline,
     ListSolid,
     LockSolid,
     TrashBinOutline,
     TrashBinSolid,
   } from "flowbite-svelte-icons";
-  import { BlossomClient } from "blossom-client";
+  import { saveAs } from "file-saver";
 
   import FileCard from "../../components/FileCard.svelte";
   import FolderCard from "../../components/FolderCard.svelte";
@@ -30,7 +30,7 @@
   import type Drive from "../../blossom-drive-client/Drive";
   import TreeFolder from "../../blossom-drive-client/FileTree/TreeFolder";
   import TreeFile from "../../blossom-drive-client/FileTree/TreeFile";
-  import { joinPath } from "../../blossom-drive-client/FileTree/methods";
+  import { fileTypesInTree, joinPath } from "../../blossom-drive-client/FileTree/methods";
   import DriveEditModal from "../../components/DriveEditModal.svelte";
   import NewFolderModal from "../../components/NewFolderModal.svelte";
   import UploadFileModal from "../../components/UploadFileModal.svelte";
@@ -42,7 +42,6 @@
   import { addUpload } from "../../services/uploads";
   import { EncryptedDrive } from "../../blossom-drive-client/EncryptedDrive";
   import UnlockDrive from "../../components/UnlockDrive.svelte";
-  import { saveAs } from "file-saver";
 
   export let currentPath: string;
   export let drive: Drive;
@@ -83,10 +82,7 @@
   $: locked = $readableDrive instanceof EncryptedDrive ? $readableDrive.locked : undefined;
 
   let filterType = "";
-  $: typesInDrive = ($readableDrive.event?.tags ?? []).reduce((set, t) => {
-    if (t[0] === "x" && t[4]) set.add(t[4]);
-    return set;
-  }, new Set<string>());
+  $: typesInDrive = fileTypesInTree($readableDrive.tree);
 
   $: files = (subTree.children.filter((e) => e instanceof TreeFile) as TreeFile[]).filter((f) =>
     filterType ? f.type === filterType : true,
@@ -99,12 +95,11 @@
   }
 
   function copySelectedLink() {
-    if (selected[0]) {
-      const file = subTree.get(selected[0]);
-      if (file instanceof TreeFile) {
-        const url = getBlobURL(file, $servers[0]);
-        if (url) window.navigator.clipboard.writeText(url);
-      }
+    if (!selected[0]) return;
+    const file = subTree.get(selected[0]);
+    if (file instanceof TreeFile) {
+      const url = getBlobURL(file, $servers[0]);
+      if (url) window.navigator.clipboard.writeText(url);
     }
   }
 
@@ -114,23 +109,29 @@
     await drive.save();
   }
 
+  async function openFile(file: TreeFile) {
+    if (drive instanceof EncryptedDrive) {
+      const download = await drive.downloadFile(file.path, $servers);
+      if (!download) return;
+      const url = URL.createObjectURL(download);
+      window.open(url, "_blank");
+    } else {
+      window.open(drive.getFileURL(file.path, $servers), "_blank");
+    }
+  }
+  async function openSelected() {
+    for (const file of subTree) {
+      if (file instanceof TreeFile && selected.includes(file.name)) {
+        await openFile(file);
+      }
+    }
+  }
+
   async function downloadSelected() {
     for (const file of subTree) {
       if (file instanceof TreeFile && selected.includes(file.name)) {
-        let blob: Blob | null = null;
-        for (const server of $servers) {
-          try {
-            blob = await BlossomClient.getBlob(server, file.sha256);
-            break;
-          } catch (e) {}
-        }
-
-        if (blob) {
-          if (drive instanceof EncryptedDrive) blob = await drive.decryptBlob(blob, file.type);
-
-          const download = new File([blob], file.name, { type: blob.type });
-          await saveAs(download, download.name);
-        }
+        let download = await drive.downloadFile(file.path, $servers);
+        if (download) await saveAs(download, download.name);
       }
     }
   }
@@ -237,6 +238,10 @@
         </Button>
         <Tooltip placement="bottom">Upload Files</Tooltip>
       {:else}
+        <Button size="sm" class="!p-2" color="alternative" on:click={openSelected}>
+          <ArrowUpRightFromSquareOutline />
+        </Button>
+        <Tooltip placement="bottom">Open</Tooltip>
         {#if selected.length === 1}
           <Button size="sm" class="!p-2" color="alternative" on:click={downloadSelected}>
             <DownloadOutline />
@@ -353,6 +358,7 @@
                 detailsFile = e.detail;
                 detailsModal = true;
               }}
+              on:open={(e) => openFile(e.detail)}
             />
           {/each}
         </div>

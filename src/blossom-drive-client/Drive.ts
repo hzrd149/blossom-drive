@@ -1,10 +1,10 @@
-import type { SignedEvent, EventTemplate, Signer } from "blossom-client";
+import { type SignedEvent, type EventTemplate, type Signer, BlossomClient } from "blossom-client";
 import EventEmitter from "events";
 import { nip19 } from "nostr-tools";
 
 import TreeFolder from "./FileTree/TreeFolder";
 import { createTreeFromTags, updateTreeInTags } from "./FileTree/nostr";
-import { getFile, getFolder, getPath, setFile, type Path, remove, move } from "./FileTree/methods";
+import { getFile, getFolder, getPath, setFile, type Path, remove, move, extname } from "./FileTree/methods";
 import type { FileMetadata } from "./FileTree/TreeFile";
 import TreeFile from "./FileTree/TreeFile";
 
@@ -170,6 +170,33 @@ export default class Drive extends EventEmitter {
   }
   getFile(path: Path) {
     return getFile(this.tree, path);
+  }
+
+  getFileURL(path: Path, additionalServers: string[] = []) {
+    const file = this.getFile(path);
+    const servers = [...this.servers];
+    for (const server of additionalServers) {
+      if (!servers.includes(server)) servers.push(server);
+    }
+
+    const ext = extname(path);
+    return new URL("/" + file.sha256 + ext, servers[0]).toString();
+  }
+
+  async downloadFile(path: Path, additionalServers: string[] = []) {
+    const file = this.getFile(path);
+    const servers = [...this.servers];
+    for (const server of additionalServers) {
+      if (!servers.includes(server)) servers.push(server);
+    }
+
+    for (const server of servers) {
+      try {
+        const blob = await BlossomClient.getBlob(server, file.sha256);
+        return new File([blob], file.name, { type: file.type });
+      } catch (e) {}
+    }
+    return null;
   }
 
   remove(path: Path) {
