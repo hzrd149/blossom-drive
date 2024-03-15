@@ -7,6 +7,7 @@
 
   export let folder: TreeFolder;
   export let selected = false;
+  export let readonly = false;
 
   const dispatch = createEventDispatcher();
 
@@ -91,31 +92,33 @@
   <div class="flex flex-grow items-center justify-center p-4"><FolderSolid class="h-10 w-10" /></div>
   <hr />
   <div class="max-w-48 truncate px-4 py-2 text-center text-sm">{folder.name}</div>
-  <Button
-    size="xs"
-    color="none"
-    class="absolute bottom-1 right-1 !p-1"
-    on:click={(e) => {
-      e.preventDefault();
-      e.stopPropagation();
-    }}
-  >
-    <DotsHorizontalSolid />
-  </Button>
-  <Dropdown class="w-48" placement="bottom-start">
-    <DropdownItem
+  {#if !readonly}
+    <Button
+      size="xs"
+      color="none"
+      class="absolute bottom-1 right-1 !p-1"
       on:click={(e) => {
         e.preventDefault();
         e.stopPropagation();
-        dispatch("rename", folder);
-      }}><EditOutline class="mr-2 inline-block h-5 w-5" />Rename</DropdownItem
+      }}
     >
-    <DropdownItem
-      on:click={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        dispatch("delete", folder);
-      }}><TrashBinOutline class="mr-2 inline-block h-5 w-5" />Delete</DropdownItem
-    >
-  </Dropdown>
+      <DotsHorizontalSolid />
+    </Button>
+    <Dropdown class="w-48" placement="bottom-start">
+      <DropdownItem
+        on:click={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dispatch("rename", folder);
+        }}><EditOutline class="mr-2 inline-block h-5 w-5" />Rename</DropdownItem
+      >
+      <DropdownItem
+        on:click={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dispatch("delete", folder);
+        }}><TrashBinOutline class="mr-2 inline-block h-5 w-5" />Delete</DropdownItem
+      >
+    </Dropdown>
+  {/if}
 </div>

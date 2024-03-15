@@ -41,7 +41,7 @@
   import { getBlobURL } from "../../helpers/blob";
   import type { ChangeEventHandler } from "svelte/elements";
   import Upload from "../../blossom-drive-client/Upload";
-  import { signEventTemplate } from "../../services/ndk";
+  import { activeUser, signEventTemplate } from "../../services/ndk";
   import { addUpload } from "../../services/uploads";
   import { EncryptedDrive } from "../../blossom-drive-client/EncryptedDrive";
   import UnlockDrive from "../../components/UnlockDrive.svelte";
@@ -52,6 +52,7 @@
   $: readableDrive = getReadableDrive(drive);
   $: encryptedDrive = $readableDrive instanceof EncryptedDrive ? (drive as EncryptedDrive) : null;
   $: subTree = $readableDrive.getFolder(currentPath);
+  $: isOwner = $activeUser?.pubkey === drive.pubkey;
 
   $: readmeFile = subTree.children.find((f) => f instanceof TreeFile && f.name.match(/readme\.md/i)) as
     | TreeFile
@@ -218,12 +219,12 @@
     {/if}
     <div class="flex items-center gap-2 border-b border-gray-200 p-2 dark:border-gray-800">
       <PathBreadcrumbs root={encrypted && locked ? "[Locked]" : drive.name ?? "Drive"} class="mx-2" />
-      <Button href="#/history/{drive.address}" color="alternative" size="xs">History</Button>
+      <!-- <Button href="#/history/{drive.address}" color="alternative" size="xs">History</Button> -->
 
       <div class="flex-1" />
 
       {#if selected.length === 0}
-        <Button size="sm" class="!p-2" color="alternative" on:click={() => (newFolderModal = true)}>
+        <Button size="sm" class="!p-2" color="alternative" on:click={() => (newFolderModal = true)} disabled={!isOwner}>
           <FolderPlusOutline />
         </Button>
         <Tooltip placement="bottom">Create Folder</Tooltip>
@@ -238,13 +239,13 @@
           bind:this={folderInput}
           on:change={handleFileInputChange}
         />
-        <Button size="sm" class="!p-2" color="alternative" on:click={() => folderInput.click()}>
+        <Button size="sm" class="!p-2" color="alternative" on:click={() => folderInput.click()} disabled={!isOwner}>
           <FolderArrowRightOutline />
         </Button>
         <Tooltip placement="bottom">Upload Folder</Tooltip>
 
         <input class="hidden" type="file" multiple bind:this={filesInput} on:change={handleFileInputChange} />
-        <Button size="sm" class="!p-2" color="alternative" on:click={() => filesInput.click()}>
+        <Button size="sm" class="!p-2" color="alternative" on:click={() => filesInput.click()} disabled={!isOwner}>
           <FileImportOutline />
         </Button>
         <Tooltip placement="bottom">Upload Files</Tooltip>
@@ -273,7 +274,7 @@
           </Button>
           <Tooltip placement="bottom">Move</Tooltip>
 
-          <Button size="sm" class="!p-2" color="alternative" on:click={() => (renameModal = true)}>
+          <Button size="sm" class="!p-2" color="alternative" on:click={() => (renameModal = true)} disabled={!isOwner}>
             <EditOutline />
           </Button>
           <Tooltip placement="bottom">Rename</Tooltip>
@@ -299,7 +300,7 @@
       </Button>
       <Tooltip placement="bottom">Change Layout</Tooltip>
 
-      <Button size="sm" class="!p-2" color="alternative" on:click={() => (editModal = true)}>
+      <Button size="sm" class="!p-2" color="alternative" on:click={() => (editModal = true)} disabled={!isOwner}>
         <CogOutline />
       </Button>
       <Tooltip placement="bottom">Drive Settings</Tooltip>
@@ -346,6 +347,7 @@
               {folder}
               on:move-blob={moveIntoFolder}
               selected={selected.includes(folder.name)}
+              readonly={!isOwner}
               on:select={toggleSelect}
               on:unselect={toggleSelect}
               on:rename={(e) => {
@@ -366,6 +368,7 @@
               {file}
               {encrypted}
               selected={selected.includes(file.name)}
+              readonly={!isOwner}
               on:select={toggleSelect}
               on:unselect={toggleSelect}
               on:rename={(e) => {
@@ -390,7 +393,7 @@
 
   {#if showReadme === true}
     <div class="flex flex-1 flex-col overflow-hidden border-l-4 border-gray-200 dark:border-gray-800">
-      <ReadmePreview {drive} path={currentPath} file={readmeFile} />
+      <ReadmePreview {drive} path={currentPath} file={readmeFile} disableEdit={!isOwner} />
     </div>
   {/if}
 </main>

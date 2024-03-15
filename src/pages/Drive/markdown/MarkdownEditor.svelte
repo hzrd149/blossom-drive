@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Alert, Button, Toggle } from "flowbite-svelte";
+  import { Button } from "flowbite-svelte";
   import Markdown from "svelte-exmarkdown";
   import { gfmPlugin } from "svelte-exmarkdown/gfm";
   import { EditOutline, EyeOutline, FileOutline } from "flowbite-svelte-icons";
@@ -13,8 +13,9 @@
   import { createEventDispatcher } from "svelte";
 
   export let saving = false;
+  export let disableEdit = false;
   export let value: string | null;
-  $: content = value;
+  $: content = value ?? "";
 
   $: savable = content !== value;
 
@@ -39,9 +40,11 @@
 
 {#if mode === "preview"}
   <div class="relative h-0 min-w-96 flex-grow overflow-auto px-4 pb-10 pt-4">
-    <Button class="absolute right-2 top-2" size="sm" on:click={() => (mode = "editor")}>
-      <EditOutline class="mr-2" />Editor
-    </Button>
+    {#if !disableEdit}
+      <Button class="absolute right-2 top-2" size="sm" on:click={() => (mode = "editor")}>
+        <EditOutline class="mr-2" />Editor
+      </Button>
+    {/if}
     <Markdown md={content} {plugins} />
   </div>
 {:else if mode === "editor"}

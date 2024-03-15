@@ -18,6 +18,7 @@
   export let file: TreeFile;
   export let selected = false;
   export let encrypted = false;
+  export let readonly = false;
 
   const dispatch = createEventDispatcher();
 
@@ -114,25 +115,27 @@
     >
       <FileCopyOutline class="mr-2 inline-block h-5 w-5" />Copy Hash
     </DropdownItem>
-    <DropdownItem
-      on:click={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        dispatch("rename", file);
-      }}
-    >
-      <EditOutline class="mr-2 inline-block h-5 w-5" />Rename
-    </DropdownItem>
-    <DropdownItem
-      class="text-red-500"
-      on:click={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        dispatch("delete", file);
-      }}
-    >
-      <TrashBinOutline class="mr-2 inline-block h-5 w-5" />Delete
-    </DropdownItem>
+    {#if !readonly}
+      <DropdownItem
+        on:click={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dispatch("rename", file);
+        }}
+      >
+        <EditOutline class="mr-2 inline-block h-5 w-5" />Rename
+      </DropdownItem>
+      <DropdownItem
+        class="text-red-500"
+        on:click={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dispatch("delete", file);
+        }}
+      >
+        <TrashBinOutline class="mr-2 inline-block h-5 w-5" />Delete
+      </DropdownItem>
+    {/if}
   </Dropdown>
 </div>
 

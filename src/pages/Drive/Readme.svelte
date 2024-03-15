@@ -12,6 +12,7 @@
   export let drive: Drive;
   export let file: TreeFile | undefined;
   export let path: string;
+  export let disableEdit = false;
 
   let markdown: string | undefined | null = undefined;
   let error: Error | null = null;
@@ -34,6 +35,7 @@
 
   let saving = false;
   async function save(e: CustomEvent<string>) {
+    if (disableEdit) return;
     try {
       saving = true;
 
@@ -52,5 +54,5 @@
 {#if error}
   <Alert>{error.message}</Alert>
 {:else if markdown !== undefined}
-  <MarkdownEditor value={markdown} on:save={save} {saving} />
+  <MarkdownEditor value={markdown} on:save={save} {saving} {disableEdit} />
 {/if}
