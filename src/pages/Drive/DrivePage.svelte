@@ -389,7 +389,7 @@
   </div>
 
   {#if showReadme === true}
-    <div class="flex flex-1 flex-col overflow-hidden">
+    <div class="flex flex-1 flex-col overflow-hidden border-l-4 border-gray-200 dark:border-gray-800">
       <ReadmePreview {drive} path={currentPath} file={readmeFile} />
     </div>
   {/if}
