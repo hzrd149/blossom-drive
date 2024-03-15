@@ -1,6 +1,5 @@
 <script lang="ts">
   import { Button, DropdownItem, Dropdown } from "flowbite-svelte";
-  import mime from "mime";
   import { servers } from "../services/servers";
   import {
     DotsHorizontalSolid,
@@ -14,6 +13,7 @@
   import { getBlobURL } from "../helpers/blob";
   import type TreeFile from "../blossom-drive-client/FileTree/TreeFile";
   import { extname } from "path-browserify";
+  import { getExtension } from "../blossom-drive-client/helpers";
 
   export let file: TreeFile;
   export let selected = false;
@@ -26,7 +26,7 @@
     ? "border border-primary-200 dark:border-primary-700"
     : "border border-gray-200 dark:border-gray-700 ";
 
-  $: extension = file.type ? mime.getExtension(file.type) ?? extname(file.name) : extname(file.name);
+  $: extension = file.type ? getExtension(file.type) ?? extname(file.name) : extname(file.name);
   $: preview = !encrypted && file.type?.startsWith("image/") && file.size < 1024 * 100;
   $: link = getBlobURL(file, $servers[0]);
 

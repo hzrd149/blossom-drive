@@ -7,6 +7,7 @@ import { createTreeFromTags, updateTreeInTags } from "./FileTree/nostr";
 import { getFile, getFolder, getPath, setFile, type Path, remove, move, extname } from "./FileTree/methods";
 import type { FileMetadata } from "./FileTree/TreeFile";
 import TreeFile from "./FileTree/TreeFile";
+import { getExtension } from "./helpers";
 
 function now() {
   return Math.floor(Date.now() / 1000);
@@ -181,7 +182,7 @@ export default class Drive extends EventEmitter {
       if (!servers.includes(server)) servers.push(server);
     }
 
-    const ext = extname(path);
+    const ext = extname(file.name) ?? getExtension(file.type) ?? "";
     return new URL("/" + file.sha256 + ext, servers[0]).toString();
   }
 

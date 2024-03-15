@@ -4,30 +4,39 @@
   import { gfmPlugin } from "svelte-exmarkdown/gfm";
   import { EditOutline, EyeOutline, FileOutline } from "flowbite-svelte-icons";
   import { basicSetup } from "codemirror";
-  import { markdown } from "@codemirror/lang-markdown";
+  import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
   import CodeMirror from "svelte-codemirror-editor";
   import { githubLight, githubDark } from "@uiw/codemirror-theme-github";
 
   import { componentPlugin } from "./plugins/components";
   import { highlightPlugin } from "./plugins/highlight";
-  import { createEventDispatcher } from "svelte";
+  import { createEventDispatcher, setContext } from "svelte";
+  import { createAutocompleteFromDrivePath } from "./plugins/autocomplete";
+  import type Drive from "../../../blossom-drive-client/Drive";
+  import { joinPath } from "../../../blossom-drive-client/FileTree/methods";
 
   export let saving = false;
   export let disableEdit = false;
   export let value: string | null;
+
+  export let drive: Drive;
+  export let path: string;
+
+  // set context for A and Img components
+  $: setContext("drive", drive);
+  $: setContext("path", path);
+
   $: content = value ?? "";
 
   $: savable = content !== value;
+  $: autocomplete = createAutocompleteFromDrivePath((p: string) =>
+    drive.getFolder(p.startsWith("./") ? joinPath(path, p.replace(/^\.\//, "")) : p),
+  );
 
   const dispatch = createEventDispatcher();
 
   let isDark = document.documentElement.classList.contains("dark");
   let mode = value === null ? "editor" : "preview";
-  // let autoSave = localStorage.getItem("auto-save") !== "false";
-
-  // $: {
-  //   localStorage.setItem("auto-save", String(autoSave));
-  // }
 
   // update dark when mode changes
   $: {
@@ -50,8 +59,6 @@
 {:else if mode === "editor"}
   <div class="flex min-w-96 flex-1 flex-col overflow-hidden">
     <div class="flex gap-4 p-2">
-      <!-- <Toggle bind:checked={autoSave}>Auto Save</Toggle> -->
-
       <Button
         size="sm"
         color={savable ? "primary" : "alternative"}
@@ -75,7 +82,7 @@
       <CodeMirror
         bind:value={content}
         lang={markdown()}
-        extensions={[basicSetup]}
+        extensions={[basicSetup, markdownLanguage.data.of({ autocomplete })]}
         theme={isDark ? githubDark : githubLight}
         useTab={false}
         class="flex-1"

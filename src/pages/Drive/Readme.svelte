@@ -54,5 +54,5 @@
 {#if error}
   <Alert>{error.message}</Alert>
 {:else if markdown !== undefined}
-  <MarkdownEditor value={markdown} on:save={save} {saving} {disableEdit} />
+  <MarkdownEditor value={markdown} on:save={save} {saving} {disableEdit} {drive} {path} />
 {/if}

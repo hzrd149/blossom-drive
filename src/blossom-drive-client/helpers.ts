@@ -1,3 +1,5 @@
+import mime from "mime";
+
 export function readFileSystemFile(fileEntry: FileSystemFileEntry) {
   return new Promise<File>((res, rej) => {
     fileEntry.file(
@@ -23,4 +25,10 @@ export async function getAllFileEntriesInTree(item: FileSystemEntry): Promise<Fi
     return (await Promise.all(entries.map(getAllFileEntriesInTree))).flat();
   }
   return [];
+}
+
+export function getExtension(type?: string){
+  if(!type) return
+  const ext = mime.getExtension(type)
+  return ext ? '.'+ext:undefined
 }
