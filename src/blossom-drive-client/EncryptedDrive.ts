@@ -70,7 +70,7 @@ export class EncryptedDrive extends Drive {
     template.kind = ENCRYPTED_DRIVE_KIND;
     template.content = ciphertext;
     // only keep the "d" and "scrypt-logn" tags public
-    template.tags = template.tags.filter((t) => t[0] === "d" || t[0] === "scrypt-logn");
+    template.tags = template.tags.filter((t) => t[0] === "d");
     template.tags.push(["scrypt-logn", String(this.logn)]);
     return template;
   }
