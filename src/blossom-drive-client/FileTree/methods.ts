@@ -21,7 +21,7 @@ export function basename(path: string[]) {
   return path.slice(-1)[0];
 }
 export function extname(path: string | string[]) {
-  return (typeof path === "string" ? path : formatPath(path)).match(/\.[a-zA-Z0-9]$/)?.[0];
+  return (typeof path === "string" ? path : formatPath(path)).match(/\.[a-zA-Z0-9]{2,5}$/)?.[0];
 }
 
 export function getPath(root: TreeFolder, path: Path, create = false) {
