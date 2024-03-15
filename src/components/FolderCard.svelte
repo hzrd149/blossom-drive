@@ -90,7 +90,7 @@
 >
   <div class="flex flex-grow items-center justify-center p-4"><FolderSolid class="h-10 w-10" /></div>
   <hr />
-  <div class="max-w-40 truncate px-4 py-2 text-center text-sm">{folder.name}</div>
+  <div class="max-w-48 truncate px-4 py-2 text-center text-sm">{folder.name}</div>
   <Button
     size="xs"
     color="none"

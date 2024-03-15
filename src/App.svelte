@@ -39,7 +39,7 @@
   class="flex w-full flex-1 overflow-y-auto overflow-x-hidden bg-white text-gray-900 dark:bg-gray-900 dark:text-white"
 >
   <Sidebar />
-  <div class="flex flex-1 flex-col">
+  <div class="flex flex-1 flex-col overflow-hidden">
     <TopNav />
     <Router {routes} />
   </div>

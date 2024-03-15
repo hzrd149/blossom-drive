@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Button, Modal, Input, Textarea, Spinner, Checkbox, Label } from "flowbite-svelte";
+  import { Button, Modal, Input, Textarea, Spinner, Checkbox, Label, Alert } from "flowbite-svelte";
   import { createEventDispatcher } from "svelte";
   import { publishSignedEvent, signEventTemplate } from "../services/ndk";
   import { nanoid } from "nanoid";
@@ -61,14 +61,7 @@
       <Input placeholder="Drive name" required bind:value={name} />
       <Textarea name="about" rows={4} placeholder="A short description" bind:value={description} />
 
-      <Label>Media Servers</Label>
-      {#each $servers as server}
-        <Checkbox checked={selectedServers.includes(server)} on:change={() => toggleServer(server)}
-          >{new URL(server).hostname}</Checkbox
-        >
-      {/each}
-
-      <!-- <Checkbox bind:checked={encrypted}>Encrypted</Checkbox>
+      <Checkbox bind:checked={encrypted}>Encrypted</Checkbox>
       {#if encrypted}
         <p>Encrypted drives are password protected. anyone with the password will be able to decrypt and view files</p>
         <Alert color="yellow" border>
@@ -82,7 +75,15 @@
           bind:value={pwd2}
           placeholder="Retype password"
         />
-      {/if} -->
+      {/if}
+
+      <Label class="mt-2 text-lg">Media Servers</Label>
+      {#each $servers as server}
+        <Checkbox checked={selectedServers.includes(server)} on:change={() => toggleServer(server)}
+          >{new URL(server).hostname}</Checkbox
+        >
+      {/each}
+
       <div class="flex justify-end gap-2">
         <Button color="alternative" on:click={() => (open = false)}>Cancel</Button>
         <Button type="submit">Create</Button>

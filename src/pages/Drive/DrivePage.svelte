@@ -1,14 +1,17 @@
 <script lang="ts">
-  import { Button, CloseButton, Select, Spinner, Tooltip } from "flowbite-svelte";
+  import { Button, CloseButton, Select, Tooltip } from "flowbite-svelte";
   import {
     ArrowLeftToBracketOutline,
     ArrowUpRightFromSquareOutline,
+    ChevronDoubleLeftOutline,
+    ChevronDoubleRightOutline,
     CloseOutline,
     CogOutline,
     DownloadOutline,
     EditOutline,
     EyeSolid,
     FileImportOutline,
+    FileWordOutline,
     FolderArrowRightOutline,
     FolderPlusOutline,
     InfoCircleOutline,
@@ -42,12 +45,22 @@
   import { addUpload } from "../../services/uploads";
   import { EncryptedDrive } from "../../blossom-drive-client/EncryptedDrive";
   import UnlockDrive from "../../components/UnlockDrive.svelte";
+  import ReadmePreview from "./Readme.svelte";
 
   export let currentPath: string;
   export let drive: Drive;
   $: readableDrive = getReadableDrive(drive);
   $: encryptedDrive = $readableDrive instanceof EncryptedDrive ? (drive as EncryptedDrive) : null;
   $: subTree = $readableDrive.getFolder(currentPath);
+
+  $: readmeFile = subTree.children.find((f) => f instanceof TreeFile && f.name.match(/readme\.md/i)) as
+    | TreeFile
+    | undefined;
+  $: showReadme = readmeFile && localStorage.getItem("show-readme") !== "false";
+  function toggleReadme() {
+    showReadme = !showReadme;
+    localStorage.setItem("show-readme", String(showReadme));
+  }
 
   let editModal = false;
   let newFolderModal = false;
@@ -180,10 +193,8 @@
   let showInfo = false;
 </script>
 
-{#if !drive}
-  <Spinner />
-{:else}
-  <main class="flex flex-1 flex-grow flex-col overflow-hidden" on:drop={drop} on:dragover={dragover}>
+<main class="flex flex-1 flex-grow overflow-hidden" on:drop={drop} on:dragover={dragover}>
+  <div class="flex flex-1 flex-col overflow-hidden">
     {#if encrypted}
       <div class="relative flex w-full flex-row items-center bg-green-500">
         {#if showInfo}
@@ -292,6 +303,17 @@
         <CogOutline />
       </Button>
       <Tooltip placement="bottom">Drive Settings</Tooltip>
+
+      <Button size="sm" class="!p-2" color="alternative" on:click={toggleReadme}>
+        {#if showReadme}
+          <FileWordOutline />
+          <ChevronDoubleRightOutline />
+        {:else}
+          <ChevronDoubleLeftOutline />
+          <FileWordOutline />
+        {/if}
+      </Button>
+      <Tooltip placement="bottom">Show Readme</Tooltip>
     </div>
     <div class="flex items-center gap-2 rounded-lg px-4 py-2">
       {#if selected.length > 0}
@@ -364,8 +386,14 @@
         </div>
       </div>
     {/if}
-  </main>
-{/if}
+  </div>
+
+  {#if showReadme === true}
+    <div class="flex flex-1 flex-col overflow-hidden">
+      <ReadmePreview {drive} path={currentPath} file={readmeFile} />
+    </div>
+  {/if}
+</main>
 
 {#if confirmDelete}
   <DeleteModal bind:open={confirmDelete} on:yes={deleteSelected} />

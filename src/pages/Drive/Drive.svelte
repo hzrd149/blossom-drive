@@ -4,7 +4,7 @@
   import { Spinner } from "flowbite-svelte";
   import { drives, handleEvent } from "../../services/drives";
   import type Drive from "../../blossom-drive-client/Drive";
-  import DriveFiles from "./DriveFiles.svelte";
+  import DrivePage from "./DrivePage.svelte";
   import { ndk } from "../../services/ndk";
 
   export let params: Record<string, string>;
@@ -43,5 +43,5 @@
 {#if !drive}
   <Spinner />
 {:else}
-  <DriveFiles {drive} currentPath={new URLSearchParams($querystring).get("path") ?? ""} />
+  <DrivePage {drive} currentPath={new URLSearchParams($querystring).get("path") ?? ""} />
 {/if}

@@ -30,10 +30,13 @@ export default class Upload extends EventEmitter {
     this.signer = signer;
   }
 
+  async addFile(file: File) {
+    const path = file.webkitRelativePath ? file.webkitRelativePath : file.name;
+    this.files.push({ id: nanoid(), file, path });
+  }
   async addFileList(fileList: FileList) {
     for (const file of fileList) {
-      const path = file.webkitRelativePath ? file.webkitRelativePath : file.name;
-      this.files.push({ id: nanoid(), file, path });
+      await this.addFile(file);
     }
   }
   async addFileSystemEntry(entry: FileSystemEntry) {
