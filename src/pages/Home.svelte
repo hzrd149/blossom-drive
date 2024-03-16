@@ -1,14 +1,29 @@
 <script lang="ts">
+  import { Alert, Button } from "flowbite-svelte";
   import DriveCard from "../components/DriveCard.svelte";
   import SimpleCard from "../components/SimpleCard.svelte";
   import { drives } from "../services/drives";
   import { TagOutline } from "flowbite-svelte-icons";
   import { activeUser } from "../services/ndk";
   import LoginPage from "../components/LoginPage.svelte";
+  import { servers } from "../services/servers";
 </script>
 
 {#if $activeUser}
   <main class="flex flex-col gap-4 p-4">
+    {#if $servers.length === 0}
+      <Alert color="red">
+        <div class="flex items-center gap-3">
+          <span class="text-lg font-medium">Missing servers</span>
+        </div>
+        <p class="mb-4 mt-2 text-sm">
+          You need to set at least one <a href="#/servers" class="font-bold underline">server</a> in order to upload files
+        </p>
+        <div class="flex gap-2">
+          <Button size="xs" href="#/servers">Add Server</Button>
+        </div>
+      </Alert>
+    {/if}
     <h2 class="text-xl font-bold">Drives</h2>
     <div class="flex w-full flex-wrap gap-4">
       {#each Object.values($drives) as drive}

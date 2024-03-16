@@ -54,9 +54,9 @@
       <DropdownItem on:click={() => (newDriveModal = true)}>
         <ArchiveSolid class="inline-block h-6 w-6" /> Drive
       </DropdownItem>
-      <DropdownDivider />
+      <!-- <DropdownDivider />
       <DropdownItem><FileImportOutline class="inline-block h-6 w-6" /> Upload Files</DropdownItem>
-      <DropdownItem><FolderArrowRightOutline class="inline-block h-6 w-6" /> Upload Folder</DropdownItem>
+      <DropdownItem><FolderArrowRightOutline class="inline-block h-6 w-6" /> Upload Folder</DropdownItem> -->
     </Dropdown>
 
     {#if $activeUser}
