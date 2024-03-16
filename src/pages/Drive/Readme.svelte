@@ -22,8 +22,6 @@
         .downloadFile(file.path, $servers)
         .then(async (data) => {
           if (!data) throw new Error("Failed to load file");
-          console.log("Read file", file, data);
-
           const str = await readFileAsText(data);
           markdown = str;
         })

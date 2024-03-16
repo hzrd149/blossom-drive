@@ -1,6 +1,12 @@
 <script lang="ts">
   import { Button, Dropdown, DropdownItem } from "flowbite-svelte";
-  import { DotsHorizontalSolid, EditOutline, FolderSolid, TrashBinOutline } from "flowbite-svelte-icons";
+  import {
+    ArrowDownToBracketOutline,
+    DotsHorizontalSolid,
+    EditOutline,
+    FolderSolid,
+    TrashBinOutline,
+  } from "flowbite-svelte-icons";
   import { createEventDispatcher } from "svelte";
   import { location, push, querystring } from "svelte-spa-router";
   import type TreeFolder from "../blossom-drive-client/FileTree/TreeFolder";
@@ -105,6 +111,15 @@
       <DotsHorizontalSolid />
     </Button>
     <Dropdown class="w-48" placement="bottom-start">
+      <DropdownItem
+        on:click={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dispatch("download", folder);
+        }}
+      >
+        <ArrowDownToBracketOutline class="mr-2 inline-block h-5 w-5" />Download
+      </DropdownItem>
       <DropdownItem
         on:click={(e) => {
           e.preventDefault();

@@ -31,4 +31,4 @@
   }
 </script>
 
-<Img src={resolved || undefined} {alt} />
+<Img src={resolved || undefined} {alt} class="max-h-96" />

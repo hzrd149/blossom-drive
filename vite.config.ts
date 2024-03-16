@@ -16,6 +16,8 @@ export default defineConfig({
       workbox: {
         clientsClaim: true,
         skipWaiting: true,
+        // This increase the cache limit to 3mB
+        maximumFileSizeToCacheInBytes: 2097152 * 2,
       },
       manifest: {
         name: "Blossom Drive",

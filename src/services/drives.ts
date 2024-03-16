@@ -50,8 +50,6 @@ export function handleEvent(event: NDKEvent) {
 
       drive.update(event.rawEvent() as SignedEvent);
 
-      console.log("Created drive", drive);
-
       // backup the event when the drive updates
       drive.on("update", handleDriveUpdate);
 

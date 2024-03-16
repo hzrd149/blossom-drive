@@ -8,6 +8,7 @@
     EditOutline,
     TrashBinOutline,
     FileCopyOutline,
+    ArrowDownToBracketOutline,
   } from "flowbite-svelte-icons";
   import { createEventDispatcher } from "svelte";
   import { getBlobURL } from "../helpers/blob";
@@ -28,7 +29,7 @@
 
   $: extension = file.type ? getExtension(file.type) ?? extname(file.name) : extname(file.name);
   $: preview = !encrypted && file.type?.startsWith("image/") && file.size < 1024 * 100;
-  $: link = getBlobURL(file, $servers[0]);
+  $: previewLink = getBlobURL(file, $servers[0]);
 
   function toggleSelect() {
     if (selected) dispatch("unselect", file.name);
@@ -48,17 +49,14 @@
     borderClass}
   on:dragstart={dragStart}
   on:click|stopPropagation={toggleSelect}
-  on:dblclick={() => {
-    dispatch("open", file);
-    // !encrypted && link && window.open(link, "_blank")
-  }}
+  on:dblclick={() => dispatch("open", file)}
   role="row"
   tabindex={0}
   draggable="true"
 >
   <div class="flex flex-grow items-center justify-center overflow-hidden text-xl font-bold">
-    {#if preview && link}
-      <div class="preview-image" style="background-image: url({link});" />
+    {#if preview && previewLink}
+      <div class="preview-image" style="background-image: url({previewLink});" />
     {:else}
       <span class="m-4">{extension}</span>
     {/if}
@@ -96,6 +94,15 @@
       }}
     >
       <ArrowUpRightFromSquareOutline class="mr-2 inline-block h-5 w-5" />Open
+    </DropdownItem>
+    <DropdownItem
+      on:click={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dispatch("download", file);
+      }}
+    >
+      <ArrowDownToBracketOutline class="mr-2 inline-block h-5 w-5" />Download
     </DropdownItem>
     <DropdownItem
       on:click={(e) => {

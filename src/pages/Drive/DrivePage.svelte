@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Button, CloseButton, Select, Tooltip } from "flowbite-svelte";
   import {
+    ArrowDownToBracketOutline,
     ArrowLeftToBracketOutline,
     ArrowUpRightFromSquareOutline,
     ChevronDoubleLeftOutline,
@@ -22,6 +23,7 @@
     TrashBinSolid,
   } from "flowbite-svelte-icons";
   import { saveAs } from "file-saver";
+  import JSZip from "jszip";
 
   import FileCard from "../../components/FileCard.svelte";
   import FolderCard from "../../components/FolderCard.svelte";
@@ -46,6 +48,8 @@
   import { EncryptedDrive } from "../../blossom-drive-client/EncryptedDrive";
   import UnlockDrive from "../../components/UnlockDrive.svelte";
   import ReadmePreview from "./Readme.svelte";
+  import { basename } from "path-browserify";
+  import { MultiDownload } from "../../helpers/multi-download";
 
   export let currentPath: string;
   export let drive: Drive;
@@ -141,13 +145,22 @@
     }
   }
 
+  async function download(entry: TreeFile | TreeFolder) {
+    const download = new MultiDownload(drive, $servers);
+    download.on("log", (message) => console.log(download.id, message));
+    await download.start([entry]);
+  }
   async function downloadSelected() {
-    for (const file of subTree) {
-      if (file instanceof TreeFile && selected.includes(file.name)) {
-        let download = await drive.downloadFile(file.path, $servers);
-        if (download) await saveAs(download, download.name);
-      }
+    const download = new MultiDownload(drive, $servers);
+    const entries: (TreeFile | TreeFolder)[] = [];
+    for (const entry of subTree) {
+      if (selected.includes(entry.name)) entries.push(entry);
     }
+
+    download.on("log", (message) => console.log(download.id, message));
+
+    if (entries.length > 0) await download.start(entries);
+    else await download.start([subTree]);
   }
 
   let renameModal = false;
@@ -169,13 +182,19 @@
     }
   };
 
+  let showDropOverlay = false;
   async function drop(e: DragEvent) {
     e.preventDefault();
+    showDropOverlay = false;
     if (e.dataTransfer) {
-      const fs = e.dataTransfer.items?.[0].webkitGetAsEntry();
-      if (fs) {
+      if (e.dataTransfer.items.length > 0) {
         const upload = new Upload(drive, currentPath, $servers, signEventTemplate);
-        await upload.addFileSystemEntry(fs);
+        for (const item of e.dataTransfer.items) {
+          if (item.kind === "file") {
+            const fs = item.webkitGetAsEntry();
+            if (fs) await upload.addFileSystemEntry(fs);
+          }
+        }
         addUpload(upload);
       } else if (e.dataTransfer.files.length > 0) {
         const upload = new Upload(drive, currentPath, $servers, signEventTemplate);
@@ -185,7 +204,19 @@
     }
   }
   function dragover(e: DragEvent) {
-    e.preventDefault();
+    if (e.dataTransfer?.items[0]?.kind === "file") {
+      e.preventDefault();
+      showDropOverlay = true;
+    }
+  }
+  function dragenter(e: DragEvent) {
+    if (e.dataTransfer?.items[0]?.kind === "file") {
+      showDropOverlay = true;
+      e.preventDefault();
+    }
+  }
+  function dragleave(e: DragEvent) {
+    showDropOverlay = false;
   }
 
   let folderInput: HTMLInputElement;
@@ -194,7 +225,13 @@
   let showInfo = false;
 </script>
 
-<main class="flex flex-1 flex-grow overflow-hidden" on:drop={drop} on:dragover={dragover}>
+<main
+  class="flex flex-1 flex-grow overflow-hidden"
+  on:drop={drop}
+  on:dragover={dragover}
+  on:dragleave={dragleave}
+  on:dragenter={dragenter}
+>
   <div class="flex flex-1 flex-col overflow-hidden">
     {#if encrypted}
       <div class="relative flex w-full flex-row items-center bg-green-500">
@@ -223,13 +260,18 @@
 
       <div class="flex-1" />
 
+      <Button size="sm" class="!p-2" color="alternative" on:click={downloadSelected}>
+        <DownloadOutline />
+      </Button>
+      <Tooltip placement="bottom">Download</Tooltip>
+
       {#if selected.length === 0}
+        <div class="h-8 border border-gray-200 dark:border-gray-800" />
+
         <Button size="sm" class="!p-2" color="alternative" on:click={() => (newFolderModal = true)} disabled={!isOwner}>
           <FolderPlusOutline />
         </Button>
         <Tooltip placement="bottom">Create Folder</Tooltip>
-
-        <div class="h-8 border border-gray-200 dark:border-gray-800" />
 
         <input
           class="hidden"
@@ -254,40 +296,37 @@
           <ArrowUpRightFromSquareOutline />
         </Button>
         <Tooltip placement="bottom">Open</Tooltip>
-        {#if selected.length === 1}
-          <Button size="sm" class="!p-2" color="alternative" on:click={downloadSelected}>
-            <DownloadOutline />
+      {/if}
+
+      {#if selected.length === 1}
+        {#if !encrypted}
+          <Button size="sm" class="!p-2" color="alternative" on:click={copySelectedLink}>
+            <LinkOutline />
           </Button>
-          <Tooltip placement="bottom">Download</Tooltip>
-
-          {#if !encrypted}
-            <Button size="sm" class="!p-2" color="alternative" on:click={copySelectedLink}>
-              <LinkOutline />
-            </Button>
-            <Tooltip placement="bottom">Copy Link</Tooltip>
-          {/if}
-
-          <div class="h-8 border border-gray-200 dark:border-gray-800" />
-
-          <Button size="sm" class="!p-2" color="alternative" disabled>
-            <ArrowLeftToBracketOutline />
-          </Button>
-          <Tooltip placement="bottom">Move</Tooltip>
-
-          <Button size="sm" class="!p-2" color="alternative" on:click={() => (renameModal = true)} disabled={!isOwner}>
-            <EditOutline />
-          </Button>
-          <Tooltip placement="bottom">Rename</Tooltip>
-
-          <Button size="sm" class="!p-2" color="alternative" on:click={showDetailsModal}>
-            <InfoCircleOutline />
-          </Button>
-          <Tooltip placement="bottom">Details</Tooltip>
+          <Tooltip placement="bottom">Copy Link</Tooltip>
         {/if}
 
         <div class="h-8 border border-gray-200 dark:border-gray-800" />
 
-        <Button size="sm" class="!p-2" color="red" outline on:click={() => (confirmDelete = true)}>
+        <Button size="sm" class="!p-2" color="alternative" disabled>
+          <ArrowLeftToBracketOutline />
+        </Button>
+        <Tooltip placement="bottom">Move</Tooltip>
+
+        <Button size="sm" class="!p-2" color="alternative" on:click={() => (renameModal = true)} disabled={!isOwner}>
+          <EditOutline />
+        </Button>
+        <Tooltip placement="bottom">Rename</Tooltip>
+
+        <Button size="sm" class="!p-2" color="alternative" on:click={showDetailsModal}>
+          <InfoCircleOutline />
+        </Button>
+        <Tooltip placement="bottom">Details</Tooltip>
+      {/if}
+      {#if selected.length > 0}
+        <div class="h-8 border border-gray-200 dark:border-gray-800" />
+
+        <Button size="sm" class="!p-2" color="red" outline on:click={() => (confirmDelete = true)} disabled={!isOwner}>
           <TrashBinOutline />
         </Button>
         <Tooltip placement="bottom">Delete</Tooltip>
@@ -361,6 +400,7 @@
               on:upload-files={(e) => {
                 // uploadFiles(e.detail, folder);
               }}
+              on:download={(e) => download(e.detail)}
             />
           {/each}
           {#each files as file}
@@ -384,6 +424,7 @@
                 detailsModal = true;
               }}
               on:open={(e) => openFile(e.detail)}
+              on:download={(e) => download(e.detail)}
             />
           {/each}
         </div>
@@ -397,6 +438,16 @@
     </div>
   {/if}
 </main>
+
+{#if showDropOverlay}
+  <div
+    class="pointer-events-none fixed bottom-0 left-0 right-0 top-0 flex items-center justify-center bg-black bg-opacity-50 text-4xl"
+  >
+    <div class="flex gap-2 rounded-xl border-2 bg-gray-200 px-16 py-10 dark:bg-gray-800">
+      <ArrowDownToBracketOutline class="mr-2 h-10 w-10" />Uploads Files
+    </div>
+  </div>
+{/if}
 
 {#if confirmDelete}
   <DeleteModal bind:open={confirmDelete} on:yes={deleteSelected} />
