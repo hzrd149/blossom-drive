@@ -9,9 +9,7 @@ export function createAutocompleteFromDrivePath(getFolder: (path: string) => Tre
     if (nodeBefore.name != "URL") return null;
     let textBefore = context.state.sliceDoc(nodeBefore.from, context.pos);
     let fullPathBefore = /^\.?\/(.*\/)?/.exec(textBefore)?.[0];
-    let pathBefore = /(\.?\/)\w*$/.exec(textBefore);
-
-    console.log(textBefore, fullPathBefore, pathBefore);
+    let pathBefore = /(\.?\/)[\w%]*$/.exec(textBefore);
 
     if (!pathBefore && !context.explicit) return null;
     if (!fullPathBefore) return null;
@@ -19,12 +17,15 @@ export function createAutocompleteFromDrivePath(getFolder: (path: string) => Tre
     try {
       let options: string[] = [];
 
-      const folder = getFolder(fullPathBefore);
+      const folder = getFolder(fullPathBefore.replace("%20", " "));
       for (const child of folder) options.push(child.name);
 
       return {
         from: pathBefore ? nodeBefore.from + pathBefore.index : context.pos,
-        options: options.map((p) => ({ label: (pathBefore?.[1] ?? "/") + p })),
+        options: options.map((p) => {
+          const path = ((pathBefore?.[1] ?? "/") + p).replace(" ", "%20");
+          return { label: path };
+        }),
         validFor: /^(\/.*)?$/,
       };
     } catch (e) {
