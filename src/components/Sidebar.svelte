@@ -9,7 +9,6 @@
     Button,
     SidebarBrand,
     DropdownItem,
-    DropdownDivider,
     Dropdown,
   } from "flowbite-svelte";
   import {
@@ -18,11 +17,8 @@
     PlusSolid,
     TagSolid,
     DatabaseOutline,
-    FolderArrowRightOutline,
-    FileImportOutline,
     InfoCircleOutline,
   } from "flowbite-svelte-icons";
-  import type { NDKEvent } from "@nostr-dev-kit/ndk";
 
   import { drives } from "../services/drives";
   import { servers } from "../services/servers";

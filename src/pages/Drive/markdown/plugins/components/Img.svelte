@@ -1,34 +1,40 @@
 <script lang="ts">
-  import { Img } from "flowbite-svelte";
+  import { getContext } from "svelte";
+  import { Img, Spinner } from "flowbite-svelte";
   import { joinPath } from "../../../../../blossom-drive-client/FileTree/methods";
   import { servers } from "../../../../../services/servers";
-  import { getContext } from "svelte";
-  import { EncryptedDrive } from "../../../../../blossom-drive-client/EncryptedDrive";
   import type Drive from "../../../../../blossom-drive-client/Drive";
+  import { getLocalFileURL } from "../../../../../services/downloads";
 
   export let src: string;
   export let alt: string;
 
+  let loading = false;
   let resolved = src;
 
   $: {
-    const drive = getContext<Drive | EncryptedDrive>("drive");
+    const drive = getContext<Drive>("drive");
     if (drive) {
       if (src.startsWith("./") || src.startsWith("/")) {
+        loading = true;
         try {
           const subPath = getContext<string>("path");
-          if (drive instanceof EncryptedDrive) {
-            resolved = "";
-          } else {
-            const fullPath = src.startsWith("/") ? src : joinPath(subPath, src.replace(/^\.\//, ""));
-            resolved = drive.getFileURL(fullPath, $servers);
-          }
+          const fullPath = src.startsWith("/") ? src : joinPath(subPath, src.replace(/^\.\//, ""));
+
+          getLocalFileURL(drive, fullPath, $servers)
+            .then((url) => (resolved = url))
+            .finally(() => (loading = false));
         } catch (e) {
           resolved = "";
+          loading = false;
         }
       }
     }
   }
 </script>
 
-<Img src={resolved || undefined} {alt} class="max-h-96" />
+{#if loading}
+  <Spinner />
+{:else}
+  <Img src={resolved || undefined} {alt} class="max-h-96" />
+{/if}

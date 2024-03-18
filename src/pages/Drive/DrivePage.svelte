@@ -48,8 +48,9 @@
   import { EncryptedDrive } from "../../blossom-drive-client/EncryptedDrive";
   import UnlockDrive from "../../components/UnlockDrive.svelte";
   import ReadmePreview from "./Readme.svelte";
-  import { basename } from "path-browserify";
   import { MultiDownload } from "../../helpers/multi-download";
+  import { clearCache, getLocalFileURL } from "../../services/downloads";
+  import { onDestroy } from "svelte";
 
   export let currentPath: string;
   export let drive: Drive;
@@ -128,14 +129,8 @@
   }
 
   async function openFile(file: TreeFile) {
-    if (drive instanceof EncryptedDrive) {
-      const download = await drive.downloadFile(file.path, $servers);
-      if (!download) return;
-      const url = URL.createObjectURL(download);
-      window.open(url, "_blank");
-    } else {
-      window.open(drive.getFileURL(file.path, $servers), "_blank");
-    }
+    const url = await getLocalFileURL(drive, file.path, $servers);
+    window.open(url, "_blank");
   }
   async function openSelected() {
     for (const file of subTree) {
@@ -162,6 +157,11 @@
     if (entries.length > 0) await download.start(entries);
     else await download.start([subTree]);
   }
+
+  onDestroy(() => {
+    // remove all cached files
+    clearCache();
+  });
 
   let renameModal = false;
   async function renameEntry(e: CustomEvent<string>) {
@@ -222,7 +222,7 @@
   let folderInput: HTMLInputElement;
   let filesInput: HTMLInputElement;
 
-  let showInfo = false;
+  let showInfoHeader = false;
 </script>
 
 <main
@@ -235,22 +235,22 @@
   <div class="flex flex-1 flex-col overflow-hidden">
     {#if encrypted}
       <div class="relative flex w-full flex-row items-center bg-green-500">
-        {#if showInfo}
+        {#if showInfoHeader}
           <LockSolid class="m-2 h-6 w-6" />
           <p>This drive is encrypted, only users who know the password can view it and download files</p>
-          <Button color="none" class="ml-auto" on:click={() => (showInfo = false)}><CloseOutline /></Button>
+          <Button color="none" class="ml-auto" on:click={() => (showInfoHeader = false)}><CloseOutline /></Button>
         {:else}
-          <button class="h-3 w-full border-none bg-none" on:click={() => (showInfo = true)} />
+          <button class="h-3 w-full border-none bg-none" on:click={() => (showInfoHeader = true)} />
         {/if}
       </div>
     {:else}
       <div class="relative flex w-full flex-row items-center bg-purple-500">
-        {#if showInfo}
+        {#if showInfoHeader}
           <EyeSolid class="m-2 h-6 w-6" />
           <p>This drive is public, anyone can view it and download files</p>
-          <Button color="none" class="ml-auto" on:click={() => (showInfo = false)}><CloseOutline /></Button>
+          <Button color="none" class="ml-auto" on:click={() => (showInfoHeader = false)}><CloseOutline /></Button>
         {:else}
-          <button class="h-3 w-full border-none bg-none" on:click={() => (showInfo = true)} />
+          <button class="h-3 w-full border-none bg-none" on:click={() => (showInfoHeader = true)} />
         {/if}
       </div>
     {/if}
