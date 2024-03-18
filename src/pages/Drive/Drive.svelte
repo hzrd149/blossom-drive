@@ -2,19 +2,22 @@
   import { querystring } from "svelte-spa-router";
   import { nip19 } from "nostr-tools";
   import { Spinner } from "flowbite-svelte";
-  import { drives, handleEvent } from "../../services/drives";
+  import { drives, getReadableDrive, handleEvent } from "../../services/drives";
   import type Drive from "../../blossom-drive-client/Drive";
   import DrivePage from "./DrivePage.svelte";
   import { ndk } from "../../services/ndk";
+  import { EncryptedDrive } from "../../blossom-drive-client/EncryptedDrive";
+  import UnlockDrive from "../../components/UnlockDrive.svelte";
+  import type { Readable } from "svelte/store";
 
   export let params: Record<string, string>;
-  let drive: Drive | null = null;
+  let drive: Readable<Drive>;
 
   async function loadDrive(naddr: string) {
     const decoded = nip19.decode(naddr);
     if (decoded.type !== "naddr") throw new Error("Unknown Type");
     if ($drives[decoded.data.identifier]) {
-      drive = $drives[decoded.data.identifier];
+      drive = getReadableDrive($drives[decoded.data.identifier]);
     } else {
       const event = await ndk.fetchEvent({
         kinds: [decoded.data.kind],
@@ -24,24 +27,29 @@
 
       if (event) {
         handleEvent(event);
-        drive = $drives[decoded.data.identifier];
+        drive = getReadableDrive($drives[decoded.data.identifier]);
       }
     }
   }
 
   $: {
     if (params?.naddr) {
-      loadDrive(params.naddr)
-        .then(() => {})
-        .catch((e) => {
-          if (e instanceof Error) alert(e.message);
-        });
+      loadDrive(params.naddr).catch((e) => {
+        if (e instanceof Error) alert(e.message);
+      });
     }
   }
+
+  $: currentPath = new URLSearchParams($querystring).get("path") ?? "";
+  $: encrypted = $drive instanceof EncryptedDrive;
+  $: locked = $drive instanceof EncryptedDrive ? $drive.locked : undefined;
+  $: encryptedDrive = $drive instanceof EncryptedDrive ? ($drive as EncryptedDrive) : null;
 </script>
 
 {#if !drive}
   <Spinner />
+{:else if encrypted && locked && encryptedDrive}
+  <UnlockDrive drive={encryptedDrive} />
 {:else}
-  <DrivePage {drive} currentPath={new URLSearchParams($querystring).get("path") ?? ""} />
+  <DrivePage drive={$drive} {currentPath} />
 {/if}

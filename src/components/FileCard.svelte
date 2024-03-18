@@ -54,11 +54,11 @@
   tabindex={0}
   draggable="true"
 >
-  <div class="flex flex-grow items-center justify-center overflow-hidden text-xl font-bold">
+  <div class="flex flex-grow items-center justify-center overflow-hidden">
     {#if preview && previewLink}
       <div class="preview-image" style="background-image: url({previewLink});" />
     {:else}
-      <span class="m-4">{extension}</span>
+      <span class="m-4 text-xl font-bold">{extension}</span>
     {/if}
   </div>
   <hr />

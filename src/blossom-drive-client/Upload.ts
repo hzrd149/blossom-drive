@@ -1,7 +1,9 @@
 import { BlossomClient, type BlobDescriptor, type Signer } from "blossom-client";
 import { nanoid } from "nanoid";
-import type Drive from "./Drive";
+import mime from "mime";
 import EventEmitter from "events";
+
+import type Drive from "./Drive";
 import { readFileSystemDirectory, readFileSystemFile } from "./helpers";
 import { joinPath } from "./FileTree/methods";
 import { EncryptedDrive } from "./EncryptedDrive";
@@ -74,10 +76,11 @@ export default class Upload extends EventEmitter {
         try {
           const blob = await BlossomClient.uploadBlob(server, _file, token);
           this.progress[upload.id][server] = { blob };
+          debugger;
           this.drive.setFile(joinPath(this.basePath, upload.path), {
             sha256: blob.sha256,
             size: blob.size,
-            type: upload.file.type || blob.type || "",
+            type: upload.file.type || mime.getType(upload.file.name) || blob.type || "",
           });
           this.emit("progress", this.progress);
         } catch (error) {
