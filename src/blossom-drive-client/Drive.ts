@@ -25,7 +25,8 @@ export type DriveMetadata = {
   treeTags: string[][];
 };
 
-export const emptyMetadata: DriveMetadata = { name: "", identifier: "", description: "", servers: [], treeTags: [] };
+export const getEmptyMetadata = () =>
+  ({ name: "", identifier: "", description: "", servers: [], treeTags: [] }) satisfies DriveMetadata;
 
 export default class Drive extends EventEmitter {
   tree: TreeFolder;
@@ -34,7 +35,7 @@ export default class Drive extends EventEmitter {
   /** whether the drive has been modified and needs to be saved */
   modified = false;
 
-  protected _metadata: DriveMetadata = emptyMetadata;
+  protected _metadata: DriveMetadata = getEmptyMetadata();
   get pubkey() {
     return this._metadata.pubkey;
   }

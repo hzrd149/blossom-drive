@@ -1,12 +1,12 @@
 import { BlossomClient, type EventTemplate, type SignedEvent } from "blossom-client";
-import Drive, { emptyMetadata, type DriveMetadata } from "./Drive";
+import Drive, { getEmptyMetadata, type DriveMetadata } from "./Drive";
 import { base64 } from "@scure/base";
 import { decrypt, encrypt } from "./crypto";
 import TreeFolder from "./FileTree/TreeFolder";
 import type { Path } from "./FileTree/methods";
 
 export const ENCRYPTED_DRIVE_KIND = 30564;
-export const DEFAULT_SCRYPT_LOGN = 4;
+export const DEFAULT_SCRYPT_LOGN = 10;
 
 const drivePassword = new WeakMap<EncryptedDrive, string>();
 export class EncryptedDrive extends Drive {
@@ -33,7 +33,7 @@ export class EncryptedDrive extends Drive {
     if (!this.locked) {
       drivePassword.delete(this);
       this.locked = false;
-      this._metadata = emptyMetadata;
+      this._metadata = getEmptyMetadata();
       this.tree = new TreeFolder("");
     }
   }

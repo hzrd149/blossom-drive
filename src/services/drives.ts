@@ -61,3 +61,8 @@ export function handleEvent(event: NDKEvent) {
     }
   }
 }
+
+if (import.meta.env.DEV) {
+  // @ts-expect-error
+  window.getDrives = () => get(drives);
+}

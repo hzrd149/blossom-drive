@@ -9,7 +9,7 @@
   $: isEncrypted = drive instanceof EncryptedDrive;
 
   $: locked = drive instanceof EncryptedDrive && drive.locked;
-  $: name = !(drive instanceof EncryptedDrive) || !drive.locked ? drive.name : "[Locked]";
+  $: name = !(drive instanceof EncryptedDrive) || !drive.locked ? drive.name : drive.identifier;
   $: description = !(drive instanceof EncryptedDrive) || !drive.locked ? drive.description : "[Locked]";
 </script>
 

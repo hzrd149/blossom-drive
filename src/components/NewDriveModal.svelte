@@ -37,7 +37,7 @@
 
       drive.name = name;
       drive.description = description;
-      drive.identifier = name.toLowerCase().replaceAll(/\s/g, "-") || nanoid(8);
+      drive.identifier = encrypted ? nanoid(8) : name.toLowerCase().replaceAll(/\s/g, "-") || nanoid(8);
 
       await drive.save();
       dispatch("created", drive);
