@@ -2,7 +2,7 @@
   import { Button, DropdownItem, Dropdown } from "flowbite-svelte";
   import { servers } from "../services/servers";
   import {
-    DotsHorizontalSolid,
+    DotsHorizontalOutline,
     ArrowUpRightFromSquareOutline,
     InfoCircleOutline,
     EditOutline,
@@ -83,7 +83,7 @@
       e.stopPropagation();
     }}
   >
-    <DotsHorizontalSolid />
+    <DotsHorizontalOutline />
   </Button>
   <Dropdown class="w-48" placement="bottom-start">
     <DropdownItem

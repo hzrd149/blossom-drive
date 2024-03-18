@@ -1194,7 +1194,7 @@
   dependencies:
     "@floating-ui/utils" "^0.2.1"
 
-"@floating-ui/dom@^1.6.1":
+"@floating-ui/dom@^1.6.3":
   version "1.6.3"
   resolved "https://registry.yarnpkg.com/@floating-ui/dom/-/dom-1.6.3.tgz#954e46c1dd3ad48e49db9ada7218b0985cee75ef"
   integrity sha512-RnDthu3mzPlQ31Ss/BTwQ1zjzIhr3lk1gZB1OC56h/1vEtaXkESrOqL5fQVMfXpwGtRwX+YsZBdyHtJMQnkArw==
@@ -1378,23 +1378,23 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@nostr-dev-kit/ndk-cache-dexie@2.2.4":
-  version "2.2.4"
-  resolved "https://registry.yarnpkg.com/@nostr-dev-kit/ndk-cache-dexie/-/ndk-cache-dexie-2.2.4.tgz#802b824b4822d0c1e5d1f021b3b89f29a857c561"
-  integrity sha512-HPdA+YnGrbNuXuqvGf1KpRoDo2avaqvJLlRE1iH8W8Yp45T8efJV9/UmT/OU7YgIoeL6k0y5F1zOCLu4P3pJSg==
+"@nostr-dev-kit/ndk-cache-dexie@2.2.7":
+  version "2.2.7"
+  resolved "https://registry.yarnpkg.com/@nostr-dev-kit/ndk-cache-dexie/-/ndk-cache-dexie-2.2.7.tgz#4390dc0a7322f3766c1ce0ede433e57beb56954b"
+  integrity sha512-Crw78zctju2vhNofGt279sCBKNyntgsN+jAWiR6rUTSfXUXsj1ZC6b7jAf2dqUvH83xEJaE9B8W8upC8agd9eg==
   dependencies:
-    "@nostr-dev-kit/ndk" "2.3.3"
+    "@nostr-dev-kit/ndk" "2.5.0"
     debug "^4.3.4"
     dexie "^3.2.4"
     nostr-tools "^1.14.0"
     typescript-lru-cache "^2.0.0"
 
-"@nostr-dev-kit/ndk-svelte-components@2.2.4":
-  version "2.2.4"
-  resolved "https://registry.yarnpkg.com/@nostr-dev-kit/ndk-svelte-components/-/ndk-svelte-components-2.2.4.tgz#74ca7ac222bbf357d2dc0e9333089e9f818ed139"
-  integrity sha512-dJ+3TF8Fqx7ETUSgFmtomDeh5Z3VLbHgsPr9+fLcwTBdnrqQHTWaf1tKJYgy+gPTe55uOBZ31cIsH47lF9WKng==
+"@nostr-dev-kit/ndk-svelte-components@2.2.7":
+  version "2.2.7"
+  resolved "https://registry.yarnpkg.com/@nostr-dev-kit/ndk-svelte-components/-/ndk-svelte-components-2.2.7.tgz#c72cccb7add3d3c3486fccdf2abc3be653cb90b4"
+  integrity sha512-Gr+QbvOiJUTRWmuTAsZDbLFDLif+1JSeieOFQeA/bSXdjF/zn78GrehWbos0Et0QfTwHCuFcrNaZLCy05Q4LpA==
   dependencies:
-    "@nostr-dev-kit/ndk" "2.3.3"
+    "@nostr-dev-kit/ndk" "2.5.0"
     classnames "^2.3.2"
     lucide-svelte "^0.279.0"
     marked "^9.0.0"
@@ -1408,18 +1408,18 @@
     svelte-preprocess "^5.0.4"
     svelte-time "^0.8.0"
 
-"@nostr-dev-kit/ndk-svelte@2.2.4":
-  version "2.2.4"
-  resolved "https://registry.yarnpkg.com/@nostr-dev-kit/ndk-svelte/-/ndk-svelte-2.2.4.tgz#26410de2e914dfd54955c60de480a6d22a7d8ef9"
-  integrity sha512-XZW4mcwYxZ+Q+hKMuIh/PW0GqJHhP9PzKaO53aQbD+JbmiFZNN94BPPDw4mMZWO/ixs9akscp4uk0MbtJkWlvg==
+"@nostr-dev-kit/ndk-svelte@2.2.7":
+  version "2.2.7"
+  resolved "https://registry.yarnpkg.com/@nostr-dev-kit/ndk-svelte/-/ndk-svelte-2.2.7.tgz#f3b22948087bebcc8e7e254cb36ec1b07f4fcc91"
+  integrity sha512-/pZN8ETw3S7qM1Sx6FgDM1TRWRQyrxw3SY3cPCkEM0WmXBYweR7qbFzU9ze+Aj9V1ZT6+tDB3LFDAH8dpA9iqQ==
   dependencies:
-    "@nostr-dev-kit/ndk" "2.3.3"
+    "@nostr-dev-kit/ndk" "2.5.0"
     svelte "^4.2.1"
 
-"@nostr-dev-kit/ndk@2.3.3":
-  version "2.3.3"
-  resolved "https://registry.yarnpkg.com/@nostr-dev-kit/ndk/-/ndk-2.3.3.tgz#22cbc8c973a0f0392ed99e7d5ddbd52cd6551db1"
-  integrity sha512-R2r6U1Xt4B7yygQFgTEexNqhuQQrbJ0Kxh4GvcCgNgSjMI+cPJQPWg4g4noWGRnaWf4epqLNCblfo5UfMuijTw==
+"@nostr-dev-kit/ndk@2.5.0":
+  version "2.5.0"
+  resolved "https://registry.yarnpkg.com/@nostr-dev-kit/ndk/-/ndk-2.5.0.tgz#a25b24f81054f813302af210d49fc066a01399f5"
+  integrity sha512-A2nRgjjLScDhGZGPWx8xUIJM66dJWScdWQoCn/tI1Gtwpple+C2Jp7C9t3mb0oF3bwd2nsV6qwS//wdrH8QvYQ==
   dependencies:
     "@noble/hashes" "^1.3.1"
     "@noble/secp256k1" "^2.0.0"
@@ -1777,10 +1777,10 @@ anymatch@~3.1.2:
     normalize-path "^3.0.0"
     picomatch "^2.0.4"
 
-apexcharts@^3.45.2:
-  version "3.46.0"
-  resolved "https://registry.yarnpkg.com/apexcharts/-/apexcharts-3.46.0.tgz#ee0afd44a7df94e038c4cc0160ece21a0da387f5"
-  integrity sha512-ELAY6vj8JQD7QLktKasTzwm9Wt0qxqfQSo+3QWS7G7I774iK8HCkG1toGsqJH0mkK6PtYBtnSIe66uUcwoCw1w==
+apexcharts@^3.46.0:
+  version "3.47.0"
+  resolved "https://registry.yarnpkg.com/apexcharts/-/apexcharts-3.47.0.tgz#887db702b7246119d3e9077a45bbe05f236fbe84"
+  integrity sha512-s/fgNCA69b8lJdhI3R7Z+/Df47RPplLyHwuvttecR+aaZ3/Pm6wHYPiAGjqDNbVsMGXhuA9mcOpIYU5ZWeSdeg==
   dependencies:
     "@yr/monotone-cubic-spline" "^1.0.3"
     svg.draggable.js "^2.2.2"
@@ -2559,22 +2559,22 @@ fill-range@^7.0.1:
   dependencies:
     to-regex-range "^5.0.1"
 
-flowbite-svelte-icons@^1.3.1:
-  version "1.3.1"
-  resolved "https://registry.yarnpkg.com/flowbite-svelte-icons/-/flowbite-svelte-icons-1.3.1.tgz#93bfe3feac5e627458609374880a39df93b1e056"
-  integrity sha512-U792lo+50jz0L2Ne3JbSrgJAwUbn1T/QVUKFfk81FDdIlve0g45X/5nS3+o8qckWPDORbDEP2IhaYiE+QI6/lQ==
+flowbite-svelte-icons@^1.4.5:
+  version "1.4.5"
+  resolved "https://registry.yarnpkg.com/flowbite-svelte-icons/-/flowbite-svelte-icons-1.4.5.tgz#7a6db8e46489fb3e272cbe0bd10255897e472705"
+  integrity sha512-NLXcRTvp84NYbrb+csqYvKfOt2dfFjS8KvFebUEz4EhP6IBEe2mSNbl+faCZ2EIJOMmfRtyhk1Rx2wwsAIx/1Q==
 
-flowbite-svelte@^0.44.23:
-  version "0.44.23"
-  resolved "https://registry.yarnpkg.com/flowbite-svelte/-/flowbite-svelte-0.44.23.tgz#ac7bdab69cb17898b9e035b1872f2c00458daf9f"
-  integrity sha512-F79/iRLLs5WHYX1CqFx5Maqookit1tLpN0VmHR91tcuFEcHY5BRyLXb7hVehwj16wvG7/N0Blchlz55HyqPjhQ==
+flowbite-svelte@^0.44.24:
+  version "0.44.24"
+  resolved "https://registry.yarnpkg.com/flowbite-svelte/-/flowbite-svelte-0.44.24.tgz#c7b74e3c40742bcd15b164621f1934e5fb7c509b"
+  integrity sha512-kXhJZHGpBVq5RFOoYnzRCEM8eFa81DVp4KjUbBsLJptKhizbSSBJuYApWIQb9pBCS8EBhX4PAX+RsgEDZfEqtA==
   dependencies:
-    "@floating-ui/dom" "^1.6.1"
-    apexcharts "^3.45.2"
-    flowbite "^2.2.1"
+    "@floating-ui/dom" "^1.6.3"
+    apexcharts "^3.46.0"
+    flowbite "^2.3.0"
     tailwind-merge "^2.2.1"
 
-flowbite@^2.2.1, flowbite@^2.3.0:
+flowbite@^2.3.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/flowbite/-/flowbite-2.3.0.tgz#0730e35d8b0d1dcdea26bb27d848bd9c0141cde1"
   integrity sha512-pm3JRo8OIJHGfFYWgaGpPv8E+UdWy0Z3gEAGufw+G/1dusaU/P1zoBLiQpf2/+bYAi+GBQtPVG86KYlV0W+AFQ==

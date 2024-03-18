@@ -1,9 +1,10 @@
 <script lang="ts">
-  import { Button, DarkMode, Avatar, Search } from "flowbite-svelte";
-  import { activeUser } from "../services/ndk";
+  import { Button, DarkMode, Avatar, Search, Dropdown, DropdownItem } from "flowbite-svelte";
+  import { activeUser, logout } from "../services/ndk";
   import _throttle from "lodash.throttle";
   import { FileSolid } from "flowbite-svelte-icons";
   import { searchForFiles, type FileResult } from "../services/search";
+  import { Name } from "@nostr-dev-kit/ndk-svelte-components";
 
   let search = "";
 
@@ -52,7 +53,17 @@
 
   <DarkMode size="sm" />
   {#if $activeUser}
-    <Avatar src={$activeUser.profile?.image} />
+    <Avatar src={$activeUser.profile?.image} class="cursor-pointer" />
+    <Dropdown>
+      <div slot="header" class="px-4 py-2">
+        <span class="block text-sm text-gray-900 dark:text-white"><Name user={$activeUser} /></span>
+        {#if $activeUser.profile?.nip05}
+          <span class="block truncate text-sm font-medium">{$activeUser.profile?.nip05}</span>
+        {/if}
+      </div>
+      <DropdownItem href="https://nosta.me/{$activeUser.npub}" target="_blank">Profile</DropdownItem>
+      <DropdownItem slot="footer" on:click={logout}>Logout</DropdownItem>
+    </Dropdown>
   {:else}
     <Button href="#/login">Login</Button>
   {/if}

@@ -17,13 +17,11 @@
     FolderPlusOutline,
     InfoCircleOutline,
     LinkOutline,
-    ListSolid,
+    ListOutline,
     LockSolid,
     TrashBinOutline,
     TrashBinSolid,
   } from "flowbite-svelte-icons";
-  import { saveAs } from "file-saver";
-  import JSZip from "jszip";
 
   import FileCard from "../../components/FileCard.svelte";
   import FolderCard from "../../components/FolderCard.svelte";
@@ -260,7 +258,13 @@
 
       <div class="flex-1" />
 
-      <Button size="sm" class="!p-2" color="alternative" on:click={downloadSelected}>
+      <Button
+        size="sm"
+        class="!p-2"
+        color="alternative"
+        on:click={downloadSelected}
+        disabled={subTree.children.length === 0}
+      >
         <DownloadOutline />
       </Button>
       <Tooltip placement="bottom">Download</Tooltip>
@@ -335,7 +339,7 @@
       <div class="h-8 border border-gray-200 dark:border-gray-800" />
 
       <Button size="sm" class="!p-2" color="alternative" disabled>
-        <ListSolid />
+        <ListOutline />
       </Button>
       <Tooltip placement="bottom">Change Layout</Tooltip>
 

@@ -14,7 +14,7 @@
   import {
     HomeSolid,
     ArchiveSolid,
-    PlusSolid,
+    PlusOutline,
     TagSolid,
     DatabaseOutline,
     InfoCircleOutline,
@@ -43,9 +43,9 @@
   <SidebarWrapper class="h-full">
     <SidebarBrand {site} />
 
-    <Button size="lg" class="mb-2 w-full" disabled={$activeUser === undefined}
-      ><PlusSolid class="me-2 h-6 w-6" />New</Button
-    >
+    <Button size="lg" class="mb-2 w-full" disabled={$activeUser === undefined}>
+      <PlusOutline class="me-2 h-6 w-6" />New
+    </Button>
     <Dropdown class="w-60">
       <DropdownItem on:click={() => (newDriveModal = true)}>
         <ArchiveSolid class="inline-block h-6 w-6" /> Drive

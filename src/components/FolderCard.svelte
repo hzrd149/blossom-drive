@@ -2,7 +2,7 @@
   import { Button, Dropdown, DropdownItem } from "flowbite-svelte";
   import {
     ArrowDownToBracketOutline,
-    DotsHorizontalSolid,
+    DotsHorizontalOutline,
     EditOutline,
     FolderSolid,
     TrashBinOutline,
@@ -108,7 +108,7 @@
         e.stopPropagation();
       }}
     >
-      <DotsHorizontalSolid />
+      <DotsHorizontalOutline />
     </Button>
     <Dropdown class="w-48" placement="bottom-start">
       <DropdownItem
