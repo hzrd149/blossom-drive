@@ -1897,10 +1897,10 @@ binary-extensions@^2.0.0:
   resolved "https://registry.yarnpkg.com/binary-extensions/-/binary-extensions-2.2.0.tgz#75f502eeaf9ffde42fc98829645be4ea76bd9e2d"
   integrity sha512-jDctJ/IVQbZoJykoeHbhXpOlNBqGNcwXJKJog42E5HDPUwQTSdjCHdihjj0DlnheQ7blbT6dHOafNAiS8ooQKA==
 
-blossom-client@^0.2.1:
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/blossom-client/-/blossom-client-0.2.1.tgz#7287244673988aa22ec271295de398bb6c4f96e5"
-  integrity sha512-Cn4tonBKWlVoJu74P7lenyGSK13SRe+qnMGqDQbtdy/y3eLlTENPnJfGuMQbEz1BuAhhYLZe7edrI+6zqIWZMw==
+blossom-client@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/blossom-client/-/blossom-client-0.3.0.tgz#e86ebb3f679ed086a8fbcb85c3c5f3543a259ebf"
+  integrity sha512-oKgR34iCZfiqiooK4akPJQrfXIuq5ZWjq+sRcTkpfyEvPyIpPZmGJLltTsetZ2oQIV4YVZGye0ELSSe3LPgotQ==
   dependencies:
     cross-fetch "^4.0.0"
 

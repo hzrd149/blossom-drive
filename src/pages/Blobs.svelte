@@ -110,7 +110,9 @@
         {#each sortedBlobs as blob}
           <TableBodyRow>
             <TableBodyCell>
-              <a href={getBlobURL(blob)} target="_blank" class="hover:underline">{blob.sha256}</a>
+              <a href={getBlobURL(blob, getBlobServers(blob)[0])} target="_blank" class="hover:underline">
+                {blob.sha256}
+              </a>
             </TableBodyCell>
             <TableBodyCell>{blob.type}</TableBodyCell>
             <TableBodyCell>{formatBytes(blob.size)}</TableBodyCell>

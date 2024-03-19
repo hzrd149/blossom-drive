@@ -24,7 +24,7 @@
     "@nostr-dev-kit/ndk-svelte-components": "2.2.7",
     "@scure/base": "^1.1.5",
     "@uiw/codemirror-theme-github": "^4.21.24",
-    "blossom-client": "^0.2.1",
+    "blossom-client": "^0.3.0",
     "codemirror": "^6.0.1",
     "dayjs": "^1.11.10",
     "events": "^3.3.0",
