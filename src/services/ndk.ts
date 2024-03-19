@@ -139,7 +139,7 @@ if (autoLogin) {
     } else if (autoLogin === "nsec") {
       const key = localStorage.getItem("private-key");
       if (key) await loginWithPrivateKey(key);
-    } else {
+    } else if (autoLogin.includes("@") || autoLogin.startsWith("bunker://") || autoLogin.includes("#")) {
       await loginWithNostrAddress(autoLogin).catch(() => {});
     }
   } catch (e) {}

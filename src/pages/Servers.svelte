@@ -18,7 +18,6 @@
   import { cloneEvent } from "../helpers/event";
   import { activeUser } from "../services/ndk";
   import LoginPage from "../components/LoginPage.svelte";
-  import { InfoCircleOutline } from "flowbite-svelte-icons";
 
   let server = "";
   let confirmModal = false;
@@ -33,13 +32,14 @@
     try {
       loading = true;
 
-      if (!server.startsWith("http")) throw new Error("Protocol must be http:// or https://");
+      if (!server.startsWith("http")) server = "https://" + server;
 
       const draft = cloneEvent($serverEvent, 10063);
       draft.tags.push(["r", new URL(server).toString()]);
       await draft.sign();
       await draft.publish();
       loading = false;
+      server = "";
     } catch (e) {
       if (e instanceof Error) alert(e.message);
       console.log(e);
@@ -110,16 +110,16 @@
     {/if}
 
     <form class="flex gap-2" on:submit={handleSubmit}>
-      <Input placeholder="https://cdn.example.com" bind:value={server} required />
+      <Input placeholder="https://cdn.example.com" bind:value={server} required type="url" />
       <Button class="shrink-0" disabled={loading} type="submit">Add Server</Button>
     </form>
 
     <Heading tag="h4">What are blossom servers?</Heading>
-    <P
-      ><a href="https://github.com/hzrd149/blossom/blob/master/Server.md" target="_blank" class="hover:underline"
+    <P>
+      <a href="https://github.com/hzrd149/blossom/blob/master/Server.md" target="_blank" class="hover:underline"
         >Blossom servers</a
-      > are servers that store your files and make them publicly available for anyone else on the internet</P
-    >
+      > are servers that store your files and make them publicly available for anyone else on the internet
+    </P>
   </div>
 
   {#if server}

@@ -23,6 +23,12 @@ export default class Upload extends EventEmitter {
 
   /** file id -> server -> status */
   progress: Record<string, Record<string, { blob?: BlobDescriptor; error?: Error }>> = {};
+  get totalProgress() {
+    return (
+      Object.values(this.progress).reduce((v, u) => v + Object.values(u).filter((s) => !!s.blob).length, 0) /
+      (this.files.length * this.servers.length)
+    );
+  }
 
   constructor(drive: Drive | EncryptedDrive, basePath: string, servers: string[], signer: Signer) {
     super();
@@ -71,6 +77,7 @@ export default class Upload extends EventEmitter {
       const token = await BlossomClient.getUploadAuth(_file, this.signer, `Upload ${_file.name}`);
 
       if (!this.progress[upload.id]) this.progress[upload.id] = {};
+      this.emit("progress", this.progress);
 
       for (const server of this.servers) {
         try {
@@ -81,10 +88,10 @@ export default class Upload extends EventEmitter {
             size: blob.size,
             type: upload.file.type || mime.getType(upload.file.name) || blob.type || "",
           });
-          this.emit("progress", this.progress);
         } catch (error) {
           if (error instanceof Error) this.progress[upload.id][server] = { error };
         }
+        this.emit("progress", this.progress);
       }
     }
 
