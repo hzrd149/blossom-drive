@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Button, CloseButton, Select, Tooltip } from "flowbite-svelte";
+  import { Button, CloseButton, Select, Spinner, Tooltip } from "flowbite-svelte";
   import {
     ArrowDownToBracketOutline,
     ArrowLeftToBracketOutline,
@@ -48,6 +48,7 @@
   import { MultiDownload } from "../../helpers/multi-download";
   import { clearCache, getLocalFileURL } from "../../services/downloads";
   import { onDestroy } from "svelte";
+  import DownloadSelected from "./actions/DownloadSelected.svelte";
 
   export let currentPath: string;
   export let drive: Drive;
@@ -259,16 +260,7 @@
 
       <div class="flex-1" />
 
-      <Button
-        size="sm"
-        class="!p-2"
-        color="alternative"
-        on:click={downloadSelected}
-        disabled={subTree.children.length === 0}
-      >
-        <DownloadOutline />
-      </Button>
-      <Tooltip placement="bottom">Download</Tooltip>
+      <DownloadSelected {drive} path={currentPath} {selected} />
 
       {#if selected.length === 0}
         <div class="h-8 border border-gray-200 dark:border-gray-800" />
