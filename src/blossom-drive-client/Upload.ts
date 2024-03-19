@@ -10,6 +10,13 @@ import { EncryptedDrive } from "./EncryptedDrive";
 
 export type UploadableItem = FileList | File | FileSystemDirectoryEntry;
 
+export type UploadFileStatus = {
+  complete: boolean;
+  pending: boolean;
+  serversComplete: number;
+  results: Record<string, {success: true, blob: BlobDescriptor}|{success:false,error: Error}>;
+};
+
 export default class Upload extends EventEmitter {
   drive: Drive | EncryptedDrive;
   servers: string[];
@@ -20,14 +27,20 @@ export default class Upload extends EventEmitter {
   running = false;
 
   files: { id: string; file: File; path: string }[] = [];
+  status: Record<string, UploadFileStatus> = {};
 
-  /** file id -> server -> status */
-  progress: Record<string, Record<string, { blob?: BlobDescriptor; error?: Error }>> = {};
-  get totalProgress() {
-    return (
-      Object.values(this.progress).reduce((v, u) => v + Object.values(u).filter((s) => !!s.blob).length, 0) /
-      (this.files.length * this.servers.length)
-    );
+  blobs: Record<string, Record<string, BlobDescriptor>> = {};
+  errors: Record<string, Record<string, Error>> = {};
+
+  get progress() {
+    const serverProgress: Record<string, number> = {};
+    for (const server of this.servers) {
+      const blobs = this.blobs[server] ? Object.keys(this.blobs[server]).length : 0;
+      const errors = this.errors[server] ? Object.keys(this.errors[server]).length : 0;
+      serverProgress[server] = (blobs + errors) / this.files.length;
+    }
+
+    return Object.values(serverProgress).reduce((t, v) => v + t, 0) / this.servers.length;
   }
 
   constructor(drive: Drive | EncryptedDrive, basePath: string, servers: string[], signer: Signer) {
@@ -67,7 +80,15 @@ export default class Upload extends EventEmitter {
     this.running = true;
     this.emit("start", this);
     for (const upload of this.files) {
+      this.status[upload.id] = { complete: false, pending: true, serversComplete: 0, results: {} };
+    }
+
+    for (const upload of this.files) {
+      const status = this.status[upload.id];
       let _file = upload.file;
+
+      status.pending = false;
+      this.emit("progress", this.progress);
 
       if (this.drive instanceof EncryptedDrive) {
         const blob = await this.drive.encryptBlob(_file);
@@ -76,23 +97,31 @@ export default class Upload extends EventEmitter {
 
       const token = await BlossomClient.getUploadAuth(_file, this.signer, `Upload ${_file.name}`);
 
-      if (!this.progress[upload.id]) this.progress[upload.id] = {};
-      this.emit("progress", this.progress);
-
       for (const server of this.servers) {
+        if (!this.blobs[server]) this.blobs[server] = {};
+        if (!this.errors[server]) this.errors[server] = {};
+
         try {
           const blob = await BlossomClient.uploadBlob(server, _file, token);
-          this.progress[upload.id][server] = { blob };
+          this.blobs[server][upload.id] = blob;
+          status.results[server] = {success: true, blob};
           this.drive.setFile(joinPath(this.basePath, upload.path), {
             sha256: blob.sha256,
             size: blob.size,
             type: upload.file.type || mime.getType(upload.file.name) || blob.type || "",
           });
         } catch (error) {
-          if (error instanceof Error) this.progress[upload.id][server] = { error };
+          if (error instanceof Error) {
+            this.errors[server][upload.id] = error;
+            status.results[server] = {success: false, error};
+          }
         }
+        status.serversComplete++;
         this.emit("progress", this.progress);
       }
+
+      status.complete = true;
+      this.emit("progress", this.progress);
     }
 
     await this.drive.save();

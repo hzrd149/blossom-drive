@@ -13,7 +13,7 @@
   import { lastError } from "./services/error";
   import History from "./pages/History.svelte";
   import Sidebar from "./components/Sidebar.svelte";
-  import UploadDrawer from "./components/UploadDrawer.svelte";
+  import UploadDrawer from "./components/UploadDrawer/UploadDrawer.svelte";
   import Login from "./pages/Login.svelte";
 
   const routes = {

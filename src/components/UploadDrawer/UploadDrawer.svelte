@@ -1,9 +1,9 @@
 <script lang="ts">
   import { ChevronDownOutline, ChevronUpOutline, UploadOutline } from "flowbite-svelte-icons";
-  import { uploads, drawerOpen } from "../services/uploads";
+  import { uploads, drawerOpen } from "../../services/uploads";
   import UploadRow from "./UploadRow.svelte";
-  import type Upload from "../blossom-drive-client/Upload";
-  import UploadDetailsModal from "./UploadDetailsModal/UploadDetailsModal.svelte";
+  import type Upload from "../../blossom-drive-client/Upload";
+  import UploadDetailsModal from "../UploadDetailsModal/UploadDetailsModal.svelte";
 
   let uploadDetails = false;
   let selectedUpload: Upload;
@@ -24,7 +24,7 @@
       {/if}
     </button>
     {#if $drawerOpen}
-      <div class="flex h-96 flex-col gap-2 overflow-auto p-2">
+      <div class="flex h-96 flex-col overflow-auto p-2">
         {#each $uploads as upload}
           <UploadRow
             {upload}

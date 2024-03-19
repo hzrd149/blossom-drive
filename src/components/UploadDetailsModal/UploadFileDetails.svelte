@@ -1,34 +1,62 @@
 <script lang="ts">
   import { Progressbar, Spinner } from "flowbite-svelte";
-  import { CheckOutline, InfoCircleOutline } from "flowbite-svelte-icons";
+  import { CheckOutline, CloseCircleOutline, InfoCircleOutline } from "flowbite-svelte-icons";
   import type Upload from "../../blossom-drive-client/Upload";
+  import type { UploadFileStatus } from "../../blossom-drive-client/Upload";
 
   export let upload: Upload;
   export let file: Upload["files"][0];
-  export let progress: Upload["progress"][string] | undefined;
+  export let status: UploadFileStatus | undefined;
 
-  $: servers = progress ? Object.keys(progress).length : 0;
+  let open = false;
 </script>
 
 <div class="flex flex-col gap-1">
-  <div class="flex gap-1">
-    <p>{file.path}</p>
+  <button class="flex rounded-md p-2 hover:bg-gray-200 dark:hover:bg-gray-800" on:click={() => (open = !open)}>
+    <p class="text-gray-800 dark:text-gray-200">{file.path}</p>
     <div class="flex-1" />
-    {#if progress}
-      {#each Object.entries(progress) as [url, status]}
-        {#if status.blob}
-          <CheckOutline class="h-6 w-6 text-green-500" />
-        {:else if status.error}
-          <InfoCircleOutline class="h-6 w-6 text-red-500" />
+    {#if !status}
+      <Spinner size="6" />
+    {:else}
+      {#each Object.entries(status.results) as [server, result]}
+        {#if result !== undefined}
+          {#if result.success}
+            <CheckOutline class="h-6 w-6 text-green-500" />
+          {:else if result}
+            <CloseCircleOutline class="h-6 w-6 text-red-500" />
+          {/if}
         {:else}
           <Spinner size="6" />
         {/if}
       {/each}
-    {:else}
-      <Spinner size="6" />
     {/if}
-  </div>
-  {#if servers !== 0 && servers !== upload.servers.length}
-    <Progressbar progress={(servers / upload.servers.length) * 100} />
+  </button>
+  {#if status && !status.pending && !status.complete}
+    <Progressbar progress={(status.serversComplete / upload.servers.length) * 100} />
+  {/if}
+
+  {#if open && status}
+    <div class="flex- flex-col gap-2 px-2 pb-4">
+      {#each Object.entries(status.results) as [server, result]}
+        {#if result}
+          <div class="flex gap-1">
+            {#if result.success}
+              <CheckOutline class="h-6 w-6 text-green-500" />
+            {:else}
+              <CloseCircleOutline class="h-6 w-6 text-red-500" />
+            {/if}
+            <a href={server} target="_blank" class="text-gray-800 hover:underline dark:text-gray-200"
+              >{new URL(server).hostname}</a
+            >
+            <span> - </span>
+            {#if result.success}
+              <span>{result.blob.sha256}</span>
+            {:else}
+              <span>{result.error.message}</span>
+            {/if}
+          </div>
+        {/if}
+      {/each}
+    </div>
   {/if}
 </div>

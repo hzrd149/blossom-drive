@@ -36,7 +36,6 @@
   import { fileTypesInTree, joinPath } from "../../blossom-drive-client/FileTree/methods";
   import DriveEditModal from "../../components/DriveEditModal.svelte";
   import NewFolderModal from "../../components/NewFolderModal.svelte";
-  import UploadFileModal from "../../components/UploadFileModal.svelte";
   import { servers } from "../../services/servers";
   import { getBlobURL } from "../../helpers/blob";
   import type { ChangeEventHandler } from "svelte/elements";
@@ -68,7 +67,6 @@
 
   let editModal = false;
   let newFolderModal = false;
-  let uploadFilesModal = false;
 
   let detailsModal = false;
   let detailsFile: TreeFile | null = null;
@@ -474,8 +472,4 @@
 
 {#if newFolderModal && drive}
   <NewFolderModal bind:open={newFolderModal} {drive} path={currentPath} />
-{/if}
-
-{#if uploadFilesModal}
-  <UploadFileModal bind:open={uploadFilesModal} {drive} path={currentPath} />
 {/if}

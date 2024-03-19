@@ -1,8 +1,7 @@
 <script lang="ts">
-  import { Button, Modal, Progressbar } from "flowbite-svelte";
+  import { Button, Modal } from "flowbite-svelte";
   import { onMount } from "svelte";
   import type Upload from "../../blossom-drive-client/Upload";
-  import { CheckOutline, ClockOutline } from "flowbite-svelte-icons";
   import UploadFileDetails from "./UploadFileDetails.svelte";
 
   export let open = false;
@@ -18,11 +17,11 @@
   }
 
   let progress = upload.progress;
+  let status = upload.status;
   function updateProgress() {
     progress = upload.progress;
+    status = upload.status;
   }
-
-  updateProgress();
 
   onMount(() => {
     upload.on("progress", updateProgress);
@@ -31,7 +30,7 @@
     return () => {
       upload.off("progress", updateProgress);
       upload.off("complete", updateComplete);
-      upload.on("start", updateRunning);
+      upload.off("start", updateRunning);
     };
   });
 </script>
@@ -40,9 +39,9 @@
   <p class="text-base leading-relaxed text-gray-800 dark:text-gray-200">
     Uploading {upload.files.length} files to {upload.drive.name}
   </p>
-  <div class="flex flex-col gap-2">
+  <div class="flex flex-col">
     {#each upload.files as file}
-      <UploadFileDetails {upload} {file} progress={progress[file.id]} />
+      <UploadFileDetails {upload} {file} status={status[file.id] ? { ...status[file.id] } : undefined} />
     {/each}
   </div>
   {#if !running}
