@@ -10,8 +10,6 @@ type ServerList = {
 
 export const blobs = writable<ServerList[]>([]);
 
-servers.subscribe((servers) => refreshBlobs(servers));
-
 let listAuth: SignedEvent | undefined = undefined;
 export async function refreshBlobs(urls: string[] = get(servers), retry = true) {
   console.log("Loading blobs");
@@ -45,3 +43,5 @@ export async function refreshBlobs(urls: string[] = get(servers), retry = true) 
     await refreshBlobs(needAuth, false);
   }
 }
+
+servers.subscribe((servers) => refreshBlobs(servers));
