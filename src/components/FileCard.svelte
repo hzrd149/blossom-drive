@@ -113,15 +113,17 @@
     >
       <InfoCircleOutline class="mr-2 inline-block h-5 w-5" />Details
     </DropdownItem>
-    <DropdownItem
-      on:click={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        window.navigator.clipboard.writeText(file.sha256);
-      }}
-    >
-      <FileCopyOutline class="mr-2 inline-block h-5 w-5" />Copy Hash
-    </DropdownItem>
+    {#if previewLink}
+      <DropdownItem
+        on:click={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (previewLink) window.navigator.clipboard.writeText(previewLink);
+        }}
+      >
+        <FileCopyOutline class="mr-2 inline-block h-5 w-5" />Copy URL
+      </DropdownItem>
+    {/if}
     {#if !readonly}
       <DropdownItem
         on:click={(e) => {
