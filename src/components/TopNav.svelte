@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { Button, DarkMode, Avatar, Search, Dropdown, DropdownItem } from "flowbite-svelte";
-  import { activeUser, logout } from "../services/ndk";
   import _throttle from "lodash.throttle";
   import { FileSolid } from "flowbite-svelte-icons";
-  import { searchForFiles, type FileResult } from "../services/search";
   import { Name } from "@nostr-dev-kit/ndk-svelte-components";
+  import { Button, DarkMode, Avatar, Search, Dropdown, DropdownItem } from "flowbite-svelte";
+  import { activeUser, logout } from "../services/ndk";
+  import { searchForFiles, type FileResult } from "../services/search";
 
   let search = "";
 

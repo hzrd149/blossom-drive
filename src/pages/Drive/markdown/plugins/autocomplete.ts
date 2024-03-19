@@ -17,13 +17,13 @@ export function createAutocompleteFromDrivePath(getFolder: (path: string) => Tre
     try {
       let options: string[] = [];
 
-      const folder = getFolder(fullPathBefore.replace("%20", " "));
+      const folder = getFolder(fullPathBefore.replaceAll("%20", " "));
       for (const child of folder) options.push(child.name);
 
       return {
         from: pathBefore ? nodeBefore.from + pathBefore.index : context.pos,
         options: options.map((p) => {
-          const path = ((pathBefore?.[1] ?? "/") + p).replace(" ", "%20");
+          const path = ((pathBefore?.[1] ?? "/") + p).replaceAll(" ", "%20");
           return { label: path };
         }),
         validFor: /^(\/.*)?$/,

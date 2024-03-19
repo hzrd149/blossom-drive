@@ -3,7 +3,8 @@ import NDKCacheAdapterDexie from "@nostr-dev-kit/ndk-cache-dexie";
 import { writable } from "svelte/store";
 import type { EventTemplate, SignedEvent } from "blossom-client";
 import { NDKEvent, NDKNip07Signer, NDKNip46Signer, NDKPrivateKeySigner } from "@nostr-dev-kit/ndk";
-import { generateSecretKey } from "nostr-tools";
+import { generateSecretKey, nip19 } from "nostr-tools";
+import { decrypt } from "nostr-tools/nip49";
 import { bytesToHex } from "@noble/hashes/utils";
 
 const cacheAdapter = new NDKCacheAdapterDexie({ dbName: "ndk-cache" });
@@ -35,19 +36,34 @@ export async function loginWithExtension() {
   await fetchUserData();
 }
 
-export async function loginWithNostrAddress(address: string) {
-  const user = await ndk.getUserFromNip05(address);
-  if (!user?.pubkey) throw new Error("Cant find user");
-  console.log("Found user", user);
-
-  const localKey = localStorage.getItem(user.pubkey + "-local-signer") || bytesToHex(generateSecretKey());
+export async function loginWithNostrAddress(connectionString: string) {
+  const localKey = localStorage.getItem("local-signer") || bytesToHex(generateSecretKey());
   const localSigner = new NDKPrivateKeySigner(localKey);
 
-  const signer: NDKNip46Signer = new NDKNip46Signer(ndk, address, localSigner);
+  let signer: NDKNip46Signer;
 
-  // manually set remote user and pubkey
-  signer.remoteUser = user;
-  signer.remotePubkey = user.pubkey;
+  // manually set remote user and pubkey if using NIP05
+  if (connectionString.includes("@")) {
+    const user = await ndk.getUserFromNip05(connectionString);
+    if (!user?.pubkey) throw new Error("Cant find user");
+    console.log("Found user", user);
+
+    signer = new NDKNip46Signer(ndk, connectionString, localSigner);
+
+    signer.remoteUser = user;
+    signer.remotePubkey = user.pubkey;
+  } else if (connectionString.startsWith("bunker://")) {
+    const uri = new URL(connectionString);
+
+    const pubkey = uri.host || uri.pathname.replace("//", "");
+    const relays = uri.searchParams.getAll("relay");
+    for (let relay of relays) ndk.addExplicitRelay(relay);
+    if (relays.length === 0) throw new Error("Missing relays");
+    signer = new NDKNip46Signer(ndk, pubkey, localSigner);
+    signer.relayUrls = relays;
+  } else {
+    signer = new NDKNip46Signer(ndk, connectionString, localSigner);
+  }
 
   signer.rpc.on("authUrl", (url: string) => {
     window.open(url, "_blank");
@@ -56,7 +72,27 @@ export async function loginWithNostrAddress(address: string) {
   await signer.blockUntilReady();
   await signer.user();
   ndk.signer = signer;
-  localStorage.setItem(user.pubkey + "-local-signer", localKey);
+  localStorage.setItem("local-signer", localSigner.privateKey ?? "");
+
+  await fetchUserData();
+}
+
+export async function loginWithPrivateKey(key: string) {
+  if (key.startsWith("ncryptsec")) {
+    const password = prompt("Enter your private key password");
+    if (password === null) throw new Error("No password provided");
+    const plaintext = bytesToHex(decrypt(key, password));
+    console.log(plaintext);
+
+    ndk.signer = new NDKPrivateKeySigner(plaintext);
+    await ndk.signer.blockUntilReady();
+    localStorage.setItem("private-key", key);
+  } else if (key.startsWith("nsec")) {
+    const decoded = nip19.decode(key);
+    if (decoded.type !== "nsec") throw new Error("Not nsec");
+    ndk.signer = new NDKPrivateKeySigner(bytesToHex(decoded.data));
+    await ndk.signer.blockUntilReady();
+  } else throw new Error("Unknown private format");
 
   await fetchUserData();
 }
@@ -96,8 +132,15 @@ if (import.meta.env.DEV) {
 }
 
 const autoLogin = localStorage.getItem("auto-login");
-if (autoLogin === "nip07") {
-  await loginWithExtension().catch(() => {});
-} else if (autoLogin?.includes("@")) {
-  await loginWithNostrAddress(autoLogin).catch(() => {});
+if (autoLogin) {
+  try {
+    if (autoLogin === "nip07") {
+      await loginWithExtension().catch(() => {});
+    } else if (autoLogin === "nsec") {
+      const key = localStorage.getItem("private-key");
+      if (key) await loginWithPrivateKey(key);
+    } else {
+      await loginWithNostrAddress(autoLogin).catch(() => {});
+    }
+  } catch (e) {}
 }

@@ -92,12 +92,12 @@
         </TableBody>
       </Table>
     {:else}
-      <Alert color="yellow">
+      <Alert color="yellow" class="text-lg">
         <span class="font-medium">Warning!</span>
         You need at least one server to upload files. try adding
         <a
           href="https://cdn.satellite.earth"
-          class="font-bold hover:underline"
+          class="font-bold underline"
           on:click={(e) => {
             e.preventDefault();
             server = "https://cdn.satellite.earth";

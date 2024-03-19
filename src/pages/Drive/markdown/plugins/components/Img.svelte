@@ -1,6 +1,7 @@
 <script lang="ts">
   import { getContext } from "svelte";
-  import { Img, Spinner } from "flowbite-svelte";
+  import { Img, Spinner, Video } from "flowbite-svelte";
+  import mime from "mime";
   import { joinPath } from "../../../../../blossom-drive-client/FileTree/methods";
   import { servers } from "../../../../../services/servers";
   import type Drive from "../../../../../blossom-drive-client/Drive";
@@ -9,6 +10,7 @@
   export let src: string;
   export let alt: string;
 
+  $: type = mime.getType(src);
   let loading = false;
   let resolved = src;
 
@@ -19,7 +21,9 @@
         loading = true;
         try {
           const subPath = getContext<string>("path");
-          const fullPath = src.startsWith("/") ? src : joinPath(subPath, src.replace(/^\.\//, ""));
+          const fullPath = src.startsWith("/")
+            ? src.replaceAll("%20", " ")
+            : joinPath(subPath, src.replaceAll("%20", " ").replace(/^\.\//, ""));
 
           getLocalFileURL(drive, fullPath, $servers)
             .then((url) => (resolved = url))
@@ -35,6 +39,8 @@
 
 {#if loading}
   <Spinner />
+{:else if type?.startsWith("video/")}
+  <Video src={resolved || ""} class="max-h-96" controls />
 {:else}
   <Img src={resolved || undefined} {alt} class="max-h-96" />
 {/if}

@@ -16,12 +16,6 @@
   import UploadDrawer from "./components/UploadDrawer.svelte";
   import Login from "./pages/Login.svelte";
 
-  let remember = localStorage.getItem("auto-login") === "true";
-
-  $: {
-    localStorage.setItem("auto-login", remember ? "true" : "false");
-  }
-
   const routes = {
     "/files": Files,
     "/hosting": Hosting,

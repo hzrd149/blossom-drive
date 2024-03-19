@@ -220,7 +220,10 @@
   let folderInput: HTMLInputElement;
   let filesInput: HTMLInputElement;
 
-  let showInfoHeader = false;
+  let showInfoHeader = localStorage.getItem("show-info-header") !== "false";
+  $: {
+    localStorage.setItem("show-info-header", String(showInfoHeader));
+  }
 </script>
 
 <main

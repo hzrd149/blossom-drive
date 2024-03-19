@@ -1,7 +1,6 @@
 <script lang="ts">
-  import { Alert, Button, Checkbox, Heading, Helper, Input, Label, Spinner } from "flowbite-svelte";
-  import { InfoCircleSolid } from "flowbite-svelte-icons";
-  import { loginWithExtension, loginWithNostrAddress } from "../services/ndk";
+  import { Alert, Button, Checkbox, Helper, Input, Label, Spinner } from "flowbite-svelte";
+  import { loginWithExtension, loginWithNostrAddress, loginWithPrivateKey } from "../services/ndk";
 
   let loading = false;
   let remember = localStorage.getItem("auto-login") === "true";
@@ -24,7 +23,10 @@
     e.preventDefault();
     try {
       loading = true;
-      if (address) {
+      if (address.startsWith("ncryptsec") || address.startsWith("nsec")) {
+        await loginWithPrivateKey(address);
+        if (remember) localStorage.setItem("auto-login", "nsec");
+      } else if (address) {
         await loginWithNostrAddress(address);
         if (remember) localStorage.setItem("auto-login", address);
       }
@@ -36,23 +38,23 @@
 </script>
 
 <div class="flex flex-1 flex-col items-center gap-4">
-  <h1 class="text-4xl" style="margin-bottom: 20vh; margin-top: 10vh;">🌸 Blossom Drive</h1>
+  <h1 class="text-4xl" style="margin-bottom: 10vh; margin-top: 10vh;">🌸 Blossom Drive</h1>
 
   {#if loading}
     <Spinner />
   {:else}
-    <Alert color="red">
-      <InfoCircleSolid slot="icon" class="h-4 w-4" />
-      <span class="font-medium">Warning!</span>
-      Everything on blossom is public, don't upload private files
+    <Alert color="red" class="block text-center">
+      <p class="text-2xl font-medium">Warning!</p>
+      <p class="text-xl">Everything on blossom drive is public.</p>
+      <p class="text-xl">DO NOT upload any files you wish to keep private!</p>
     </Alert>
 
     <Button size="xl" on:click={extension}>Login with extension</Button>
     <p class="text-lg">Or</p>
-    <form class="min-w-96" on:submit={login}>
-      <Label for="address" class="mb-2">Nostr Address</Label>
+    <form on:submit={login}>
+      <Label for="address" class="mb-2">Nostr Address / Bunker URI</Label>
       <div class="flex gap-2">
-        <Input type="text" id="address" required bind:value={address} />
+        <Input class="min-w-96" type="text" id="address" required bind:value={address} />
         <Button type="submit">Login</Button>
       </div>
       <Helper color="red" class="mt-1">

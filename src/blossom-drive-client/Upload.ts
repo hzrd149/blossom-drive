@@ -76,7 +76,6 @@ export default class Upload extends EventEmitter {
         try {
           const blob = await BlossomClient.uploadBlob(server, _file, token);
           this.progress[upload.id][server] = { blob };
-          debugger;
           this.drive.setFile(joinPath(this.basePath, upload.path), {
             sha256: blob.sha256,
             size: blob.size,
