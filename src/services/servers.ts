@@ -14,7 +14,15 @@ activeUser.subscribe((user) => {
       console.log("Got new servers", event);
 
       serverEvent.set(event);
-      servers.set(event.tags.filter((t) => t[0] === "r").map((t) => t[1]));
+      const urls: string[] = [];
+      for (const tag of event.tags) {
+        if (tag[0] === "r" && tag[1]) {
+          try {
+            urls.push(new URL(tag[1]).toString());
+          } catch (e) {}
+        }
+      }
+      servers.set(urls);
     }
   });
   sub.start();

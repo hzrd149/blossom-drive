@@ -23,7 +23,11 @@
   $: filteredBlobs = $blobs
     .filter((s) => (selectedServer ? s.server === selectedServer : true))
     .map((s) => s.blobs)
-    .flat();
+    .flat()
+    .reduce<BlobDescriptor[]>((arr, blob) => {
+      if (!arr.some((b) => b.sha256 === blob.sha256)) return [...arr, blob];
+      return arr;
+    }, []);
 
   $: types = Array.from(
     filteredBlobs.reduce((set, b) => {
