@@ -1,11 +1,10 @@
 import { writable, get, readable } from "svelte/store";
 import type { NDKEvent, NDKSubscription } from "@nostr-dev-kit/ndk";
 import type { SignedEvent } from "blossom-client";
+import { Drive, DRIVE_KIND, ENCRYPTED_DRIVE_KIND, EncryptedDrive } from "blossom-drive-client";
 
 import { activeUser, ndk, publishSignedEvent, signEventTemplate } from "./ndk";
 import { backupDriveEvents } from "./db";
-import Drive, { DRIVE_KIND } from "../blossom-drive-client/Drive";
-import { ENCRYPTED_DRIVE_KIND, EncryptedDrive } from "../blossom-drive-client/EncryptedDrive";
 
 export const drives = writable<Record<string, Drive>>({});
 

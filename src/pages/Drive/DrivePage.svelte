@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Button, CloseButton, Select, Spinner, Tooltip } from "flowbite-svelte";
+  import { Button, CloseButton, Select, Tooltip } from "flowbite-svelte";
   import {
     ArrowDownToBracketOutline,
     ArrowLeftToBracketOutline,
@@ -8,7 +8,6 @@
     ChevronDoubleRightOutline,
     CloseOutline,
     CogOutline,
-    DownloadOutline,
     EditOutline,
     EyeSolid,
     FileImportOutline,
@@ -22,6 +21,15 @@
     TrashBinOutline,
     TrashBinSolid,
   } from "flowbite-svelte-icons";
+  import {
+    type Drive,
+    fileTypesInTree,
+    joinPath,
+    Upload,
+    TreeFile,
+    TreeFolder,
+    EncryptedDrive,
+  } from "blossom-drive-client";
 
   import FileCard from "../../components/FileCard.svelte";
   import FolderCard from "../../components/FolderCard.svelte";
@@ -30,19 +38,13 @@
   import DeleteModal from "../../components/DeleteModal.svelte";
   import RenameModal from "../../components/RenameModal.svelte";
   import BlobDetailsModal from "../../components/FileDetailsModal.svelte";
-  import type Drive from "../../blossom-drive-client/Drive";
-  import TreeFolder from "../../blossom-drive-client/FileTree/TreeFolder";
-  import TreeFile from "../../blossom-drive-client/FileTree/TreeFile";
-  import { fileTypesInTree, joinPath } from "../../blossom-drive-client/FileTree/methods";
   import DriveEditModal from "../../components/DriveEditModal.svelte";
   import NewFolderModal from "../../components/NewFolderModal.svelte";
   import { servers } from "../../services/servers";
   import { getBlobURL } from "../../helpers/blob";
   import type { ChangeEventHandler } from "svelte/elements";
-  import Upload from "../../blossom-drive-client/Upload";
   import { activeUser, signEventTemplate } from "../../services/ndk";
   import { addUpload } from "../../services/uploads";
-  import { EncryptedDrive } from "../../blossom-drive-client/EncryptedDrive";
   import UnlockDrive from "../../components/UnlockDrive.svelte";
   import ReadmePreview from "./Readme.svelte";
   import { MultiDownload } from "../../helpers/multi-download";

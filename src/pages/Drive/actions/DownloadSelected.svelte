@@ -1,10 +1,8 @@
 <script lang="ts">
   import { Button, Spinner, Tooltip } from "flowbite-svelte";
   import { DownloadOutline } from "flowbite-svelte-icons";
-  import type Drive from "../../../blossom-drive-client/Drive";
+  import { type Drive, type TreeFile, type TreeFolder } from "blossom-drive-client";
   import { MultiDownload } from "../../../helpers/multi-download";
-  import type TreeFile from "../../../blossom-drive-client/FileTree/TreeFile";
-  import type TreeFolder from "../../../blossom-drive-client/FileTree/TreeFolder";
   import { servers } from "../../../services/servers";
 
   export let drive: Drive;

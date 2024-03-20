@@ -1,7 +1,6 @@
 <script lang="ts">
   import { Button, Modal, Input } from "flowbite-svelte";
-  import type Drive from "../blossom-drive-client/Drive";
-  import { joinPath } from "../blossom-drive-client/FileTree/methods";
+  import { type Drive, joinPath } from "blossom-drive-client";
   export let open = false;
 
   export let drive: Drive;

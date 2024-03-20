@@ -1,14 +1,13 @@
 <script lang="ts">
   import type { NostrEvent } from "@nostr-dev-kit/ndk";
   import { nip19 } from "nostr-tools";
-  import { Button, Spinner, Timeline, TimelineItem } from "flowbite-svelte";
+  import { Spinner, Timeline } from "flowbite-svelte";
+  import { type Drive } from "blossom-drive-client";
 
   import { getDriveVersions } from "../services/db";
   import { drives } from "../services/drives";
   import { get } from "svelte/store";
   import DriveHistoryEntry from "../components/DriveHistoryEntry.svelte";
-  import type Drive from "../blossom-drive-client/Drive";
-  import { ArrowRightOutline } from "flowbite-svelte-icons";
 
   export let params: Record<string, string | undefined> = {};
   const naddr = params["naddr"];

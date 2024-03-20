@@ -7,13 +7,12 @@
   import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
   import CodeMirror from "svelte-codemirror-editor";
   import { githubLight, githubDark } from "@uiw/codemirror-theme-github";
+  import { type Drive, joinPath } from "blossom-drive-client";
 
   import { componentPlugin } from "./plugins/components";
   import { highlightPlugin } from "./plugins/highlight";
   import { createEventDispatcher, setContext } from "svelte";
   import { createAutocompleteFromDrivePath } from "./plugins/autocomplete";
-  import type Drive from "../../../blossom-drive-client/Drive";
-  import { joinPath } from "../../../blossom-drive-client/FileTree/methods";
 
   export let saving = false;
   export let disableEdit = false;

@@ -1,8 +1,6 @@
 import { writable } from "svelte/store";
 import type { MultiDownload } from "../helpers/multi-download";
-import type Drive from "../blossom-drive-client/Drive";
-import { EncryptedDrive } from "../blossom-drive-client/EncryptedDrive";
-import type { Path } from "../blossom-drive-client/FileTree/methods";
+import { type Drive, type Path, EncryptedDrive } from "blossom-drive-client";
 
 export const drawerOpen = writable(false);
 export const downloads = writable<MultiDownload[]>([]);

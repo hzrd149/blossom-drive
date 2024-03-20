@@ -19,12 +19,12 @@
     DatabaseOutline,
     InfoCircleOutline,
   } from "flowbite-svelte-icons";
+  import { type Drive } from "blossom-drive-client";
 
   import { drives } from "../services/drives";
   import { servers } from "../services/servers";
   import NewDriveModal from "./NewDriveModal.svelte";
   import { activeUser } from "../services/ndk";
-  import type Drive from "../blossom-drive-client/Drive";
 
   let site = {
     name: "Blossom Drive",

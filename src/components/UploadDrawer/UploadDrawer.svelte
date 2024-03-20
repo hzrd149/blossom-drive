@@ -1,8 +1,8 @@
 <script lang="ts">
   import { ChevronDownOutline, ChevronUpOutline, UploadOutline } from "flowbite-svelte-icons";
+  import { type Upload } from "blossom-drive-client";
   import { uploads, drawerOpen } from "../../services/uploads";
   import UploadRow from "./UploadRow.svelte";
-  import type Upload from "../../blossom-drive-client/Upload";
   import UploadDetailsModal from "../UploadDetailsModal/UploadDetailsModal.svelte";
 
   let uploadDetails = false;

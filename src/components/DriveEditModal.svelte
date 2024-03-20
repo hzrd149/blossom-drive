@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Button, Modal, Input, Textarea, Spinner, Label, Checkbox } from "flowbite-svelte";
-  import type Drive from "../blossom-drive-client/Drive";
+  import { type Drive } from "blossom-drive-client";
   import { servers } from "../services/servers";
 
   export let open = false;

@@ -1,6 +1,6 @@
 import { servers } from "../services/servers";
 import { get } from "svelte/store";
-import { getExtension } from "../blossom-drive-client/helpers";
+import { getExtension } from "blossom-drive-client";
 
 export function getBlobURL(blob: { sha256: string; type?: string }, server?: string) {
   if (!server) server = get(servers)[0];

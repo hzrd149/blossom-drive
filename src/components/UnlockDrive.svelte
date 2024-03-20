@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Alert, Button, Input, Label } from "flowbite-svelte";
-  import type { EncryptedDrive } from "../blossom-drive-client/EncryptedDrive";
+  import type { EncryptedDrive } from "blossom-drive-client";
 
   export let drive: EncryptedDrive;
 
