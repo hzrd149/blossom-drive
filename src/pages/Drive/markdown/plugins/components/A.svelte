@@ -5,6 +5,7 @@
   import type Drive from "../../../../../blossom-drive-client/Drive";
   import { joinPath } from "../../../../../blossom-drive-client/FileTree/methods";
   import { servers } from "../../../../../services/servers";
+  import { getLocalFileURL } from "../../../../../services/downloads";
   export let href: string;
 
   let resolved = href;
@@ -28,10 +29,21 @@
     }
   }
 
-  function handleClick(e: MouseEvent) {
-    const drive = getContext<Drive | EncryptedDrive>("drive");
+  const drive = getContext<Drive | EncryptedDrive>("drive");
+  const subPath = getContext<string>("path");
+
+  async function handleClick(e: MouseEvent) {
     if (drive instanceof EncryptedDrive) {
-      // TODO: open encrypted file
+      e.preventDefault();
+
+      const fullPath = href.startsWith("/")
+        ? href.replaceAll("%20", " ")
+        : joinPath(subPath, href.replaceAll("%20", " ").replace(/^\.\//, ""));
+
+      const file = drive.getFile(fullPath);
+      const url = await getLocalFileURL(drive, file.path, $servers);
+
+      window.open(url, "_blank");
     }
   }
 </script>
