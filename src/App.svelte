@@ -15,6 +15,7 @@
   import Sidebar from "./components/Sidebar.svelte";
   import UploadDrawer from "./components/UploadDrawer/UploadDrawer.svelte";
   import Login from "./pages/Login.svelte";
+  import {hideSidebar} from "./helpers/sidebar";
 
   const routes = {
     "/files": Files,
@@ -29,16 +30,18 @@
   };
 </script>
 
-<div
+<main
   class="flex w-full flex-1 overflow-y-auto overflow-x-hidden bg-white text-gray-900 dark:bg-gray-900 dark:text-white"
 >
-  <Sidebar />
   <div class="flex flex-1 flex-col overflow-hidden">
+    <Sidebar />
     <TopNav />
-    <Router {routes} />
+    <div on:click={hideSidebar} class="h-screen lg:ml-56 p-5">
+      <Router {routes} />
+    </div>
   </div>
   <UploadDrawer />
-</div>
+</main>
 
 {#if $lastError}
   <Alert class="!items-start" dismissable on:close={() => ($lastError = null)}>
