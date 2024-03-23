@@ -1,5 +1,5 @@
 import { writable } from "svelte/store";
-import { type Upload } from "blossom-drive-client";
+import { type Upload } from "blossom-drive-sdk";
 
 export const drawerOpen = writable(false);
 export const uploads = writable<Upload[]>([]);

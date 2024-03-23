@@ -19,7 +19,7 @@
     DatabaseOutline,
     InfoCircleOutline,
   } from "flowbite-svelte-icons";
-  import { type Drive } from "blossom-drive-client";
+  import { type Drive } from "blossom-drive-sdk";
 
   import { drives } from "../services/drives";
   import { servers } from "../services/servers";

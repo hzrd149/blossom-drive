@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Progressbar, Spinner } from "flowbite-svelte";
   import { CheckOutline, CloseCircleOutline } from "flowbite-svelte-icons";
-  import { type Upload, type UploadFileStatus } from "blossom-drive-client";
+  import { type Upload, type UploadFileStatus } from "blossom-drive-sdk";
 
   export let upload: Upload;
   export let file: Upload["files"][0];

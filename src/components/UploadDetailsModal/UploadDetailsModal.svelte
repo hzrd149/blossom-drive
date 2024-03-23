@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Button, Modal } from "flowbite-svelte";
   import { onMount } from "svelte";
-  import { type Upload } from "blossom-drive-client";
+  import { type Upload } from "blossom-drive-sdk";
   import UploadFileDetails from "./UploadFileDetails.svelte";
 
   export let open = false;

@@ -1,7 +1,7 @@
 import { get, writable } from "svelte/store";
 import { activeUser, signEventTemplate } from "./ndk";
 import { servers } from "./servers";
-import { BlossomClient, type BlobDescriptor, HTTPError, type SignedEvent } from "blossom-client";
+import { BlossomClient, type BlobDescriptor, HTTPError, type SignedEvent } from "blossom-client-sdk";
 
 type ServerList = {
   server: string;

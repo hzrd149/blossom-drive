@@ -7,7 +7,7 @@
   import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
   import CodeMirror from "svelte-codemirror-editor";
   import { githubLight, githubDark } from "@uiw/codemirror-theme-github";
-  import { type Drive, joinPath } from "blossom-drive-client";
+  import { type Drive, joinPath } from "blossom-drive-sdk";
 
   import { componentPlugin } from "./plugins/components";
   import { highlightPlugin } from "./plugins/highlight";

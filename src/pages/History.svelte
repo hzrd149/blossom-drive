@@ -2,7 +2,7 @@
   import type { NostrEvent } from "@nostr-dev-kit/ndk";
   import { nip19 } from "nostr-tools";
   import { Spinner, Timeline } from "flowbite-svelte";
-  import { type Drive } from "blossom-drive-client";
+  import { type Drive } from "blossom-drive-sdk";
 
   import { getDriveVersions } from "../services/db";
   import { drives } from "../services/drives";

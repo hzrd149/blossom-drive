@@ -29,7 +29,7 @@
     TreeFile,
     TreeFolder,
     EncryptedDrive,
-  } from "blossom-drive-client";
+  } from "blossom-drive-sdk";
 
   import FileCard from "../../components/FileCard.svelte";
   import FolderCard from "../../components/FolderCard.svelte";

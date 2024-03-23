@@ -1,7 +1,7 @@
 <script lang="ts">
   import { getContext } from "svelte";
   import { Img, Spinner, Video } from "flowbite-svelte";
-  import { joinPath, type Drive } from "blossom-drive-client";
+  import { joinPath, type Drive } from "blossom-drive-sdk";
   import mime from "mime";
   import { servers } from "../../../../../services/servers";
   import { getLocalFileURL } from "../../../../../services/downloads";

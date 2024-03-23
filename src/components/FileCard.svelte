@@ -12,7 +12,7 @@
   } from "flowbite-svelte-icons";
   import { createEventDispatcher } from "svelte";
   import { getBlobURL } from "../helpers/blob";
-  import { type TreeFile, getExtension } from "blossom-drive-client";
+  import { type TreeFile, getExtension } from "blossom-drive-sdk";
   import { extname } from "path-browserify";
 
   export let file: TreeFile;

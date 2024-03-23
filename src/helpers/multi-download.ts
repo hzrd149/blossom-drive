@@ -4,7 +4,7 @@ import { basename } from "path-browserify";
 import EventEmitter from "events";
 import { nanoid } from "nanoid";
 
-import { type Drive, TreeFile, TreeFolder } from "blossom-drive-client";
+import { type Drive, TreeFile, TreeFolder } from "blossom-drive-sdk";
 
 // TODO: calculated progress
 export class MultiDownload extends EventEmitter {

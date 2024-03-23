@@ -2,7 +2,7 @@
   import { querystring } from "svelte-spa-router";
   import { nip19 } from "nostr-tools";
   import { Spinner } from "flowbite-svelte";
-  import { EncryptedDrive, type Drive } from "blossom-drive-client";
+  import { EncryptedDrive, type Drive } from "blossom-drive-sdk";
   import { drives, getReadableDrive, handleEvent } from "../../services/drives";
   import DrivePage from "./DrivePage.svelte";
   import { ndk } from "../../services/ndk";

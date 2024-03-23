@@ -4,7 +4,7 @@ Blossom drive is a public cloud drive built on [blossom servers](https://github.
 
 ## Blossom implementation
 
-blossom drive uses [blossom-client](https://github.com/hzrd149/blossom-client) to mange blobs on servers
+blossom drive uses [blossom-client-sdk](https://github.com/hzrd149/blossom-client-sdk) to mange blobs on servers
 
 ## Nostr integration
 

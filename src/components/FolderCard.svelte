@@ -9,7 +9,7 @@
   } from "flowbite-svelte-icons";
   import { createEventDispatcher } from "svelte";
   import { location, push, querystring } from "svelte-spa-router";
-  import { type TreeFolder } from "blossom-drive-client";
+  import { type TreeFolder } from "blossom-drive-sdk";
 
   export let folder: TreeFolder;
   export let selected = false;

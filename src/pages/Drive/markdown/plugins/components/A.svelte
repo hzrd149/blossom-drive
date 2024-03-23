@@ -1,7 +1,7 @@
 <script lang="ts">
   import { A } from "flowbite-svelte";
   import { getContext } from "svelte";
-  import { EncryptedDrive, joinPath, type Drive } from "blossom-drive-client";
+  import { EncryptedDrive, joinPath, type Drive } from "blossom-drive-sdk";
   import { servers } from "../../../../../services/servers";
   import { getLocalFileURL } from "../../../../../services/downloads";
   export let href: string;

@@ -1,6 +1,6 @@
 import { CompletionContext } from "@codemirror/autocomplete";
 import { syntaxTree } from "@codemirror/language";
-import { type TreeFolder } from "blossom-drive-client";
+import { type TreeFolder } from "blossom-drive-sdk";
 
 export function createAutocompleteFromDrivePath(getFolder: (path: string) => TreeFolder) {
   return function autocomplete(context: CompletionContext) {

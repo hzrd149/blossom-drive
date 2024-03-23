@@ -2,12 +2,12 @@
   import { onMount } from "svelte";
   import { Select, Table, TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell } from "flowbite-svelte";
   import dayjs from "dayjs";
-  import { type Drive } from "blossom-drive-client";
+  import { type Drive } from "blossom-drive-sdk";
   import { blobs, refreshBlobs } from "../services/blobs";
   import { drives } from "../services/drives";
   import { formatBytes } from "../helpers/number";
   import { getBlobURL } from "../helpers/blob";
-  import { BlossomClient, type BlobDescriptor } from "blossom-client";
+  import { BlossomClient, type BlobDescriptor } from "blossom-client-sdk";
   import { activeUser, signEventTemplate } from "../services/ndk";
   import { servers } from "../services/servers";
   import LoginPage from "../components/LoginPage.svelte";

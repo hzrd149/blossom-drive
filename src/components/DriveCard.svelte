@@ -1,7 +1,7 @@
 <script lang="ts">
   import { FolderOutline, LockSolid } from "flowbite-svelte-icons";
   import { Badge } from "flowbite-svelte";
-  import { type Drive, EncryptedDrive } from "blossom-drive-client";
+  import { type Drive, EncryptedDrive } from "blossom-drive-sdk";
 
   export let drive: Drive;
 

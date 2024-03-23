@@ -6,7 +6,7 @@
   import { ndk } from "../services/ndk";
   import { onDestroy } from "svelte";
   import { getDriveName } from "../helpers/drives";
-  import { type TreeFile, DRIVE_KIND } from "blossom-drive-client";
+  import { type TreeFile, DRIVE_KIND } from "blossom-drive-sdk";
   import { blobs } from "../services/blobs";
 
   export let open = false;

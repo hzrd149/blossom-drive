@@ -3,7 +3,7 @@
   import { createEventDispatcher } from "svelte";
   import { publishSignedEvent, signEventTemplate } from "../services/ndk";
   import { nanoid } from "nanoid";
-  import { Drive, EncryptedDrive } from "blossom-drive-client";
+  import { Drive, EncryptedDrive } from "blossom-drive-sdk";
   import { servers } from "../services/servers";
   export let open = false;
 

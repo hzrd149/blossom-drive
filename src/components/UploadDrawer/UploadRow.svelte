@@ -2,7 +2,7 @@
   import { Progressbar, Spinner } from "flowbite-svelte";
   import { onMount } from "svelte";
   import { CheckOutline, InfoCircleOutline } from "flowbite-svelte-icons";
-  import { type Upload } from "blossom-drive-client";
+  import { type Upload } from "blossom-drive-sdk";
 
   export let upload: Upload;
 
