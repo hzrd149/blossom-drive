@@ -36,7 +36,7 @@
   <div class="flex flex-1 flex-col overflow-hidden">
     <Sidebar />
     <TopNav />
-    <div on:click={hideSidebar} class="h-screen lg:ml-56 p-5">
+    <div on:click={hideSidebar} class="flex-1 lg:ml-56 flex flex-col overflow-hidden">
       <Router {routes} />
     </div>
   </div>
