@@ -1,6 +1,7 @@
 import { get } from "svelte/store";
-import { drives } from "./drives";
 import { walkTree, type Drive, formatPath } from "blossom-drive-sdk";
+
+import { drives } from "./drives";
 
 export type FileResult = { drive: Drive; filename: string; path: string };
 

@@ -1,6 +1,10 @@
 import { get, writable } from "svelte/store";
-import { activeUser, ndk } from "./ndk";
 import type { NDKEvent, NDKSubscription } from "@nostr-dev-kit/ndk";
+
+import { activeUser, ndk } from "./ndk";
+
+export const serverEvent = writable<NDKEvent | null>(null);
+export const servers = writable<string[]>([]);
 
 let sub: NDKSubscription;
 activeUser.subscribe((user) => {
@@ -16,7 +20,7 @@ activeUser.subscribe((user) => {
       serverEvent.set(event);
       const urls: string[] = [];
       for (const tag of event.tags) {
-        if (tag[0] === "r" && tag[1]) {
+        if ((tag[0] === "r" || tag[0] === "server") && tag[1]) {
           try {
             urls.push(new URL(tag[1]).toString());
           } catch (e) {}
@@ -27,6 +31,3 @@ activeUser.subscribe((user) => {
   });
   sub.start();
 });
-
-export const serverEvent = writable<NDKEvent | null>(null);
-export const servers = writable<string[]>([]);

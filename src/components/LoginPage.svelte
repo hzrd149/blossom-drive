@@ -51,9 +51,9 @@
 
     <Button size="xl" on:click={extension}>Login with extension</Button>
     <p class="text-lg">Or</p>
-    <form on:submit={login} class="flex flex-col w-full lg:w-full items-center">
-      <Label for="address" class="mb-2">Nostr Address / Bunker URI</Label>
-      <div class="flex gap-2 w-full lg:max-w-96">
+    <form on:submit={login} class="flex w-full flex-col items-center lg:w-full">
+      <Label for="address" class="mb-2">Nostr Address / Bunker URI / nsec</Label>
+      <div class="flex w-full gap-2 lg:max-w-96">
         <Input type="text" id="address" required bind:value={address} />
         <Button type="submit">Login</Button>
       </div>

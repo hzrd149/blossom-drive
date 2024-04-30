@@ -1,9 +1,10 @@
 <script lang="ts">
   import { Alert, Button } from "flowbite-svelte";
+  import { TagOutline } from "flowbite-svelte-icons";
+
   import DriveCard from "../components/DriveCard.svelte";
   import SimpleCard from "../components/SimpleCard.svelte";
   import { drives } from "../services/drives";
-  import { TagOutline } from "flowbite-svelte-icons";
   import { activeUser } from "../services/ndk";
   import LoginPage from "../components/LoginPage.svelte";
   import { servers } from "../services/servers";

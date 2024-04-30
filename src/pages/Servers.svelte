@@ -24,6 +24,8 @@
   async function handleSubmit(e: SubmitEvent) {
     e.preventDefault();
     confirmModal = true;
+
+    if (!server.startsWith("http")) server = "https://" + server;
   }
 
   let loading = false;
@@ -32,10 +34,8 @@
     try {
       loading = true;
 
-      if (!server.startsWith("http")) server = "https://" + server;
-
       const draft = cloneEvent($serverEvent, 10063);
-      draft.tags.push(["r", new URL(server).toString()]);
+      draft.tags.push(["server", new URL(server).toString()]);
       await draft.sign();
       await draft.publish();
       loading = false;
@@ -50,7 +50,7 @@
     try {
       loading = true;
       const draft = cloneEvent($serverEvent, 10063);
-      draft.tags = draft.tags.filter((t) => t[0] === "r" && t[1] !== server);
+      draft.tags = draft.tags.filter((t) => (t[0] === "r" || t[0] === "server") && t[1] !== server);
       await draft.sign();
       await draft.publish();
       loading = false;
@@ -110,7 +110,7 @@
     {/if}
 
     <form class="flex gap-2" on:submit={handleSubmit}>
-      <Input placeholder="https://cdn.example.com" bind:value={server} required type="url" />
+      <Input placeholder="https://cdn.example.com" bind:value={server} required />
       <Button class="shrink-0" disabled={loading} type="submit">Add Server</Button>
     </form>
 

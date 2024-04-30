@@ -3,11 +3,12 @@
   import { nip19 } from "nostr-tools";
   import { Spinner } from "flowbite-svelte";
   import { EncryptedDrive, type Drive } from "blossom-drive-sdk";
+  import type { Readable } from "svelte/store";
+
   import { drives, getReadableDrive, handleEvent } from "../../services/drives";
   import DrivePage from "./DrivePage.svelte";
   import { ndk } from "../../services/ndk";
   import UnlockDrive from "../../components/UnlockDrive.svelte";
-  import type { Readable } from "svelte/store";
 
   export let params: Record<string, string>;
   let drive: Readable<Drive>;

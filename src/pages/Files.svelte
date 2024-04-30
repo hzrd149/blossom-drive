@@ -1,8 +1,9 @@
 <script lang="ts">
+  import { onDestroy } from "svelte";
   import { Card } from "flowbite-svelte";
   import { NDKKind } from "@nostr-dev-kit/ndk";
+
   import { activeUser, ndk } from "../services/ndk";
-  import { onDestroy } from "svelte";
   import { getFileHash, getFileName, getFileSummary } from "../helpers/files";
 
   const files = ndk.storeSubscribe({ kinds: [NDKKind.Media], authors: [$activeUser.pubkey] });

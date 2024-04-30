@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Alert } from "flowbite-svelte";
   import { Upload, type TreeFile, type Drive } from "blossom-drive-sdk";
+
   import { readFileAsText } from "../../services/file-reader";
   import { servers } from "../../services/servers";
   import MarkdownEditor from "./markdown/MarkdownEditor.svelte";

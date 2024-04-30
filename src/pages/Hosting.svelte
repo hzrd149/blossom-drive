@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { Button } from "flowbite-svelte";
   import { onDestroy } from "svelte";
+  import { Button } from "flowbite-svelte";
+
   import HostDriveModal from "../components/HostDriveModal.svelte";
   import { activeUser, ndk } from "../services/ndk";
   import HostRequestCard from "../components/HostRequestCard.svelte";

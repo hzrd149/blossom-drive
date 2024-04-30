@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { get } from "svelte/store";
   import type { NostrEvent } from "@nostr-dev-kit/ndk";
   import { nip19 } from "nostr-tools";
   import { Spinner, Timeline } from "flowbite-svelte";
@@ -6,7 +7,6 @@
 
   import { getDriveVersions } from "../services/db";
   import { drives } from "../services/drives";
-  import { get } from "svelte/store";
   import DriveHistoryEntry from "../components/DriveHistoryEntry.svelte";
 
   export let params: Record<string, string | undefined> = {};
