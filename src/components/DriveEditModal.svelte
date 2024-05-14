@@ -9,20 +9,21 @@
   let loading = false;
   let name = drive.name;
   let description = drive.description;
-  let selectedServers = drive.servers;
+  let selectedServers = drive.servers.map((s) => new URL("/", s));
 
   const submit = async (e: SubmitEvent) => {
     loading = true;
     drive.name = name;
     drive.description = description;
-    drive.servers = selectedServers;
+    drive.servers = selectedServers.map((s) => s.toString());
     await drive.save();
     open = false;
     loading = false;
   };
 
-  function toggleServer(server: string) {
-    if (selectedServers.includes(server)) selectedServers = selectedServers.filter((s) => s !== server);
+  function toggleServer(server: URL) {
+    if (selectedServers.some((s) => s.hostname === server.hostname))
+      selectedServers = selectedServers.filter((s) => s.hostname !== server.hostname);
     else selectedServers = selectedServers.concat(server);
   }
 </script>
@@ -40,8 +41,9 @@
 
       <Label>Media Servers</Label>
       {#each $servers as server}
-        <Checkbox checked={selectedServers.includes(server)} on:change={() => toggleServer(server)}
-          >{new URL(server).hostname}</Checkbox
+        <Checkbox
+          checked={selectedServers.some((s) => s.hostname === server.hostname)}
+          on:change={() => toggleServer(server)}>{new URL(server).hostname}</Checkbox
         >
       {/each}
 

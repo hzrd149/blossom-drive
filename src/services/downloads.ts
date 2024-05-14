@@ -10,12 +10,12 @@ export function addDownload(download: MultiDownload) {
 }
 
 const cache = new Map<string, File>();
-export async function getOrDownloadFile(drive: Drive, path: Path, additionalServers: string[]) {
+export async function getOrDownloadFile(drive: Drive, path: Path, additionalServers: (string|URL)[]) {
   const file = drive.getFile(path);
 
   let download = cache.get(file.sha256);
   if (!download) {
-    const d = await drive.downloadFile(file.path, additionalServers);
+    const d = await drive.downloadFile(file.path, additionalServers.map(s=>s.toString()));
     if (!d) throw new Error("Failed to download file");
     cache.set(file.sha256, d);
     download = d;
@@ -25,7 +25,7 @@ export async function getOrDownloadFile(drive: Drive, path: Path, additionalServ
 }
 
 const URLCache = new Map<string, string>();
-export async function getLocalFileURL(drive: Drive, path: Path, additionalServers: string[]) {
+export async function getLocalFileURL(drive: Drive, path: Path, additionalServers: (string|URL)[]) {
   const file = drive.getFile(path);
 
   if (drive instanceof EncryptedDrive) {
@@ -37,7 +37,7 @@ export async function getLocalFileURL(drive: Drive, path: Path, additionalServer
     }
     return url;
   } else {
-    return drive.getFileURL(file.path, additionalServers);
+    return drive.getFileURL(file.path, additionalServers.map(s=>s.toString()));
   }
 }
 

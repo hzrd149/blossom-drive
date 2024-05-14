@@ -1,10 +1,11 @@
 import { get, writable } from "svelte/store";
 import type { NDKEvent, NDKSubscription } from "@nostr-dev-kit/ndk";
+import { getServersFromServerListEvent } from "blossom-client-sdk";
 
 import { activeUser, ndk } from "./ndk";
 
 export const serverEvent = writable<NDKEvent | null>(null);
-export const servers = writable<string[]>([]);
+export const servers = writable<URL[]>([]);
 
 let sub: NDKSubscription;
 activeUser.subscribe((user) => {
@@ -18,15 +19,7 @@ activeUser.subscribe((user) => {
       console.log("Got new servers", event);
 
       serverEvent.set(event);
-      const urls: string[] = [];
-      for (const tag of event.tags) {
-        if ((tag[0] === "r" || tag[0] === "server") && tag[1]) {
-          try {
-            urls.push(new URL(tag[1]).toString());
-          } catch (e) {}
-        }
-      }
-      servers.set(urls);
+      servers.set(getServersFromServerListEvent(event));
     }
   });
   sub.start();

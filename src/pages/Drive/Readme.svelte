@@ -18,7 +18,7 @@
 
   $: file
     ? drive
-        .downloadFile(file.path, $servers)
+        .downloadFile(file.path, $servers.map(s=>s.toString()))
         .then(async (data) => {
           if (!data) throw new Error("Failed to load file");
           const str = await readFileAsText(data);
@@ -37,7 +37,7 @@
       saving = true;
 
       const newFile = new File([e.detail], file?.name ?? "README.md", { type: "text/markdown" });
-      const upload = new Upload(drive, path, $servers, signEventTemplate);
+      const upload = new Upload(drive, path, $servers.map(s=>s.toString()), signEventTemplate);
       upload.addFile(newFile);
       addUpload(upload);
       await upload.upload();

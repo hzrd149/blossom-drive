@@ -9,7 +9,6 @@
     TableBodyRow,
     TableHead,
     TableHeadCell,
-    A,
     Heading,
     P,
     Alert,
@@ -75,7 +74,7 @@
           {#each $servers as server}
             <TableBodyRow>
               <TableBodyCell>
-                <a href={server} target="_blank" class="hover:underline">{new URL(server).hostname}</a>
+                <a href={server.toString()} target="_blank" class="hover:underline">{new URL(server).hostname}</a>
               </TableBodyCell>
               <TableBodyCell>
                 <a
@@ -83,7 +82,7 @@
                   class="font-medium text-primary-600 hover:underline dark:text-primary-500"
                   on:click={(e) => {
                     e.preventDefault();
-                    removeServer(server);
+                    removeServer(server.toString());
                   }}>Remove</a
                 ></TableBodyCell
               >

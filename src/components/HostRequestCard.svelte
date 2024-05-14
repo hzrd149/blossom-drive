@@ -2,12 +2,12 @@
   import type { NDKEvent } from "@nostr-dev-kit/ndk";
   import { Button, Card } from "flowbite-svelte";
   import { Name } from "@nostr-dev-kit/ndk-svelte-components";
-  import { getHostStatusMetadata, getRequestInput, getRequestInputParam, getStatusType } from "../helpers/dvm";
   import { nip19 } from "nostr-tools";
   import { drives } from "../services/drives";
   import dayjs from "dayjs";
   import { ArrowRightOutline } from "flowbite-svelte-icons";
   import { onDestroy } from "svelte";
+  import { getHostStatusMetadata, getRequestInput, getRequestInputParam, getStatusType } from "../helpers/dvm";
   import { ndk } from "../services/ndk";
 
   export let request: NDKEvent;

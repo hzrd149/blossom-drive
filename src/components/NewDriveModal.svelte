@@ -9,7 +9,7 @@
 
   let name = "";
   let description = "";
-  let selectedServers: string[] = [];
+  let selectedServers: URL[] = [];
   let encrypted = false;
   let password = "";
   let pwd2 = "";
@@ -18,8 +18,9 @@
 
   const dispatch = createEventDispatcher();
 
-  function toggleServer(server: string) {
-    if (selectedServers.includes(server)) selectedServers = selectedServers.filter((s) => s !== server);
+  function toggleServer(server: URL) {
+    if (selectedServers.some((s) => s.hostname === server.hostname))
+      selectedServers = selectedServers.filter((s) => s.hostname !== server.hostname);
     else selectedServers = selectedServers.concat(server);
   }
 
@@ -37,6 +38,7 @@
       drive.name = name;
       drive.description = description;
       drive.identifier = encrypted ? nanoid(8) : name.toLowerCase().replaceAll(/\s/g, "-") || nanoid(8);
+      drive.servers = selectedServers.map((s) => s.toString());
 
       await drive.save();
       dispatch("created", drive);
@@ -78,8 +80,9 @@
 
       <Label class="mt-2 text-lg">Media Servers</Label>
       {#each $servers as server}
-        <Checkbox checked={selectedServers.includes(server)} on:change={() => toggleServer(server)}
-          >{new URL(server).hostname}</Checkbox
+        <Checkbox
+          checked={selectedServers.some((s) => s.hostname === server.hostname)}
+          on:change={() => toggleServer(server)}>{new URL(server).hostname}</Checkbox
         >
       {/each}
 

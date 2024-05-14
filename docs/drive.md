@@ -11,7 +11,7 @@ There are 4 notable tags
 - `d` The identifier of the drive (see [parameterized replaceable events](https://github.com/nostr-protocol/nips/blob/master/01.md#kinds))
 - `name` The name of the drive
 - `description` A short description of the drive
-- `r` (multiple) blossom servers clients should use when downloading blobs
+- `server` (multiple) blossom servers clients should use when downloading blobs
 - `x` A file in the drive
 - `folder` An empty folder in the drive
 
@@ -53,9 +53,9 @@ An example of when a `folder` tag would be used:
 - App create a `["x", "<sha256>", "/documents/bitcoin.pdf", "184292", "application/pdf"]` tag
 - App removes the previously created `folder` now that there is a file at the `/documents` path
 
-### The `r` tag
+### The `server` tag
 
-The `r` tag may be used to specify specific blossom servers that clients should use when downloading blobs stored in the drive
+The `server` tag may be used to specify specific blossom servers that clients should use when downloading blobs stored in the drive
 
 ## Example Drive events
 

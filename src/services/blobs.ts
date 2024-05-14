@@ -1,17 +1,17 @@
 import { get, writable } from "svelte/store";
+import { BlossomClient, type BlobDescriptor, HTTPError, type SignedEvent } from "blossom-client-sdk";
 import { activeUser, signEventTemplate } from "./ndk";
 import { servers } from "./servers";
-import { BlossomClient, type BlobDescriptor, HTTPError, type SignedEvent } from "blossom-client-sdk";
 
 type ServerList = {
-  server: string;
+  server: URL;
   blobs: BlobDescriptor[];
 };
 
 export const blobs = writable<ServerList[]>([]);
 
 let listAuth: SignedEvent | undefined = undefined;
-export async function refreshBlobs(urls: string[] = get(servers), retry = true) {
+export async function refreshBlobs(urls: URL[] = get(servers), retry = true) {
   console.log("Loading blobs");
 
   // remove the list auth when it expires
@@ -22,11 +22,11 @@ export async function refreshBlobs(urls: string[] = get(servers), retry = true) 
 
   const user = get(activeUser);
 
-  let needAuth: string[] = [];
+  let needAuth: URL[] = [];
   for (const server of urls) {
     try {
       const res = await BlossomClient.listBlobs(server, user.pubkey, {}, listAuth);
-      blobs.update((arr) => arr.filter((v) => v.server !== server).concat({ server, blobs: res }));
+      blobs.update((arr) => arr.filter((v) => v.server.hostname !== server.hostname).concat({ server, blobs: res }));
     } catch (e) {
       console.log(`Failed to get blobs from ${server}`);
       console.log(e);

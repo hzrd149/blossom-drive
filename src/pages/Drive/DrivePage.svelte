@@ -175,7 +175,7 @@
   const handleFileInputChange: ChangeEventHandler<HTMLInputElement> = async (e) => {
     const files = e.currentTarget.files;
     if (files && files.length > 0) {
-      const upload = new Upload(drive, currentPath, $servers, signEventTemplate);
+      const upload = new Upload(drive, currentPath, $servers.map(s=>s.toString()), signEventTemplate);
       await upload.addFileList(files);
       addUpload(upload);
     }

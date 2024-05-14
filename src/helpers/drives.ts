@@ -1,6 +1,7 @@
 import type { NDKEvent, NostrEvent } from "@nostr-dev-kit/ndk";
+import type { EventTemplate } from "nostr-tools";
+
 import { getTagValue } from "./event";
-import type { EventTemplate } from "blossom-client-sdk";
 
 export function getDriveName(drive: NDKEvent | NostrEvent | EventTemplate) {
   return getTagValue(drive, "name");

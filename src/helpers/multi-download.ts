@@ -1,7 +1,7 @@
 import JSZip from "jszip";
 import saveAs from "file-saver";
 import { basename } from "path-browserify";
-import EventEmitter from "events";
+import EventEmitter from "eventemitter3";
 import { nanoid } from "nanoid";
 
 import { type Drive, TreeFile, TreeFolder } from "blossom-drive-sdk";
@@ -10,11 +10,11 @@ import { type Drive, TreeFile, TreeFolder } from "blossom-drive-sdk";
 export class MultiDownload extends EventEmitter {
   id = nanoid();
   drive: Drive;
-  servers: string[];
+  servers: URL[];
   running = false;
   logHistory: string[] = [];
 
-  constructor(drive: Drive, servers: string[]) {
+  constructor(drive: Drive, servers: URL[]) {
     super();
     this.drive = drive;
     this.servers = servers;
@@ -28,7 +28,10 @@ export class MultiDownload extends EventEmitter {
 
   private async addFileToZip(file: TreeFile, zip: JSZip) {
     this.log(`Downloading ${file.name}`);
-    let download = await this.drive.downloadFile(file.path, this.servers);
+    let download = await this.drive.downloadFile(
+      file.path,
+      this.servers.map((s) => s.toString()),
+    );
     if (download) {
       zip.file(file.name, download, { binary: true });
       this.log(`Added ${file.name} to zip`);
@@ -68,7 +71,10 @@ export class MultiDownload extends EventEmitter {
       const single = branches[0];
 
       if (single instanceof TreeFile) {
-        let download = await this.drive.downloadFile(single.path, this.servers);
+        let download = await this.drive.downloadFile(
+          single.path,
+          this.servers.map((s) => s.toString()),
+        );
         if (download) await saveAs(download, download.name);
       } else if (single instanceof TreeFolder) {
         const zip = new JSZip();

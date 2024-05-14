@@ -22,7 +22,7 @@
   let selectedServer = "";
 
   $: filteredBlobs = $blobs
-    .filter((s) => (selectedServer ? s.server === selectedServer : true))
+    .filter((s) => (selectedServer ? s.server.toString() === selectedServer : true))
     .map((s) => s.blobs)
     .flat()
     .reduce<BlobDescriptor[]>((arr, blob) => {
@@ -51,7 +51,7 @@
 
       return true;
     })
-    .sort((a, b) => b.created - a.created);
+    .sort((a, b) => b.uploaded ?? 0 - a.uploaded ?? 0);
 
   function getBlobDrives(blob: BlobDescriptor): Drive[] {
     return Object.values($drives).filter((d) => d.hasHash(blob.sha256));
@@ -62,7 +62,7 @@
   async function deleteBlob(blob: BlobDescriptor) {
     try {
       const auth = await BlossomClient.getDeleteAuth(blob.sha256, signEventTemplate);
-      for (const server of $servers) await BlossomClient.deleteBlob(server, blob.sha256, auth);
+      for (const server of $servers) await BlossomClient.deleteBlob(server.toString(), blob.sha256, auth);
     } catch (e) {
       console.log(e);
       if (e instanceof Error) alert(e.message);
@@ -121,7 +121,7 @@
             </TableBodyCell>
             <TableBodyCell>{blob.type}</TableBodyCell>
             <TableBodyCell>{formatBytes(blob.size)}</TableBodyCell>
-            <TableBodyCell>{dayjs.unix(blob.created).format("ll")}</TableBodyCell>
+            <TableBodyCell>{dayjs.unix(blob.uploaded).format("ll")}</TableBodyCell>
             <TableBodyCell>
               {#each getBlobDrives(blob) as drive, i (drive.identifier)}
                 {#if i !== 0}<span>, </span>{/if}
@@ -131,7 +131,9 @@
             <TableBodyCell>
               {#each getBlobServers(blob) as server, i}
                 {#if i !== 0}<span>, </span>{/if}
-                <a href={server} target="_blank" class="text-primary-200 hover:underline">{new URL(server).hostname}</a>
+                <a href={server.toString()} target="_blank" class="text-primary-200 hover:underline"
+                  >{server.hostname}</a
+                >
               {/each}
             </TableBodyCell>
             <TableBodyCell>
