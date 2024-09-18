@@ -62,5 +62,6 @@
     "typescript": "^5.5.4",
     "vite": "^5.4.2",
     "vite-plugin-pwa": "^0.20.1"
-  }
+  },
+  "packageManager": "pnpm@9.6.0"
 }
