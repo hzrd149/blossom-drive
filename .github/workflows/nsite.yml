@@ -1,0 +1,32 @@
+name: Deploy nsite
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: Install Dependencies
+        run: pnpm install
+
+      - name: Build
+        run: pnpm build
+
+      - name: Redirect 404 to Index for SPA
+        run: cp dist/index.html dist/404.html
+
+      - name: Deploy nsite
+        run: npx -y nsite-cli upload dist --purge --privatekey ${{ secrets.NSITE_KEY }}
