@@ -2,7 +2,7 @@ name: Deploy nsite
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   deploy:
