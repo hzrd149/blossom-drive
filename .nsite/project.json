@@ -1,0 +1,11 @@
+{
+  "relays": ["wss://nostrue.com", "wss://relay.damus.io", "wss://nostr.mom/", "wss://purplerelay.com/"],
+  "servers": ["https://cdn.hzrd149.com"],
+  "profile": {
+    "name": "Blossom Drive",
+    "about": "A public cloud drive built on blossom servers and nostr"
+  },
+  "publishProfile": true,
+  "publishServerList": true,
+  "publishRelayList": true
+}
